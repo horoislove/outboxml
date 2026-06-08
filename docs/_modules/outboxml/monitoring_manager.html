@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.monitoring_manager &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.monitoring_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.monitoring_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailMonitoring</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringConfig</span><span class="p">,</span> <span class="n">ModelConfig</span><span class="p">,</span> <span class="n">AllModelsConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSetsManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">EnsembleResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.export_results</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultExport</span><span class="p">,</span> <span class="n">GrafanaExport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.monitoring_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringResult</span><span class="p">,</span> <span class="n">DataContext</span><span class="p">,</span> <span class="n">MonitoringContext</span>
+
+
+
+<div class="viewcode-block" id="MonitoringManager">
+<a class="viewcode-back" href="../../modules/monitoring_manager.html#outboxml.monitoring_manager.MonitoringManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Orchestrator class for executing model monitoring pipeline.</span>
+
+<span class="sd">    This class manages the full monitoring lifecycle: loading configurations,</span>
+<span class="sd">    extracting data and logs, running monitoring checks, exporting results,</span>
+<span class="sd">    and sending notifications.</span>
+
+<span class="sd">    :var monitoring_service: Service responsible for executing monitoring checks.</span>
+<span class="sd">    :vartype monitoring_service: MonitoringService</span>
+<span class="sd">    :var result: Object storing monitoring results.</span>
+<span class="sd">    :vartype result: MonitoringResult</span>
+<span class="sd">    :var logs: Extracted production logs.</span>
+<span class="sd">    :vartype logs: pandas.DataFrame or None</span>
+
+<span class="sd">    .. rubric:: Examples</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        manager = MonitoringManager(</span>
+<span class="sd">            monitoring_config=&#39;configs/monitoring_test_config.json&#39;,</span>
+<span class="sd">            models_config=&#39;configs/config_example_titanic.json&#39;,</span>
+<span class="sd">            data_extractor=TitanicExampleExtractor(),</span>
+<span class="sd">            logs_extractor=LogsExtractor()</span>
+<span class="sd">        )</span>
+<span class="sd">        result = manager.review(send_mail=True, to_grafana=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MonitoringManager.__init__">
+<a class="viewcode-back" href="../../modules/monitoring_manager.html#outboxml.monitoring_manager.MonitoringManager.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">monitoring_config</span><span class="p">,</span>
+                 <span class="n">models_config</span><span class="p">,</span>
+                 <span class="n">external_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">logs_extractor</span><span class="p">:</span> <span class="n">Extractor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">data_extractor</span><span class="p">:</span> <span class="n">Extractor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">target_extractor</span><span class="p">:</span> <span class="n">Extractor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">grafana_connection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">business_metric</span><span class="p">:</span> <span class="n">BaseMetric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">email</span><span class="p">:</span> <span class="n">EMailMonitoring</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes monitoring manager.</span>
+
+<span class="sd">        :param monitoring_config: Monitoring configuration or path to config file.</span>
+<span class="sd">        :type monitoring_config: dict or str</span>
+
+<span class="sd">        :param models_config: Model training configuration or path to config file.</span>
+<span class="sd">        :type models_config: dict or str</span>
+
+<span class="sd">        :param external_config: External configuration (email, connections, etc.).</span>
+<span class="sd">        :type external_config: module or None</span>
+
+<span class="sd">        :param logs_extractor: Extractor for production logs.</span>
+<span class="sd">        :type logs_extractor: Extractor or None</span>
+
+<span class="sd">        :param data_extractor: Extractor for training data.</span>
+<span class="sd">        :type data_extractor: Extractor or None</span>
+
+<span class="sd">        :param target_extractor: Extractor for target extrapolation.</span>
+<span class="sd">        :type target_extractor: Extractor or None</span>
+
+<span class="sd">        :param grafana_connection: Database connection for Grafana export.</span>
+<span class="sd">        :type grafana_connection: Any</span>
+
+<span class="sd">        :param business_metric: Business metric for model quality evaluation.</span>
+<span class="sd">        :type business_metric: BaseMetric or None</span>
+
+<span class="sd">        :param email: Email interface for notifications.</span>
+<span class="sd">        :type email: EMailMonitoring or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span> <span class="o">=</span> <span class="n">monitoring_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_config</span> <span class="o">=</span> <span class="n">models_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_extractor</span> <span class="o">=</span> <span class="n">target_extractor</span>
+        <span class="k">if</span> <span class="n">external_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span> <span class="o">=</span> <span class="n">external_config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="k">if</span> <span class="n">email</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">EMailMonitoring</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__load_default_models</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__grafana_connection</span> <span class="o">=</span> <span class="n">grafana_connection</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric</span> <span class="o">=</span> <span class="n">business_metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span> <span class="o">=</span> <span class="n">DataSetsManager</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_config</span><span class="p">,</span> <span class="n">extractor</span><span class="o">=</span><span class="n">data_extractor</span><span class="p">,</span> <span class="n">external_config</span><span class="o">=</span><span class="n">external_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result_export</span> <span class="o">=</span> <span class="n">ResultExport</span><span class="p">(</span><span class="n">ds_manager</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logs_extractor</span> <span class="o">=</span> <span class="n">logs_extractor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_monitoring</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_models_configs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_prod_models_configs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">MonitoringResult</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_dataset_name</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitoring_service</span> <span class="o">=</span> <span class="n">MonitoringFactory</span><span class="o">.</span><span class="n">create_from_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MonitoringManager.review">
+<a class="viewcode-back" href="../../modules/monitoring_manager.html#outboxml.monitoring_manager.MonitoringManager.review">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">review</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">send_mail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="n">to_grafana</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MonitoringResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes monitoring process.</span>
+
+<span class="sd">        This method performs the full monitoring cycle:</span>
+<span class="sd">        data extraction, model preparation, monitoring checks,</span>
+<span class="sd">        report generation, export, and notifications.</span>
+
+<span class="sd">        :param send_mail: Whether to send email notification.</span>
+<span class="sd">        :type send_mail: bool</span>
+
+<span class="sd">        :param to_grafana: Whether to export results to Grafana.</span>
+<span class="sd">        :type to_grafana: bool</span>
+
+<span class="sd">        :return: Monitoring result object.</span>
+<span class="sd">        :rtype: MonitoringResult</span>
+
+<span class="sd">        .. rubric:: Examples</span>
+
+<span class="sd">        Example usage::</span>
+<span class="sd">        manager.review(send_mail=True, to_grafana=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">_retro</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">_init_dsmanager</span><span class="p">()</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">MonitoringContext</span><span class="p">(</span>
+            <span class="n">data_preprocessor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="p">,</span>
+            <span class="n">logs_extractor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logs_extractor</span><span class="p">,</span>
+            <span class="n">monitoring_result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+            <span class="n">monitoring_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="p">,</span>
+            <span class="n">models_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_models_configs</span><span class="p">,</span>
+            <span class="n">all_models_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__init_all_models_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_config</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">service_reviews</span><span class="p">,</span> <span class="n">service_reports</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitoring_service</span><span class="o">.</span><span class="n">review_all</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reviews</span> <span class="o">=</span> <span class="n">service_reviews</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reports</span> <span class="o">=</span> <span class="n">service_reports</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">to_grafana</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reports</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;db_table&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">table_name</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_grafana_report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reports</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;df&#39;</span><span class="p">],</span> <span class="n">table_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">send_mail</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">error_mail</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Monitoring config from dict&quot;</span><span class="p">)</span>
+            <span class="n">auto_ml_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All models config from path&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">auto_ml_config</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid monitoring config name&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid config name&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span> <span class="o">=</span> <span class="n">MonitoringConfig</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">auto_ml_config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Config validation error&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_prod_models_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="o">.</span><span class="n">prod_models_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="o">.</span><span class="n">pickle_name</span><span class="si">}</span><span class="s1">.pickle&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">prod_model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">prod_models_config</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">prod_model</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prod_model</span><span class="p">,</span> <span class="n">EnsembleResult</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                    <span class="n">prod_models_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;model_config&#39;</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prod_model</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">prod_models_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid prod_models config type&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_models_configs</span> <span class="o">=</span> <span class="n">prod_models_config</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_all_models_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_config</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">models_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;AllModelsConfig config from dict&quot;</span><span class="p">)</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">models_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;AllModelsConfig from path&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">models_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid AllModelsConfig config name&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid config name&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">all_models_config</span> <span class="o">=</span> <span class="n">AllModelsConfig</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Config validation error&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_models_config</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_grafana_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Exports monitoring report to Grafana database.</span>
+
+<span class="sd">        :param report: Monitoring report data.</span>
+<span class="sd">        :type report: pandas.DataFrame</span>
+
+<span class="sd">        :param table_name: Target database table name.</span>
+<span class="sd">        :type table_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">GrafanaExport</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">report</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__grafana_connection</span><span class="p">,</span>
+                          <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">load_data_to_db</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No results in grafana&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define_dataset_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines dataset name based on data source.</span>
+
+<span class="sd">        :return: Dataset name.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="o">.</span><span class="n">data_source</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;parquet&#39;</span><span class="p">]:</span>
+            <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_config</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span>
+
+        <span class="k">return</span> <span class="n">dataset_name</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

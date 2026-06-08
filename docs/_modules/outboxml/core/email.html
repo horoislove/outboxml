@@ -1,0 +1,1679 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.core.email &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.core.email</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.core.email</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="c1">#from outboxml.automl_manager import AutoMLResult</span>
+<span class="c1">#from outboxml.automl_manager import AutoMLResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSetsManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.dsml.mailing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.export_results</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultExport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLPlot</span><span class="p">,</span> <span class="n">DataframeForPlots</span><span class="p">,</span> <span class="n">CompareModelsPlot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultNames</span>
+
+
+<div class="viewcode-block" id="EMail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMail</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for email notifications in AutoML processes.</span>
+<span class="sd">    </span>
+<span class="sd">    Provides core functionality for creating and sending HTML emails with tables,</span>
+<span class="sd">    images, and formatted text. All emails are saved as HTML files before sending.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object with email settings and paths.</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    </span>
+<span class="sd">    :var config: Configuration object with email settings and paths.</span>
+<span class="sd">    :var mail: Mail instance for low-level email operations.</span>
+<span class="sd">    :var email_receivers: List of recipient email addresses.</span>
+<span class="sd">    </span>
+<span class="sd">    .. note::</span>
+<span class="sd">        All emails are automatically saved as HTML files in the results_path</span>
+<span class="sd">        directory before being sent.</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        import config</span>
+<span class="sd">        from outboxml.core.email import EMail</span>
+<span class="sd">        email = EMail(config=config)</span>
+<span class="sd">        email.header(&quot;Test Email&quot;)</span>
+<span class="sd">        email.mail.add_text(&quot;This is a test message.&quot;)</span>
+<span class="sd">        email.send()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="EMail.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize EMail instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object containing:</span>
+<span class="sd">            - email_smtp_server: SMTP server address</span>
+<span class="sd">            - email_port: SMTP server port</span>
+<span class="sd">            - email_sender: Sender email address</span>
+<span class="sd">            - email_login: SMTP login username</span>
+<span class="sd">            - email_pass: SMTP password</span>
+<span class="sd">            - email_receivers: List of recipient email addresses</span>
+<span class="sd">            - results_path: Path to save email HTML files</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span> <span class="o">=</span> <span class="n">Mail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email_receivers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">email_receivers</span></div>
+
+
+<div class="viewcode-block" id="EMail.save_mail_as_html">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.save_mail_as_html">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_mail_as_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the current email message as an HTML file.</span>
+<span class="sd">        </span>
+<span class="sd">        Extracts HTML content from the email message and saves it to disk.</span>
+<span class="sd">        Falls back to plain text if HTML is not available. The file is saved</span>
+<span class="sd">        as &#39;email.html&#39; in the results_path directory.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            Creates or overwrites &#39;email.html&#39; in config.results_path.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.header(&quot;Test Email&quot;)</span>
+<span class="sd">            email.mail.add_text(&quot;This is a test message.&quot;)</span>
+<span class="sd">            email.save_mail_as_html()</span>
+<span class="sd">            # Creates: &lt;results_path&gt;/email.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get HTML content (prefer HTML over plain text)</span>
+        <span class="n">html_content</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving mail as html in results path&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">walk</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;text/html&#39;</span><span class="p">:</span>
+                <span class="n">html_content</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(</span><span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving mail as html in results path&#39;</span><span class="p">)</span>
+        <span class="c1"># Fallback to plain text if no HTML available</span>
+        <span class="k">if</span> <span class="n">html_content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">walk</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">:</span>
+                    <span class="n">plain_content</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(</span><span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+                    <span class="n">html_content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;pre&gt;</span><span class="si">{</span><span class="n">plain_content</span><span class="si">}</span><span class="s2">&lt;/pre&gt;&quot;</span>
+                    <span class="k">break</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving mail as html in results path&#39;</span><span class="p">)</span>
+        <span class="c1"># If still no content found</span>
+        <span class="k">if</span> <span class="n">html_content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">=</span> <span class="s2">&quot;&lt;p&gt;No readable content found in email&lt;/p&gt;&quot;</span>
+
+        <span class="c1"># Save to file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="s1">&#39;email.html&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving mail as html in results path&#39;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_content</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMail.header">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.header">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Test Email&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a header section to the email with subject and greeting.</span>
+<span class="sd">        </span>
+<span class="sd">        Sets the email subject to the group name and adds a standard greeting</span>
+<span class="sd">        text in Russian.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group or experiment.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param group_name: Defaults to &#39;Test Email&#39;</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.header(group_name=&quot;Titanic_Model_v1&quot;)</span>
+<span class="sd">            # Sets email subject to &quot;Titanic_Model_v1&quot;</span>
+<span class="sd">            # Adds greeting text &quot;Добрый день, это ИИ.&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_email_subject</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Добрый день, это ИИ.&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EMail.create_time_table">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.create_time_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_time_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_table</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a time table to the email showing execution times.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds a formatted table displaying execution times for different stages</span>
+<span class="sd">        of the AutoML process. The table is right-aligned with sans-serif font.</span>
+<span class="sd">        </span>
+<span class="sd">        :param time_table: DataFrame with time information. The index will be</span>
+<span class="sd">            reset to include it as a column in the table.</span>
+<span class="sd">        :type time_table: pandas.DataFrame</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            from datetime import datetime</span>
+<span class="sd">            time_data = pd.DataFrame({</span>
+<span class="sd">                &#39;Time&#39;: [datetime.now(), datetime.now()]</span>
+<span class="sd">            }, index=[&#39;Loading dataset&#39;, &#39;Fitting&#39;])</span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.create_time_table(time_data)</span>
+<span class="sd">            # Adds &quot;Затраченное время:&quot; text and formatted table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Затраченное время:&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
+            <span class="n">time_table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;250px&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMail.base_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.base_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">base_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;Test Email&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Добрый день, это ИИ.&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a basic email with header and custom text.</span>
+<span class="sd">        </span>
+<span class="sd">        Convenience method that combines header() and text addition in one call.</span>
+<span class="sd">        </span>
+<span class="sd">        :param header_name: Email subject/header. Defaults to &#39;Test Email&#39;.</span>
+<span class="sd">        :type header_name: str</span>
+<span class="sd">        :param text: Main text content. Defaults to &quot;Добрый день, это ИИ.&quot;.</span>
+<span class="sd">        :type text: str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.base_mail(</span>
+<span class="sd">                header_name=&quot;AutoML Training Complete&quot;,</span>
+<span class="sd">                text=&quot;The model training has finished successfully.&quot;</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">header_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="n">text</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMail.add_image_to_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.add_image_to_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_image_to_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an image to the email body.</span>
+<span class="sd">        </span>
+<span class="sd">        Embeds an image in the email with a fixed size of 750x500 pixels.</span>
+<span class="sd">        The image must be provided as bytes.</span>
+<span class="sd">        </span>
+<span class="sd">        :param figure: Image data as bytes. Can be obtained from reading an image</span>
+<span class="sd">            file in binary mode or from a Plotly figure&#39;s write_image() method.</span>
+<span class="sd">        :type figure: bytes</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            with open(&quot;plot.png&quot;, &quot;rb&quot;) as f:</span>
+<span class="sd">                image_bytes = f.read()</span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.add_image_to_mail(image_bytes)</span>
+<span class="sd">            # Adds image to email with size 750x500 pixels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">size_pixel</span><span class="o">=</span><span class="p">(</span><span class="mi">750</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMail.success_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.success_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Placeholder method for success email notifications.</span>
+<span class="sd">        </span>
+<span class="sd">        This method should be overridden in subclasses to provide specific</span>
+<span class="sd">        success email implementations.</span>
+<span class="sd">        </span>
+<span class="sd">        :param **params: Variable keyword arguments (not used in base implementation).</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a placeholder method. Subclasses should override it with</span>
+<span class="sd">            specific implementations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="EMail.send">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.send">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the email as HTML and send it to configured recipients.</span>
+<span class="sd">        </span>
+<span class="sd">        First saves the email as an HTML file, then sends it via SMTP to all</span>
+<span class="sd">        recipients specified in config.email_receivers.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            - Saves email as HTML file in results_path</span>
+<span class="sd">            - Sends email via SMTP to all recipients</span>
+<span class="sd">            </span>
+<span class="sd">        :raises smtplib.SMTPException: If email sending fails (HTML file is still saved).</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            email.header(&quot;Test Email&quot;)</span>
+<span class="sd">            email.mail.add_text(&quot;This is a test message.&quot;)</span>
+<span class="sd">            email.send()</span>
+<span class="sd">            # Saves email.html and sends email to recipients</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_mail_as_html</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">send_mail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">email_receivers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMail.common_error_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.common_error_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">common_error_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send an error notification email with error details.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends an error notification email with the error message</span>
+<span class="sd">        and a standard error subject line.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group or experiment that failed.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param error: Error object or error message string. Will be converted to</span>
+<span class="sd">            string for display.</span>
+<span class="sd">        :type error: Exception or str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            try:</span>
+<span class="sd">                result = 1 / 0</span>
+<span class="sd">            except Exception as e:</span>
+<span class="sd">                email.common_error_mail(</span>
+<span class="sd">                    group_name=&quot;Titanic_Model_v1&quot;,</span>
+<span class="sd">                    error=e</span>
+<span class="sd">                )</span>
+<span class="sd">            # Sends email with subject: &quot;Titanic_Model_v1. Автообновление моделей. Статус: ошибка.&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_email_subject</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">. Автообновление моделей. Статус: ошибка.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Добрый день, это ИИ.&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Произошла техническая ошибка:&quot;</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">),</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EMail.success_release_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMail.success_release_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_release_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_features</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a notification email when models are successfully released to GitLab.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends an email notification when models have been successfully</span>
+<span class="sd">        released to GitLab, optionally including information about new features</span>
+<span class="sd">        added to each model.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group that was released.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param new_features: Optional dictionary mapping model names to lists of new</span>
+<span class="sd">            features. Format: {model_name: [feature1, feature2, ...]}. Defaults to None.</span>
+<span class="sd">        :type new_features: dict, optional</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMail(config=config)</span>
+<span class="sd">            new_features = {</span>
+<span class="sd">                &quot;model1&quot;: [&quot;feature_a&quot;, &quot;feature_b&quot;],</span>
+<span class="sd">                &quot;model2&quot;: [&quot;feature_c&quot;]</span>
+<span class="sd">            }</span>
+<span class="sd">            email.success_release_mail(</span>
+<span class="sd">                group_name=&quot;Titanic_Model_v1&quot;,</span>
+<span class="sd">                new_features=new_features</span>
+<span class="sd">            )</span>
+<span class="sd">            # Sends email with subject: &quot;Titanic_Model_v1. Автообновление моделей. Статус: залиты в gitlab.&quot;</span>
+<span class="sd">            # Lists new features for each model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_email_subject</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">. Автообновление моделей. Статус: залиты в gitlab.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Добрый день, это ИИ.&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Модели залиты в gitlab.&quot;</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new_features</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">new_features</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">new_features</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;В модель </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> добавлены новые фичи: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_features</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span>
+                        <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">send_mail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">email_receivers</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EMailDSResult">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailDSResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMailDSResult</span><span class="p">(</span><span class="n">EMail</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Email class for sending results from DataSetsManager.</span>
+<span class="sd">    </span>
+<span class="sd">    Extends EMail to include model metrics tables and cohort plots in the email.</span>
+<span class="sd">    Used for reporting results after model training.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object (same as EMail).</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    :param ds_manager_result: Dictionary mapping model names to DSManagerResult</span>
+<span class="sd">        objects containing model results, metrics, and predictions.</span>
+<span class="sd">    :type ds_manager_result: dict</span>
+<span class="sd">    </span>
+<span class="sd">    :var _ds_manager_result: Dictionary mapping model names to DSManagerResult</span>
+<span class="sd">        objects containing model results, metrics, and predictions.</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.core.email import EMailDSResult</span>
+<span class="sd">        from outboxml.datasets_manager import DataSetsManager</span>
+<span class="sd">        # Assume ds_manager has been trained</span>
+<span class="sd">        results = ds_manager.get_result()  # Returns dict[str, DSManagerResult]</span>
+<span class="sd">        email = EMailDSResult(</span>
+<span class="sd">            config=config,</span>
+<span class="sd">            ds_manager_result=results</span>
+<span class="sd">        )</span>
+<span class="sd">        email.success_mail(group_name=&quot;Titanic_Model_v1&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="EMailDSResult.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailDSResult.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                 <span class="n">ds_manager_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize EMailDSResult instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object (same as EMail).</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        :param ds_manager_result: Dictionary mapping model names to DSManagerResult</span>
+<span class="sd">            objects. Each DSManagerResult should contain:</span>
+<span class="sd">            - config: Model configuration</span>
+<span class="sd">            - metrics: Dictionary with &#39;train&#39; and &#39;test&#39; keys containing metrics</span>
+<span class="sd">            - Other model result data</span>
+<span class="sd">        :type ds_manager_result: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span> <span class="o">=</span> <span class="n">ds_manager_result</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate and add a metrics table to the email.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates a formatted table showing train and test metrics for all models</span>
+<span class="sd">        in the ds_manager_result. The table includes metric names, training set</span>
+<span class="sd">        results, test set results, and model names.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            Errors during metrics extraction are logged but don&#39;t stop the process.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailDSResult(config=config, ds_manager_result=results)</span>
+<span class="sd">            email._metrics_description()</span>
+<span class="sd">            # Adds table with columns:</span>
+<span class="sd">            # - Metric name</span>
+<span class="sd">            # - New model || Training set</span>
+<span class="sd">            # - New model || Test set</span>
+<span class="sd">            # - Model name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#  result_export = ResultExport()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Характеристики моделей:&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">model_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">config</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">DataSetsManager</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">_all_models_config</span> <span class="o">=</span> <span class="n">model_config</span>
+            <span class="n">res_export</span> <span class="o">=</span> <span class="n">ResultExport</span><span class="p">(</span><span class="n">ds_manager</span><span class="o">=</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">res_export</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">df1</span> <span class="o">=</span> <span class="n">res_export</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                            <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span>
+                                            <span class="n">metrics_dict</span><span class="o">=</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+                <span class="n">df1</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">]]</span>
+                <span class="n">df1</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ResultNames</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">ResultNames</span><span class="o">.</span><span class="n">new_result_train</span><span class="p">]</span>
+                <span class="n">df2</span> <span class="o">=</span> <span class="n">ResultExport</span><span class="p">(</span><span class="n">ds_manager</span><span class="o">=</span><span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                                             <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span>
+                                                             <span class="n">metrics_dict</span><span class="o">=</span>
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span>
+                                                                 <span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+                <span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">]]</span>
+                <span class="n">df2</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ResultNames</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">ResultNames</span><span class="o">.</span><span class="n">new_result_test</span><span class="p">]</span>
+
+                <span class="n">metrics_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;Новая модель||Тестовая выборка&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">metrics_df</span><span class="p">[</span><span class="s1">&#39;Имя модели&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">metrics_df</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                                   <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
+                                   <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate cohort plots for each model and add them to the email.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates cohort analysis plots for each model showing performance across</span>
+<span class="sd">        different feature segments. Plots are saved as PNG files and embedded</span>
+<span class="sd">        in the email.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            For each model, saves &quot;&lt;model_name&gt; cohort.png&quot; in results_path.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailDSResult(config=config, ds_manager_result=results)</span>
+<span class="sd">            email._plots()</span>
+<span class="sd">            # For each model:</span>
+<span class="sd">            # - Generates cohort plot</span>
+<span class="sd">            # - Saves as &quot;&lt;model_name&gt; cohort.png&quot; in results_path</span>
+<span class="sd">            # - Adds image to email (750x500 pixels)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s1">&#39;Графики когорт по новой модели:&#39;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">y_graph</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">,</span> <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">DataframeForPlots</span><span class="p">()</span><span class="o">.</span><span class="n">df_for_plots</span><span class="p">(</span>
+                <span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">use_exposure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">figure_cohort</span> <span class="o">=</span> <span class="n">MLPlot</span><span class="p">(</span><span class="n">model_name_1</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                   <span class="n">y_graph</span><span class="o">=</span><span class="n">y_graph</span><span class="p">,</span>
+                                   <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                   <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                   <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">use_exposure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">plot_type</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                                           <span class="n">cut_min_value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                                                           <span class="n">cut_max_value</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                                                           <span class="n">samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                                           <span class="n">cohort_base</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
+                                                           <span class="p">)</span>
+
+            <span class="n">figure_cohort</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; cohort.png&#39;</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; cohort.png&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">fig_cohort_png</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">fig_cohort_png</span><span class="p">,</span> <span class="n">size_pixel</span><span class="o">=</span><span class="p">(</span><span class="mi">750</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EMailDSResult.success_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailDSResult.success_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Test Email&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a success email with model metrics and cohort plots.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends a comprehensive success email containing:</span>
+<span class="sd">        - Header with group name</span>
+<span class="sd">        - Metrics table for all models (train and test)</span>
+<span class="sd">        - Cohort plots for each model</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group. Defaults to &#39;Test Email&#39;.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailDSResult(config=config, ds_manager_result=results)</span>
+<span class="sd">            email.success_mail(group_name=&quot;Titanic_Model_v1&quot;)</span>
+<span class="sd">            # Sends email containing:</span>
+<span class="sd">            # - Header with group name</span>
+<span class="sd">            # - Metrics table for all models</span>
+<span class="sd">            # - Cohort plots for each model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_description</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plots</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EMailDSCompareResult">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailDSCompareResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMailDSCompareResult</span><span class="p">(</span><span class="n">EMailDSResult</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Email class for comparing two sets of model results.</span>
+<span class="sd">    </span>
+<span class="sd">    Extends EMailDSResult to include comparison metrics and plots between</span>
+<span class="sd">    current and previous model versions. Used for retroactive analysis and</span>
+<span class="sd">    model version comparison.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object (same as EMail).</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    :param ds_manager_result: Dictionary mapping model names to current</span>
+<span class="sd">        DSManagerResult objects.</span>
+<span class="sd">    :type ds_manager_result: dict</span>
+<span class="sd">    :param ds_result_to_compare: Dictionary mapping model names to previous</span>
+<span class="sd">        DSManagerResult objects for comparison.</span>
+<span class="sd">    :type ds_result_to_compare: dict</span>
+<span class="sd">    </span>
+<span class="sd">    :var _ds_result_to_compare: Dictionary mapping model names to previous</span>
+<span class="sd">        DSManagerResult objects for comparison.</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.core.email import EMailDSCompareResult</span>
+<span class="sd">        current_results = ds_manager.get_result()</span>
+<span class="sd">        previous_results = load_previous_results()  # Your function</span>
+<span class="sd">        email = EMailDSCompareResult(</span>
+<span class="sd">            config=config,</span>
+<span class="sd">            ds_manager_result=current_results,</span>
+<span class="sd">            ds_result_to_compare=previous_results</span>
+<span class="sd">        )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="EMailDSCompareResult.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailDSCompareResult.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                 <span class="n">ds_manager_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                 <span class="n">ds_result_to_compare</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize EMailDSCompareResult instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object (same as EMail).</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        :param ds_manager_result: Dictionary mapping model names to current</span>
+<span class="sd">            DSManagerResult objects.</span>
+<span class="sd">        :type ds_manager_result: dict</span>
+<span class="sd">        :param ds_result_to_compare: Dictionary mapping model names to previous</span>
+<span class="sd">            DSManagerResult objects for comparison.</span>
+<span class="sd">        :type ds_result_to_compare: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_manager_result</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_result_to_compare</span> <span class="o">=</span> <span class="n">ds_result_to_compare</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate comparison metrics table showing differences between models.</span>
+<span class="sd">        </span>
+<span class="sd">        Overrides parent method to create a comparison table showing current</span>
+<span class="sd">        model metrics vs previous model metrics, including differences.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method overrides the parent _metrics_description() method.</span>
+<span class="sd">            Errors during metrics extraction are logged but don&#39;t stop the process.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailDSCompareResult(</span>
+<span class="sd">                config=config,</span>
+<span class="sd">                ds_manager_result=current_results,</span>
+<span class="sd">                ds_result_to_compare=previous_results</span>
+<span class="sd">            )</span>
+<span class="sd">            email._metrics_description()</span>
+<span class="sd">            # Adds table comparing:</span>
+<span class="sd">            # - Current model metrics (train/test)</span>
+<span class="sd">            # - Previous model metrics (train/test)</span>
+<span class="sd">            # - Differences</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Характеристики моделей:&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">model_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">config</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">DataSetsManager</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">_all_models_config</span> <span class="o">=</span> <span class="n">model_config</span>
+            <span class="n">res_export</span> <span class="o">=</span> <span class="n">ResultExport</span><span class="p">(</span><span class="n">ds_manager</span><span class="o">=</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">res_export</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">metrics_df</span> <span class="o">=</span> <span class="n">res_export</span><span class="o">.</span><span class="n">compare_metrics</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                                        <span class="n">ds_manager_result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_result_to_compare</span><span class="p">,</span>
+                                                        <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_main</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">metrics_df</span><span class="p">[</span><span class="s1">&#39;Имя модели&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">metrics_df</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                                   <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
+                                   <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate comparison cohort plots for current vs previous models.</span>
+<span class="sd">        </span>
+<span class="sd">        Overrides parent method to create comparison cohort plots showing</span>
+<span class="sd">        performance differences between current and previous model versions.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method overrides the parent _plots() method.</span>
+<span class="sd">            For each model, saves &quot;&lt;model_name&gt; cohort.png&quot; in results_path.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailDSCompareResult(</span>
+<span class="sd">                config=config,</span>
+<span class="sd">                ds_manager_result=current_results,</span>
+<span class="sd">                ds_result_to_compare=previous_results</span>
+<span class="sd">            )</span>
+<span class="sd">            email._plots()</span>
+<span class="sd">            # For each model:</span>
+<span class="sd">            # - Generates comparison cohort plot</span>
+<span class="sd">            # - Shows current vs previous model performance</span>
+<span class="sd">            # - Saves as &quot;&lt;model_name&gt; cohort.png&quot;</span>
+<span class="sd">            # - Adds to email (750x500 pixels)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s1">&#39;Графики когорт по двум моделям:&#39;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">y_graph</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">,</span> <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">DataframeForPlots</span><span class="p">()</span><span class="o">.</span><span class="n">df_for_plots</span><span class="p">(</span>
+                <span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_result</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">use_exposure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">y_graph2</span><span class="p">,</span> <span class="n">features_categorical2</span><span class="p">,</span> <span class="n">features_numerical2</span> <span class="o">=</span> <span class="n">DataframeForPlots</span><span class="p">()</span><span class="o">.</span><span class="n">df_for_plots</span><span class="p">(</span>
+                <span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_result_to_compare</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">use_exposure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">figure_cohort</span> <span class="o">=</span> <span class="n">CompareModelsPlot</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                              <span class="n">df1</span><span class="o">=</span><span class="n">y_graph</span><span class="p">,</span>
+                                              <span class="n">df2</span><span class="o">=</span><span class="n">y_graph2</span><span class="p">,</span>
+                                              <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                              <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                              <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">plot_type</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                                               <span class="n">cut_min_value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                                                               <span class="n">cut_max_value</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                                                               <span class="n">samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                                               <span class="n">cohort_base</span><span class="o">=</span><span class="s1">&#39;model1&#39;</span><span class="p">,</span>
+                                                               <span class="p">)</span>
+
+            <span class="n">figure_cohort</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; cohort.png&#39;</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; cohort.png&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">fig_cohort_png</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">fig_cohort_png</span><span class="p">,</span> <span class="n">size_pixel</span><span class="o">=</span><span class="p">(</span><span class="mi">750</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AutoMLReviewEMail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.AutoMLReviewEMail">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoMLReviewEMail</span><span class="p">(</span><span class="n">EMail</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Email class for AutoML review reports.</span>
+<span class="sd">    </span>
+<span class="sd">    Extends EMail to provide comprehensive AutoML execution reports including</span>
+<span class="sd">    feature selection results, deployment decisions, metrics comparisons, and</span>
+<span class="sd">    execution times. Used by AutoMLManager to send review emails after</span>
+<span class="sd">    automated training runs.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object (same as EMail).</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.automl_manager import AutoMLManager</span>
+<span class="sd">        from outboxml.core.email import AutoMLReviewEMail</span>
+<span class="sd">        automl = AutoMLManager(...)</span>
+<span class="sd">        result = automl.update_models()</span>
+<span class="sd">        email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">        email.success_mail(result)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AutoMLReviewEMail.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.AutoMLReviewEMail.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize AutoMLReviewEMail instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object (same as EMail).</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AutoMLReviewEMail.success_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.AutoMLReviewEMail.success_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auto_ml_result</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a comprehensive success report email for AutoML execution.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends a detailed report email containing:</span>
+<span class="sd">        - AutoML execution summary</span>
+<span class="sd">        - Features checked during feature selection</span>
+<span class="sd">        - Deployment decision (deployed or not)</span>
+<span class="sd">        - Metrics comparison table</span>
+<span class="sd">        - Model plots/visualizations</span>
+<span class="sd">        - Execution time table for each stage</span>
+<span class="sd">        </span>
+<span class="sd">        :param auto_ml_result: AutoMLResult object from AutoMLManager.update_models()</span>
+<span class="sd">            containing:</span>
+<span class="sd">            - group_name: Model group name</span>
+<span class="sd">            - new_features: Dictionary of new features per model</span>
+<span class="sd">            - deployment: Boolean deployment decision</span>
+<span class="sd">            - compare_metrics_df: DataFrame with metrics comparison</span>
+<span class="sd">            - figures: Dictionary of Plotly figures</span>
+<span class="sd">            - run_time: Dictionary of execution times</span>
+<span class="sd">        :type auto_ml_result: AutoMLResult</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            from outboxml.automl_manager import AutoMLManager</span>
+<span class="sd">            from outboxml.core.email import AutoMLReviewEMail</span>
+<span class="sd">            automl = AutoMLManager(...)</span>
+<span class="sd">            result = automl.update_models()</span>
+<span class="sd">            email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">            email.success_mail(result)</span>
+<span class="sd">            # Sends email with complete AutoML execution report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_mail</span><span class="p">(</span><span class="n">header_name</span><span class="o">=</span><span class="s1">&#39;AutoML &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">group_name</span><span class="p">),</span>
+                       <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Отчёт по запуску самообучения&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Проверены фичи: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">new_features</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>  <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decision_info</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">deployment</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Результаты выложены в MLFlow&#39;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_description</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">compare_metrics_df</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plots</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">figures</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_time_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">run_time</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="AutoMLReviewEMail.error_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.AutoMLReviewEMail.error_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send an error report email with error details and task status.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends an error notification email including the error message</span>
+<span class="sd">        and a table showing which tasks completed successfully and which failed.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group that failed.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param error: Error object or error message string.</span>
+<span class="sd">        :type error: Exception or str</span>
+<span class="sd">        :param status: Dictionary mapping task names to completion status (boolean</span>
+<span class="sd">            values). Example: {&#39;Loading dataset&#39;: True, &#39;Feature selection&#39;: False}</span>
+<span class="sd">        :type status: dict</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            status = {</span>
+<span class="sd">                &#39;Loading dataset&#39;: True,</span>
+<span class="sd">                &#39;Feature selection&#39;: False,</span>
+<span class="sd">                &#39;Fitting&#39;: False</span>
+<span class="sd">            }</span>
+<span class="sd">            email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">            email.error_mail(</span>
+<span class="sd">                group_name=&quot;Titanic_Model_v1&quot;,</span>
+<span class="sd">                error=ValueError(&quot;Invalid configuration&quot;),</span>
+<span class="sd">                status=status</span>
+<span class="sd">            )</span>
+<span class="sd">            # Sends email with error message and task status table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">common_error_mail</span><span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s1">&#39;Статус задач:&#39;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">status</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+                                   <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
+                                   <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_decision_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add deployment decision information to the email.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds text indicating whether the model was deployed to production or</span>
+<span class="sd">        rejected based on quality criteria.</span>
+<span class="sd">        </span>
+<span class="sd">        :param decision: Boolean deployment decision. True means deployed, False</span>
+<span class="sd">            means not deployed.</span>
+<span class="sd">        :type decision: bool</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">            email._decision_info(decision=True)</span>
+<span class="sd">            # Adds text: &quot;Модель выведена в фон.&quot;</span>
+<span class="sd">            email._decision_info(decision=False)</span>
+<span class="sd">            # Adds text: &quot;Модель не обеспечила заданный критерий качества.&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">decision</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+                <span class="s2">&quot;Модель выведена в фон.&quot;</span><span class="p">,</span>
+                <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+                <span class="s2">&quot;Модель не обеспечила заданный критерий качества.&quot;</span><span class="p">,</span>
+                <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compare_metrics_df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add metrics comparison table to the email.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds a formatted table containing metrics comparison data to the email</span>
+<span class="sd">        body. The table is right-aligned with sans-serif font.</span>
+<span class="sd">        </span>
+<span class="sd">        :param compare_metrics_df: DataFrame containing metrics comparison</span>
+<span class="sd">            data. Expected columns may include:</span>
+<span class="sd">            - Имя модели (Model name)</span>
+<span class="sd">            - Метрика (Metric name)</span>
+<span class="sd">            - Новая модель||Тренировочная выборка (New model train results)</span>
+<span class="sd">            - Новая модель||Тестовая выборка (New model test results)</span>
+<span class="sd">            - Предыдущая модель||Тренировочная выборка (Previous model train)</span>
+<span class="sd">            - Предыдущая модель||Тестовая выборка (Previous model test)</span>
+<span class="sd">        :type compare_metrics_df: pandas.DataFrame</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            metrics_df = pd.DataFrame({</span>
+<span class="sd">                &#39;Имя модели&#39;: [&#39;model1&#39;, &#39;model2&#39;],</span>
+<span class="sd">                &#39;Метрика&#39;: [&#39;RMSE&#39;, &#39;MAE&#39;],</span>
+<span class="sd">                &#39;Новая модель||Тренировочная выборка&#39;: [0.5, 0.3],</span>
+<span class="sd">                &#39;Новая модель||Тестовая выборка&#39;: [0.6, 0.4]</span>
+<span class="sd">            })</span>
+<span class="sd">            email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">            email._metrics_description(metrics_df)</span>
+<span class="sd">            # Adds formatted metrics table to email</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Характеристики моделей:&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span><span class="n">compare_metrics_df</span><span class="p">,</span>
+                                   <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
+                                   <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figures</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add model plots to the email.</span>
+<span class="sd">        </span>
+<span class="sd">        Saves Plotly figures as PNG images and embeds them in the email.</span>
+<span class="sd">        Each figure is saved with the model name as part of the filename.</span>
+<span class="sd">        </span>
+<span class="sd">        :param figures: Dictionary mapping model names to Plotly figure objects.</span>
+<span class="sd">            Can be None or empty, in which case nothing is added.</span>
+<span class="sd">        :type figures: dict or None</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            For each figure, saves &quot;&lt;model_name&gt; figure.png&quot; in results_path.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            figures = {</span>
+<span class="sd">                &#39;model1&#39;: plotly_figure1,</span>
+<span class="sd">                &#39;model2&#39;: plotly_figure2</span>
+<span class="sd">            }</span>
+<span class="sd">            email = AutoMLReviewEMail(config=config)</span>
+<span class="sd">            email._plots(figures)</span>
+<span class="sd">            # For each figure:</span>
+<span class="sd">            # - Saves as &quot;&lt;model_name&gt; figure.png&quot;</span>
+<span class="sd">            # - Adds to email (750x500 pixels)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">figures</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">figures</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+                <span class="s1">&#39;Графики по моделям:&#39;</span><span class="p">,</span>
+                <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">figures</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">figures</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; figure.png&#39;</span><span class="p">))</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; figure.png&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">fig_cohort_png</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">fig_cohort_png</span><span class="p">,</span> <span class="n">size_pixel</span><span class="o">=</span><span class="p">(</span><span class="mi">750</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EMailMonitoring">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailMonitoring">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMailMonitoring</span><span class="p">(</span><span class="n">EMail</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Email class for monitoring reports.</span>
+<span class="sd">    </span>
+<span class="sd">    Extends EMail to provide data drift and monitoring alerts. Used to notify</span>
+<span class="sd">    about data drift detection results and monitoring service status.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object (same as EMail).</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.monitoring_result import MonitoringResult</span>
+<span class="sd">        from outboxml.core.email import EMailMonitoring</span>
+<span class="sd">        # Assume monitoring_result is created by monitoring process</span>
+<span class="sd">        email = EMailMonitoring(config=config)</span>
+<span class="sd">        email.success_mail(monitoring_result)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="EMailMonitoring.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailMonitoring.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize EMailMonitoring instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object (same as EMail).</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EMailMonitoring.success_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailMonitoring.success_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitoring_result</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a monitoring success report email with data drift information.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends a monitoring report email containing:</span>
+<span class="sd">        - Monitoring summary</span>
+<span class="sd">        - Data drift table (features with PSI &gt; 0.3)</span>
+<span class="sd">        - Link to Grafana dashboard</span>
+<span class="sd">        </span>
+<span class="sd">        :param monitoring_result: MonitoringResult object containing:</span>
+<span class="sd">            - group_name: Model group name</span>
+<span class="sd">            - report: DataFrame with drift metrics (PSI, KL, JS)</span>
+<span class="sd">            - grafana_dashboard: URL to Grafana dashboard</span>
+<span class="sd">        :type monitoring_result: MonitoringResult</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            Only features with PSI &gt; 0.3 are included in the drift table.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            from outboxml.monitoring_result import MonitoringResult</span>
+<span class="sd">            from outboxml.core.email import EMailMonitoring</span>
+<span class="sd">            # Assume monitoring_result is created by monitoring process</span>
+<span class="sd">            email = EMailMonitoring(config=config)</span>
+<span class="sd">            email.success_mail(monitoring_result)</span>
+<span class="sd">            # Sends email with monitoring summary and drift table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_mail</span><span class="p">(</span><span class="n">header_name</span><span class="o">=</span><span class="n">monitoring_result</span><span class="o">.</span><span class="n">group_name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39; Monitoring&#39;</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Отчет по запуску мониторинга&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Обнаружен дрифт в фичах:&quot;</span><span class="p">,</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">drift_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_drift_df</span><span class="p">(</span><span class="n">monitoring_result</span><span class="o">.</span><span class="n">report</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span><span class="n">drift_df</span><span class="p">,</span>
+                                   <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
+                                   <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+            <span class="s2">&quot;Полные результаты выложены в Grafana: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">monitoring_result</span><span class="o">.</span><span class="n">grafana_dashboard</span><span class="p">),</span>
+            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EMailMonitoring.error_mail">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailMonitoring.error_mail">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send an error notification email for monitoring failures.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates and sends an error notification email when monitoring fails.</span>
+<span class="sd">        This is a convenience method that calls the parent&#39;s common_error_mail().</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group that failed monitoring.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param error: Error object or error message string.</span>
+<span class="sd">        :type error: Exception or str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method calls common_error_mail() from the parent class.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            email = EMailMonitoring(config=config)</span>
+<span class="sd">            email.error_mail(</span>
+<span class="sd">                group_name=&quot;Titanic_Model_v1&quot;,</span>
+<span class="sd">                error=&quot;Connection timeout to monitoring service&quot;</span>
+<span class="sd">            )</span>
+<span class="sd">            # Sends common error email</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">common_error_mail</span><span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_drift_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare the drift DataFrame by filtering features with significant drift.</span>
+<span class="sd">        </span>
+<span class="sd">        Filters the drift DataFrame to include only features with PSI &gt; 0.3,</span>
+<span class="sd">        which indicates significant data drift. The result is sorted by PSI</span>
+<span class="sd">        in descending order.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: DataFrame with drift metrics. Expected columns:</span>
+<span class="sd">            - model_name: Model name</span>
+<span class="sd">            - col: Feature name</span>
+<span class="sd">            - PSI: Population Stability Index</span>
+<span class="sd">            - KL: Kullback-Leibler divergence</span>
+<span class="sd">            - JS: Jensen-Shannon divergence</span>
+<span class="sd">            - model_version: Model version</span>
+<span class="sd">        :type df: pandas.DataFrame or None</span>
+<span class="sd">        :return: Filtered DataFrame containing only features with PSI &gt; 0.3,</span>
+<span class="sd">            sorted by PSI in descending order. Returns empty DataFrame if input is None.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_mail().</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            drift_data = pd.DataFrame({</span>
+<span class="sd">                &#39;model_name&#39;: [&#39;model1&#39;, &#39;model1&#39;, &#39;model2&#39;],</span>
+<span class="sd">                &#39;col&#39;: [&#39;feature_a&#39;, &#39;feature_b&#39;, &#39;feature_c&#39;],</span>
+<span class="sd">                &#39;PSI&#39;: [0.5, 0.2, 0.4],</span>
+<span class="sd">                &#39;KL&#39;: [0.3, 0.1, 0.25],</span>
+<span class="sd">                &#39;JS&#39;: [0.15, 0.05, 0.12],</span>
+<span class="sd">                &#39;model_version&#39;: [&#39;v1&#39;, &#39;v1&#39;, &#39;v2&#39;]</span>
+<span class="sd">            })</span>
+<span class="sd">            email = EMailMonitoring(config=config)</span>
+<span class="sd">            filtered_df = email._prepare_drift_df(drift_data)</span>
+<span class="sd">            # Returns DataFrame with only feature_a and feature_c (PSI &gt; 0.3)</span>
+<span class="sd">            # Sorted by PSI descending</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Нет данных для отчета&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alarm_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;PSI&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">]</span>
+            <span class="n">df_to_send</span> <span class="o">=</span> <span class="n">alarm_df</span><span class="p">[[</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span> <span class="s1">&#39;PSI&#39;</span><span class="p">,</span> <span class="s1">&#39;KL&#39;</span><span class="p">,</span> <span class="s1">&#39;JS&#39;</span><span class="p">,</span> <span class="s1">&#39;model_version&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;PSI&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df_to_send</span></div>
+
+
+
+<div class="viewcode-block" id="HTMLReport">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.HTMLReport">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HTMLReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for generating HTML reports instead of sending emails.</span>
+<span class="sd">    </span>
+<span class="sd">    Useful for local review or when email is not configured. Generates standalone</span>
+<span class="sd">    HTML reports that can be opened in any browser. Reports include sections,</span>
+<span class="sd">    tables, and embedded Plotly visualizations.</span>
+<span class="sd">    </span>
+<span class="sd">    :param config: Configuration object with results_path attribute.</span>
+<span class="sd">    :type config: object</span>
+<span class="sd">    </span>
+<span class="sd">    :var html_content: List of HTML content strings being assembled.</span>
+<span class="sd">    :var report_path: Full path to the output HTML report file.</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.core.email import HTMLReport</span>
+<span class="sd">        report = HTMLReport(config=config)</span>
+<span class="sd">        report.success_report(auto_ml_result)</span>
+<span class="sd">        # Report saved to: &lt;results_path&gt;/automl_report.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HTMLReport.__init__">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.HTMLReport.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize HTMLReport instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config: Configuration object containing results_path attribute.</span>
+<span class="sd">        :type config: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="s2">&quot;automl_report.html&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a section (title and/or text) to the HTML report.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds HTML formatted section with optional title (rendered as &lt;h2&gt;) and</span>
+<span class="sd">        text (rendered as &lt;p&gt;), followed by line breaks.</span>
+<span class="sd">        </span>
+<span class="sd">        :param title: Optional section title (rendered as &lt;h2&gt;). Defaults to None.</span>
+<span class="sd">        :type title: str, optional</span>
+<span class="sd">        :param text: Optional section text (rendered as &lt;p&gt;). Defaults to None.</span>
+<span class="sd">        :type text: str, optional</span>
+<span class="sd">        :param n_line_breaks: Number of line breaks after the section. Defaults to 1.</span>
+<span class="sd">        :type n_line_breaks: int</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by other methods.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._add_section(</span>
+<span class="sd">                title=&quot;Model Training Results&quot;,</span>
+<span class="sd">                text=&quot;The models have been trained successfully.&quot;,</span>
+<span class="sd">                n_line_breaks=2</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;h2&gt;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&lt;/h2&gt;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;&lt;br/&gt;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_line_breaks</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a Pandas DataFrame as an HTML table to the report.</span>
+<span class="sd">        </span>
+<span class="sd">        Converts a pandas DataFrame to HTML table format and adds it to the</span>
+<span class="sd">        report content. The table is right-aligned with no border and no index.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: DataFrame to convert to HTML table.</span>
+<span class="sd">        :type df: pandas.DataFrame</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by other methods.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            metrics_df = pd.DataFrame({</span>
+<span class="sd">                &#39;Model&#39;: [&#39;model1&#39;, &#39;model2&#39;],</span>
+<span class="sd">                &#39;RMSE&#39;: [0.5, 0.6],</span>
+<span class="sd">                &#39;MAE&#39;: [0.3, 0.4]</span>
+<span class="sd">            })</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._add_table(metrics_df)</span>
+<span class="sd">            # Adds HTML table to report content</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s1">&#39;dataframe&#39;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                                            <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">,</span> <span class="n">plot_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a Plotly figure to the report as an embedded iframe.</span>
+<span class="sd">        </span>
+<span class="sd">        Saves a Plotly figure as an HTML file and embeds it in the report using</span>
+<span class="sd">        an iframe. The figure is saved with the provided plot_name.</span>
+<span class="sd">        </span>
+<span class="sd">        :param figure: Plotly figure object (plotly.graph_objects.Figure).</span>
+<span class="sd">        :type figure: plotly.graph_objects.Figure</span>
+<span class="sd">        :param plot_name: Name for the plot file (without extension). The file</span>
+<span class="sd">            will be saved as &quot;&lt;plot_name&gt;.html&quot;.</span>
+<span class="sd">        :type plot_name: str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by other methods.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import plotly.graph_objects as go</span>
+<span class="sd">            fig = go.Figure(data=go.Bar(x=[&#39;A&#39;, &#39;B&#39;], y=[1, 2]))</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._add_plot(fig, &quot;bar_chart&quot;)</span>
+<span class="sd">            # Saves: &lt;results_path&gt;/bar_chart.html</span>
+<span class="sd">            # Adds: &lt;iframe src=&quot;bar_chart.html&quot; width=&quot;800&quot; height=&quot;500&quot;&gt;&lt;/iframe&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">figure</span><span class="p">:</span>
+            <span class="n">plot_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">plot_name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">)</span>
+            <span class="n">figure</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="n">plot_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;iframe src=&quot;</span><span class="si">{</span><span class="n">plot_path</span><span class="si">}</span><span class="s1">&quot; width=&quot;800&quot; height=&quot;500&quot;&gt;&lt;/iframe&gt;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HTMLReport.save_report">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.HTMLReport.save_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the compiled HTML report to disk.</span>
+<span class="sd">        </span>
+<span class="sd">        Compiles all HTML content into a complete HTML document with styling</span>
+<span class="sd">        and saves it to the report_path. The report includes a timestamp in</span>
+<span class="sd">        the title.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            - Creates or overwrites automl_report.html in config.results_path</span>
+<span class="sd">            - Prints confirmation message to console</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._add_section(title=&quot;Test Report&quot;, text=&quot;This is a test.&quot;)</span>
+<span class="sd">            report.save_report()</span>
+<span class="sd">            # Creates: &lt;results_path&gt;/automl_report.html</span>
+<span class="sd">            # Prints: &quot;Report saved to: &lt;results_path&gt;/automl_report.html&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">full_html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;!DOCTYPE html&gt;</span>
+<span class="s2">            &lt;html&gt;</span>
+<span class="s2">            &lt;head&gt;</span>
+<span class="s2">                &lt;title&gt;AutoML Report&lt;/title&gt;</span>
+<span class="s2">                &lt;style&gt;</span>
+<span class="s2">                    body </span><span class="se">{{</span><span class="s2"> font-family: sans-serif; margin: 20px; </span><span class="se">}}</span>
+<span class="s2">                    .dataframe </span><span class="se">{{</span><span class="s2"> margin: 10px 0; </span><span class="se">}}</span>
+<span class="s2">                    iframe </span><span class="se">{{</span><span class="s2"> margin: 15px 0; border: 1px solid #ddd; </span><span class="se">}}</span>
+<span class="s2">                &lt;/style&gt;</span>
+<span class="s2">            &lt;/head&gt;</span>
+<span class="s2">            &lt;body&gt;</span>
+<span class="s2">                &lt;h1&gt;AutoML Report - </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h1&gt;</span>
+<span class="s2">                </span><span class="si">{</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_content</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">            &lt;/body&gt;</span>
+<span class="s2">            &lt;/html&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">full_html</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Report saved to: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">report_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HTMLReport.success_report">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.HTMLReport.success_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auto_ml_result</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a complete success report for AutoML execution.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates a comprehensive HTML report containing:</span>
+<span class="sd">        - AutoML execution summary</span>
+<span class="sd">        - Features checked during feature selection</span>
+<span class="sd">        - Deployment decision (deployed or not)</span>
+<span class="sd">        - Metrics comparison table</span>
+<span class="sd">        - Model plots/visualizations</span>
+<span class="sd">        - Execution time table for each stage</span>
+<span class="sd">        </span>
+<span class="sd">        :param auto_ml_result: AutoMLResult object from AutoMLManager.update_models()</span>
+<span class="sd">            containing:</span>
+<span class="sd">            - group_name: Model group name</span>
+<span class="sd">            - new_features: Dictionary of new features per model</span>
+<span class="sd">            - deployment: Boolean deployment decision</span>
+<span class="sd">            - compare_metrics_df: DataFrame with metrics comparison</span>
+<span class="sd">            - figures: Dictionary of Plotly figures</span>
+<span class="sd">            - run_time: Dictionary of execution times</span>
+<span class="sd">        :type auto_ml_result: AutoMLResult</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            from outboxml.automl_manager import AutoMLManager</span>
+<span class="sd">            from outboxml.core.email import HTMLReport</span>
+<span class="sd">            automl = AutoMLManager(...)</span>
+<span class="sd">            result = automl.update_models()</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report.success_report(result)</span>
+<span class="sd">            # Generates HTML report with complete AutoML execution details</span>
+<span class="sd">            # Saves to: &lt;results_path&gt;/automl_report.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;AutoML </span><span class="si">{</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">group_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                          <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Automated training run report&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Features checked: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">new_features</span><span class="o">.</span><span class="n">items</span><span class="p">())))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decision_info</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">deployment</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Results published to MLFlow&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_description</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">compare_metrics_df</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plots</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">figures</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="o">.</span><span class="n">run_time</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Run Time&quot;</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_report</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HTMLReport.error_report">
+<a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.HTMLReport.error_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate an error report for failed AutoML execution.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates an HTML report documenting the error and task completion status.</span>
+<span class="sd">        Useful for debugging and tracking which stages completed successfully.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: Name of the model group that failed.</span>
+<span class="sd">        :type group_name: str</span>
+<span class="sd">        :param error: Error object or error message string.</span>
+<span class="sd">        :type error: Exception or str</span>
+<span class="sd">        :param status: Dictionary mapping task names to completion status (boolean</span>
+<span class="sd">            values). Example: {&#39;Loading dataset&#39;: True, &#39;Feature selection&#39;: False}</span>
+<span class="sd">        :type status: dict</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            status = {</span>
+<span class="sd">                &#39;Loading dataset&#39;: True,</span>
+<span class="sd">                &#39;Feature selection&#39;: False,</span>
+<span class="sd">                &#39;Fitting&#39;: False</span>
+<span class="sd">            }</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report.error_report(</span>
+<span class="sd">                group_name=&quot;Titanic_Model_v1&quot;,</span>
+<span class="sd">                error=&quot;Configuration validation failed&quot;,</span>
+<span class="sd">                status=status</span>
+<span class="sd">            )</span>
+<span class="sd">            # Generates HTML report with error details and task status</span>
+<span class="sd">            # Saves to: &lt;results_path&gt;/automl_report.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;AutoML </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1"> Error&#39;</span><span class="p">,</span>
+                          <span class="n">text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Task status:&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_report</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_decision_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add deployment decision information to the report.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds text indicating whether the model was deployed to production or</span>
+<span class="sd">        rejected based on quality criteria.</span>
+<span class="sd">        </span>
+<span class="sd">        :param decision: Boolean deployment decision. True means deployed, False</span>
+<span class="sd">            means not deployed.</span>
+<span class="sd">        :type decision: bool</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_report().</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._decision_info(decision=True)</span>
+<span class="sd">            # Adds: &quot;Model deployed to production.&quot;</span>
+<span class="sd">            report._decision_info(decision=False)</span>
+<span class="sd">            # Adds: &quot;Model didn&#39;t meet the required quality criteria.&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">decision</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Model deployed to production.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Model didn&#39;t meet the required quality criteria.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compare_metrics_df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add metrics comparison table to the report.</span>
+<span class="sd">        </span>
+<span class="sd">        Adds a section header and formatted table containing metrics comparison</span>
+<span class="sd">        data to the report.</span>
+<span class="sd">        </span>
+<span class="sd">        :param compare_metrics_df: DataFrame containing metrics comparison</span>
+<span class="sd">            data. Expected columns may include:</span>
+<span class="sd">            - Имя модели (Model name)</span>
+<span class="sd">            - Метрика (Metric name)</span>
+<span class="sd">            - Новая модель||Тренировочная выборка (New model train results)</span>
+<span class="sd">            - Новая модель||Тестовая выборка (New model test results)</span>
+<span class="sd">            - Предыдущая модель||Тренировочная выборка (Previous model train)</span>
+<span class="sd">            - Предыдущая модель||Тестовая выборка (Previous model test)</span>
+<span class="sd">        :type compare_metrics_df: pandas.DataFrame</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_report().</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            metrics_df = pd.DataFrame({</span>
+<span class="sd">                &#39;Имя модели&#39;: [&#39;model1&#39;],</span>
+<span class="sd">                &#39;Метрика&#39;: [&#39;RMSE&#39;],</span>
+<span class="sd">                &#39;Новая модель||Тренировочная выборка&#39;: [0.5],</span>
+<span class="sd">                &#39;Новая модель||Тестовая выборка&#39;: [0.6]</span>
+<span class="sd">            })</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._metrics_description(metrics_df)</span>
+<span class="sd">            # Adds section header and HTML table to report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Model metrics comparison:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_table</span><span class="p">(</span><span class="n">compare_metrics_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figures</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add model plots to the report.</span>
+<span class="sd">        </span>
+<span class="sd">        Saves Plotly figures as HTML files and embeds them in the report using</span>
+<span class="sd">        iframes. Each figure is saved with the model name as the filename.</span>
+<span class="sd">        </span>
+<span class="sd">        :param figures: Dictionary mapping model names to Plotly figure objects.</span>
+<span class="sd">            Can be None or empty, in which case nothing is added.</span>
+<span class="sd">        :type figures: dict or None</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by success_report().</span>
+<span class="sd">            If figures is None or empty, nothing is added.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            figures = {</span>
+<span class="sd">                &#39;model1&#39;: plotly_figure1,</span>
+<span class="sd">                &#39;model2&#39;: plotly_figure2</span>
+<span class="sd">            }</span>
+<span class="sd">            report = HTMLReport(config=config)</span>
+<span class="sd">            report._plots(figures)</span>
+<span class="sd">            # For each figure:</span>
+<span class="sd">            # - Saves as &quot;&lt;model_name&gt;.html&quot;</span>
+<span class="sd">            # - Adds iframe to report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">figures</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Model visualizations:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fig</span> <span class="ow">in</span> <span class="n">figures</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

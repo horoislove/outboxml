@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.core.enums &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.core.enums</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.core.enums</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+
+<div class="viewcode-block" id="FilesNames">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.FilesNames">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FilesNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">data_init</span> <span class="o">=</span> <span class="s2">&quot;data_init&quot;</span>
+    <span class="n">parquet</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="s2">&quot;database&quot;</span>
+    <span class="n">pickle</span> <span class="o">=</span> <span class="s2">&quot;pickle&quot;</span>
+    <span class="n">csv</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+    <span class="n">hadoop</span> <span class="o">=</span> <span class="s2">&quot;hadoop&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FeatureEngineering">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.FeatureEngineering">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureEngineering</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">feature_type</span> <span class="o">=</span> <span class="s2">&quot;_TYPE_&quot;</span>
+    <span class="n">numerical</span> <span class="o">=</span> <span class="s2">&quot;_NUM_&quot;</span>
+    <span class="n">not_changed</span> <span class="o">=</span> <span class="s2">&quot;_NOTCHANGED_&quot;</span>
+    <span class="n">min_value</span> <span class="o">=</span> <span class="s2">&quot;min_value&quot;</span>
+    <span class="n">max_value</span> <span class="o">=</span> <span class="s2">&quot;max_value&quot;</span>
+    <span class="n">nan</span> <span class="o">=</span> <span class="s2">&quot;_NAN_&quot;</span>
+    <span class="nb">min</span> <span class="o">=</span> <span class="s2">&quot;_MIN_&quot;</span>
+    <span class="nb">max</span> <span class="o">=</span> <span class="s2">&quot;_MAX_&quot;</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="s2">&quot;_MEAN_&quot;</span>
+    <span class="n">median</span> <span class="o">=</span> <span class="s2">&quot;_MEDIAN_&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FeaturesTypes">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.FeaturesTypes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeaturesTypes</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">feature</span> <span class="o">=</span> <span class="s2">&quot;feature&quot;</span>
+    <span class="n">target_encoding</span> <span class="o">=</span> <span class="s2">&quot;target_encoding&quot;</span>
+    <span class="n">numerical</span> <span class="o">=</span> <span class="s2">&quot;numerical&quot;</span>
+    <span class="n">categorical</span> <span class="o">=</span> <span class="s2">&quot;categorical&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ModelsParams">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.ModelsParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelsParams</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">poisson</span> <span class="o">=</span> <span class="s2">&quot;poisson&quot;</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="s2">&quot;gamma&quot;</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="s2">&quot;binary&quot;</span>
+    <span class="n">rmse</span> <span class="o">=</span> <span class="s1">&#39;RMSE&#39;</span>
+    <span class="n">rmsewithuncertainty</span> <span class="o">=</span> <span class="s2">&quot;rmsewithuncertainty&quot;</span>
+    <span class="n">glm</span> <span class="o">=</span> <span class="s2">&quot;glm&quot;</span>
+    <span class="n">glm_without_scaler</span> <span class="o">=</span> <span class="s2">&quot;glm_without_scaler&quot;</span>
+    <span class="n">catboost</span> <span class="o">=</span> <span class="s2">&quot;catboost&quot;</span>
+    <span class="n">catboost_over_glm</span> <span class="o">=</span> <span class="s2">&quot;catboost_over_glm&quot;</span>
+    <span class="n">xgboost</span> <span class="o">=</span> <span class="s2">&quot;xgboost&quot;</span>
+    <span class="n">clustering</span> <span class="o">=</span> <span class="s2">&quot;clustering&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ResultNames">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.ResultNames">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResultNames</span><span class="p">:</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;Имя модели&#39;</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;Метрика&#39;</span>
+    <span class="n">new_model</span> <span class="o">=</span> <span class="s1">&#39;Новая модель&#39;</span>
+    <span class="n">new_result_train</span> <span class="o">=</span> <span class="s1">&#39;Новая модель||Тренировочная выборка&#39;</span>
+    <span class="n">new_result_test</span> <span class="o">=</span> <span class="s1">&#39;Новая модель||Тестовая выборка&#39;</span>
+    <span class="n">old_result_train</span> <span class="o">=</span> <span class="s1">&#39;Предыдущая модель||Тренировочная выборка&#39;</span>
+    <span class="n">old_result_test</span> <span class="o">=</span> <span class="s1">&#39;Предыдущая модель||Тестовая выборка&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="SeparationParams">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.SeparationParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SeparationParams</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">rand</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
+    <span class="n">period</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
+    <span class="n">null</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ColumnsNames">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.ColumnsNames">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColumnsNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">is_train</span> <span class="o">=</span> <span class="s2">&quot;is_train&quot;</span>
+    <span class="n">is_test</span> <span class="o">=</span> <span class="s2">&quot;is_test&quot;</span>
+    <span class="n">is_train_obml</span> <span class="o">=</span> <span class="s2">&quot;is_train_obml&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EncodingNames">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.EncodingNames">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EncodingNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+
+    <span class="n">woe_num</span> <span class="o">=</span> <span class="s2">&quot;WoE_num_to_cat&quot;</span>
+    <span class="n">woe_cat</span> <span class="o">=</span> <span class="s2">&quot;WoE_cat_to_num&quot;</span>
+    <span class="n">to_float</span> <span class="o">=</span> <span class="s2">&quot;to_float&quot;</span>
+    <span class="n">to_int</span> <span class="o">=</span> <span class="s2">&quot;to_int&quot;</span>
+    <span class="n">woe_num_num</span> <span class="o">=</span> <span class="s2">&quot;WoE_num_to_num&quot;</span>
+    <span class="n">cut_num</span> <span class="o">=</span> <span class="s2">&quot;cut_num&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FeatureTypesForSelection">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.FeatureTypesForSelection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureTypesForSelection</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="s2">&quot;BINARY&quot;</span><span class="c1">#: [&#39;EventCreatedByGIBDDFlag&#39;, &#39;E-Garant&#39;, &lt; ... &gt;]</span>
+    <span class="n">categorical</span> <span class="o">=</span> <span class="s2">&quot;CATEGORСAL&quot;</span><span class="c1">#: [&#39;CustomerImportance&#39;, &#39;DTPOSAGOType&#39;, &lt; ... &gt;]</span>
+    <span class="n">numeric</span> <span class="o">=</span> <span class="s2">&quot;NUMERIC&quot;</span><span class="c1">#: [&#39;LossNumber&#39;, &#39;InsuredSum&#39;, &#39;LossDateTime&#39;, &lt; ... &gt;]</span>
+    <span class="n">to_drop</span> <span class="o">=</span> <span class="s2">&quot;TO_DROP&quot;</span><span class="c1">#: [&#39;EventTypeDescription&#39;, &#39;InsuranceTypeName&#39;, &lt; ... &gt;]</span>
+    <span class="nb">object</span> <span class="o">=</span>  <span class="s2">&quot;OBJECT&quot;</span><span class="c1">#: [&#39;ContractNumber&#39;, &#39;VictimContractNumber&#39;, &lt; ... &gt;]</span></div>
+
+
+
+<div class="viewcode-block" id="ModelTypes">
+<a class="viewcode-back" href="../../../modules/core/enums.html#outboxml.core.enums.ModelTypes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelTypes</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+
+    <span class="n">regression</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span>
+    <span class="n">classification</span> <span class="o">=</span> <span class="s1">&#39;classification&#39;</span>
+    <span class="n">clustering</span> <span class="o">=</span> <span class="s1">&#39;clustering&#39;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,785 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoML Manager &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Drift Detection" href="datadrift.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">AutoML Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#automlresult">AutoMLResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mlflowwrapper">MLFlowWrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#retrofs">RetroFS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#automlmanager">AutoMLManager</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">AutoML Manager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/automl_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="automl-manager">
+<h1>AutoML Manager<a class="headerlink" href="#automl-manager" title="Link to this heading"></a></h1>
+<p>This module provides the main AutoML orchestration functionality.</p>
+<section id="automlresult">
+<h2>AutoMLResult<a class="headerlink" href="#automlresult" title="Link to this heading"></a></h2>
+<p>Container class for AutoML execution results.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.automl_manager.</span></span><span class="sig-name descname"><span class="pre">AutoMLResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Container class for AutoML execution results.</p>
+<p>Stores all results, metrics, and metadata from an AutoML training run,
+including feature selection results, hyperparameters, model metrics,
+deployment decisions, and execution times.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group for this AutoML run.</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>start_run_time</strong> – Timestamp when the AutoML run started.</p></li>
+<li><p><strong>run_time</strong> – Dictionary mapping stage names to execution timestamps.</p></li>
+<li><p><strong>features_for_research</strong> – List of features selected for research.</p></li>
+<li><p><strong>new_features</strong> – Dictionary mapping model names to lists of new features.</p></li>
+<li><p><strong>new_hp</strong> – Dictionary mapping model names to optimized hyperparameters.</p></li>
+<li><p><strong>ds_manager_result</strong> – Dictionary mapping model names to DSManagerResult objects.</p></li>
+<li><p><strong>metrics</strong> – Dictionary with ‘train’ and ‘test’ keys containing metrics.</p></li>
+<li><p><strong>figures</strong> – List of Plotly figures for visualization.</p></li>
+<li><p><strong>model_result_for_service</strong> – List of model results formatted for service deployment.</p></li>
+<li><p><strong>result_pickle_name</strong> – Name of the pickle file containing results.</p></li>
+<li><p><strong>compare_metrics_df</strong> – DataFrame comparing metrics between current and previous models.</p></li>
+<li><p><strong>compare_business_metric</strong> – DataFrame with business metric comparisons.</p></li>
+<li><p><strong>end_time_run</strong> – Timestamp when the AutoML run finished.</p></li>
+<li><p><strong>deployment</strong> – Boolean indicating whether models were deployed to production.</p></li>
+<li><p><strong>all_models_config</strong> – Path or name of the all models configuration file.</p></li>
+<li><p><strong>business_metric</strong> – Dictionary of business metrics.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">AutoMLResult</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span>
+<span class="c1"># Output: Titanic_Model_v1</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize AutoMLResult instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group for this AutoML run.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="mlflowwrapper">
+<h2>MLFlowWrapper<a class="headerlink" href="#mlflowwrapper" title="Link to this heading"></a></h2>
+<p>Wrapper for MLFlow to perform artifact logging and experiment tracking.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.automl_manager.MLFlowWrapper">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.automl_manager.</span></span><span class="sig-name descname"><span class="pre">MLFlowWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FrameworkTest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'example'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test_project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'results'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'http://localhost:5000'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#MLFlowWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.MLFlowWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Wrapper for MLFlow to perform artifact logging and experiment tracking.</p>
+<p>Provides a convenient interface for logging AutoML results to MLFlow,
+including models, metrics, artifacts, and hyperparameters. Supports
+nested runs for organizing multiple models within a single experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the MLFlow experiment. Defaults to ‘FrameworkTest’.</p></li>
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group/run. Defaults to ‘example’.</p></li>
+<li><p><strong>project</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Project name (currently not used). Defaults to ‘test_project’.</p></li>
+<li><p><strong>tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary of tags to attach to runs. Defaults to None.</p></li>
+<li><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to the results directory containing artifacts.
+Defaults to ‘results’.</p></li>
+<li><p><strong>mlflow_tracking_uri</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – MLFlow tracking server URI. Defaults to ‘<a class="reference external" href="http://localhost:5000">http://localhost:5000</a>’.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wrapper</span> <span class="o">=</span> <span class="n">MLFlowWrapper</span><span class="p">(</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Experiment&quot;</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+    <span class="n">results_path</span><span class="o">=</span><span class="s2">&quot;/path/to/results&quot;</span>
+<span class="p">)</span>
+<span class="n">wrapper</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
+<span class="c1"># ... perform training ...</span>
+<span class="n">wrapper</span><span class="o">.</span><span class="n">log_results</span><span class="p">(</span><span class="n">automl_result</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.MLFlowWrapper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FrameworkTest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'example'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test_project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'results'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'http://localhost:5000'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#MLFlowWrapper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.MLFlowWrapper.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize MLFlowWrapper instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the MLFlow experiment. Defaults to ‘FrameworkTest’.</p></li>
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group/run. Defaults to ‘example’.</p></li>
+<li><p><strong>project</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Project name (currently not used). Defaults to ‘test_project’.</p></li>
+<li><p><strong>tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary of tags to attach to runs. Defaults to None.</p></li>
+<li><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to the results directory containing artifacts.
+Defaults to ‘results’.</p></li>
+<li><p><strong>mlflow_tracking_uri</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – MLFlow tracking server URI. Defaults to ‘<a class="reference external" href="http://localhost:5000">http://localhost:5000</a>’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.MLFlowWrapper.start_run">
+<span class="sig-name descname"><span class="pre">start_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#MLFlowWrapper.start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.MLFlowWrapper.start_run" title="Link to this definition"></a></dt>
+<dd><p>Start a new MLFlow run.</p>
+<p>Creates and starts a new MLFlow run with the configured group_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wrapper</span> <span class="o">=</span> <span class="n">MLFlowWrapper</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;MyModel&quot;</span><span class="p">)</span>
+<span class="n">wrapper</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.MLFlowWrapper.end_run">
+<span class="sig-name descname"><span class="pre">end_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#MLFlowWrapper.end_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.MLFlowWrapper.end_run" title="Link to this definition"></a></dt>
+<dd><p>End the current MLFlow run.</p>
+<p>Closes the active MLFlow run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wrapper</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.MLFlowWrapper.log_results">
+<span class="sig-name descname"><span class="pre">log_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">automl_results</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tags</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#MLFlowWrapper.log_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.MLFlowWrapper.log_results" title="Link to this definition"></a></dt>
+<dd><p>Log AutoML results to MLFlow.</p>
+<p>Logs all artifacts, metrics, and parameters from an AutoML run to MLFlow.
+Creates a main run for the group and nested runs for each model. Logs:
+- Log files
+- Model pickle files
+- Model configurations
+- Feature lists (numerical and categorical)
+- Training and test metrics
+- Hyperparameters
+- Business metrics
+- Deployment decision tag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>automl_results</strong> (<a class="reference internal" href="#outboxml.automl_manager.AutoMLResult" title="outboxml.automl_manager.AutoMLResult"><em>AutoMLResult</em></a>) – AutoMLResult object containing all results to log.</p></li>
+<li><p><strong>*tags</strong> – <p>Variable number of additional tag arguments (currently not used).</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Creates nested runs for each model in the results</p></li>
+<li><p>Errors during artifact logging are caught and logged but don’t stop the process</p></li>
+<li><p>Business metrics are logged if available</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">AutoMLResult</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+<span class="c1"># ... populate result with data ...</span>
+<span class="n">wrapper</span> <span class="o">=</span> <span class="n">MLFlowWrapper</span><span class="p">(</span><span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;Titanic&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+<span class="n">wrapper</span><span class="o">.</span><span class="n">log_results</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># Results logged to MLFlow with nested runs for each model</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="retrofs">
+<h2>RetroFS<a class="headerlink" href="#retrofs" title="Link to this heading"></a></h2>
+<p>Retrospective feature selection class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.automl_manager.RetroFS">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.automl_manager.</span></span><span class="sig-name descname"><span class="pre">RetroFS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">retro_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#RetroFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.RetroFS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetroDataset</span></code></p>
+<p>Retrospective feature selection class.</p>
+<p>Extends RetroDataset to provide feature selection functionality for
+retrospective analysis. Used to determine which features should be
+researched and included in models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>retro_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of column names to use for retrospective analysis.</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>retro_columns</strong> – List of column names for retrospective analysis.</p></li>
+<li><p><strong>retro_data</strong> – DataFrame for storing retrospective data.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">retro_fs</span> <span class="o">=</span> <span class="n">RetroFS</span><span class="p">(</span><span class="n">retro_columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span> <span class="s1">&#39;feature2&#39;</span><span class="p">,</span> <span class="s1">&#39;feature3&#39;</span><span class="p">])</span>
+<span class="n">retro_fs</span><span class="o">.</span><span class="n">load_retro_data</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.RetroFS.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">retro_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#RetroFS.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.RetroFS.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize RetroFS instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>retro_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of column names to use for retrospective analysis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.RetroFS.load_retro_data">
+<span class="sig-name descname"><span class="pre">load_retro_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#RetroFS.load_retro_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.RetroFS.load_retro_data" title="Link to this definition"></a></dt>
+<dd><p>Load retrospective data.</p>
+<p>Initializes the retro_data DataFrame with the specified columns.
+Currently creates an empty DataFrame with the column structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*params</strong> – <p>Variable number of additional parameters (currently not used).</p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a placeholder method that creates an empty DataFrame.
+Override in subclasses for custom data loading logic.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">retro_fs</span> <span class="o">=</span> <span class="n">RetroFS</span><span class="p">(</span><span class="n">retro_columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span> <span class="s1">&#39;feature2&#39;</span><span class="p">])</span>
+<span class="n">retro_fs</span><span class="o">.</span><span class="n">load_retro_data</span><span class="p">()</span>
+<span class="c1"># retro_data is now an empty DataFrame with columns [&#39;feature1&#39;, &#39;feature2&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="automlmanager">
+<h2>AutoMLManager<a class="headerlink" href="#automlmanager" title="Link to this heading"></a></h2>
+<p>Main class for orchestrating AutoML processes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.automl_manager.</span></span><span class="sig-name descname"><span class="pre">AutoMLManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_ml_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp_tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_temp_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_timeout_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grafana_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="datasets_manager.html#outboxml.datasets_manager.DataSetsManager" title="outboxml.datasets_manager.DataSetsManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSetsManager</span></code></a></p>
+<p>Main class for conducting AutoML pipeline.</p>
+<p>Orchestrates the complete AutoML workflow including feature selection,
+hyperparameter tuning, model training, comparison with previous models,
+deployment decisions, and result logging. Extends DataSetsManager to
+leverage dataset management functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>auto_ml_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AutoMLConfig" title="outboxml.core.pydantic_models.AutoMLConfig"><em>AutoMLConfig</em></a>) – Path to AutoML configuration file or AutoMLConfig object.</p></li>
+<li><p><strong>models_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig" title="outboxml.core.pydantic_models.AllModelsConfig"><em>AllModelsConfig</em></a>) – Path to models configuration file or AllModelsConfig object
+defining all models to be trained.</p></li>
+<li><p><strong>extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em>, </em><em>optional</em>) – Optional interface for fetching and transforming input data.
+Defaults to None.</p></li>
+<li><p><strong>business_metric</strong> (<a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a><em>, </em><em>optional</em>) – Optional interface for computing business-specific metrics.
+Should return a dictionary like {‘metric_name’: metric_value}. Defaults to None.</p></li>
+<li><p><strong>compare_business_metric</strong> (<a class="reference internal" href="metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric" title="outboxml.metrics.business_metrics.BaseCompareBusinessMetric"><em>BaseCompareBusinessMetric</em></a><em>, </em><em>optional</em>) – Optional interface for comparing business metrics
+and applying thresholds. Defaults to None (uses BaseCompareBusinessMetric).</p></li>
+<li><p><strong>external_config</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a><em>, </em><em>optional</em>) – Optional external configuration object. Defaults to None.</p></li>
+<li><p><strong>retro</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to perform retrospective feature selection. Defaults to True.</p></li>
+<li><p><strong>hp_tune</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to perform hyperparameter tuning. Defaults to True.</p></li>
+<li><p><strong>async_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to run model training asynchronously. Defaults to False.</p></li>
+<li><p><strong>use_temp_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to use temporary files for data processing.
+Defaults to False.</p></li>
+<li><p><strong>model_timeout_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum time in seconds for training a single model.
+Defaults to None (no timeout).</p></li>
+<li><p><strong>grafana_connection</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a><em>, </em><em>optional</em>) – Database connection object for Grafana export.
+Passed to pd.to_sql(). Defaults to None.</p></li>
+<li><p><strong>models_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary of pre-initialized models. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>models_dict</strong> – Dictionary of pre-initialized models.</p></li>
+<li><p><strong>timeout</strong> – Maximum time for model training.</p></li>
+<li><p><strong>_business_metric</strong> – Business metric calculator.</p></li>
+<li><p><strong>_compare_business_metric</strong> – Business metric comparator.</p></li>
+<li><p><strong>__grafana_connection</strong> – Grafana database connection.</p></li>
+<li><p><strong>_async_mode</strong> – Whether async mode is enabled.</p></li>
+<li><p><strong>features_list_to_exclude</strong> – List of features to exclude from selection.</p></li>
+<li><p><strong>_auto_ml_config</strong> – AutoML configuration object.</p></li>
+<li><p><strong>_feature_selection_config</strong> – Feature selection configuration.</p></li>
+<li><p><strong>_hp_tuning_config</strong> – Hyperparameter tuning configuration.</p></li>
+<li><p><strong>features_list</strong> – List of selected features.</p></li>
+<li><p><strong>_retro</strong> – Whether retrospective analysis is enabled.</p></li>
+<li><p><strong>_hp_tune</strong> – Whether hyperparameter tuning is enabled.</p></li>
+<li><p><strong>automl_results</strong> – AutoMLResult object storing all results.</p></li>
+<li><p><strong>mlflow</strong> – MLFlowWrapper instance for logging.</p></li>
+<li><p><strong>status</strong> – Dictionary tracking completion status of each stage.</p></li>
+<li><p><strong>errors</strong> – Dictionary tracking errors for each stage.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.automl_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLManager</span>
+<span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span>
+    <span class="n">auto_ml_config</span><span class="o">=</span><span class="s2">&quot;configs/automl-config.json&quot;</span><span class="p">,</span>
+    <span class="n">models_config</span><span class="o">=</span><span class="s2">&quot;configs/models-config.json&quot;</span><span class="p">,</span>
+    <span class="n">external_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">retro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">hp_tune</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">deployment</span><span class="p">)</span>  <span class="c1"># Check deployment decision</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_ml_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp_tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_temp_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_timeout_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grafana_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize DataSetsManager instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Dict</em><em>]</em>) – Path to config file or validated config dictionary (AllModelsConfig).</p></li>
+<li><p><strong>extractor</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em>]</em>) – User-defined extractor object inheriting from Extractor interface.
+Main method extract_dataset() should return pandas DataFrame.
+Extractor should contain check_object() method for data validation.
+Use library RTDMExtractor or ActuarExtractor for database connections.</p></li>
+<li><p><strong>prepared_datasets</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em>]</em><em>]</em>) – Dictionary with model names as keys and PrepareDataset objects as values.
+Wrapper of prepare_dataset function. PreparedDataset by default uses
+model_config features and has no prep and post prep functions.</p></li>
+<li><p><strong>models_dict</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Dictionary with model names as keys and Model objects as values.
+Models should inherit from Model class and have fit(), predict() methods.
+By default model is chosen by group and project name.</p></li>
+<li><p><strong>business_metric</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a><em>]</em>) – User-defined business metric inheriting from BaseMetric.
+Main method is calculate_metric().</p></li>
+<li><p><strong>use_baseline_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Baseline model selection. 0 - no baseline, 1 - RandomForestRegressor,
+2 - DummyRegressor median, 3 - mean.</p></li>
+<li><p><strong>retro_changes</strong> (<em>Optional</em><em>[</em><em>RetroDataset</em><em>]</em>) – RetroDataset object for retro analysis.</p></li>
+<li><p><strong>external_config</strong> (<em>Any</em><em>, </em><em>optional</em>) – External configuration object. If None, uses default config.</p></li>
+<li><p><strong>use_temp_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to use temporary files for data subsets.</p></li>
+<li><p><strong>prepare_engine</strong> (<em>Literal</em><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em>) – Engine to use for data preparation (‘pandas’ or ‘polars’).</p></li>
+<li><p><strong>compare_business_metric</strong> (<a class="reference internal" href="metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric" title="outboxml.metrics.business_metrics.BaseCompareBusinessMetric"><em>BaseCompareBusinessMetric</em></a>)</p></li>
+<li><p><strong>retro</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>hp_tune</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>async_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>model_timeout_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.update_models">
+<span class="sig-name descname"><span class="pre">update_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">send_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters_for_optuna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.update_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.update_models" title="Link to this definition"></a></dt>
+<dd><p>Execute the complete AutoML pipeline to update models.</p>
+<p>Orchestrates the full AutoML workflow:
+1. Feature selection (if retro=True)
+2. Hyperparameter tuning (if hp_tune=True)
+3. Model training
+4. Result saving
+5. Comparison with previous models
+6. Deployment decision
+7. Review (email or HTML report)
+8. MLFlow logging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>send_mail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to send email notifications. If False, generates
+HTML report instead. Defaults to False.</p></li>
+<li><p><strong>parameters_for_optuna</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary mapping model names to
+custom Optuna parameter functions for hyperparameter tuning.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>AutoMLResult object containing all results, metrics, and metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.automl_manager.AutoMLResult" title="outboxml.automl_manager.AutoMLResult">AutoMLResult</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Errors are caught and logged, but results are still saved to MLFlow</p></li>
+<li><p>Status dictionary is updated throughout the process</p></li>
+<li><p>Execution times are recorded for each stage</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">update_models</span><span class="p">(</span><span class="n">send_mail</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deployment: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">deployment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New features: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">new_features</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.feature_selection">
+<span class="sig-name descname"><span class="pre">feature_selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.feature_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.feature_selection" title="Link to this definition"></a></dt>
+<dd><p>Perform feature selection for all models.</p>
+<p>Conducts retrospective feature selection if enabled. For each model,
+determines which features should be included based on retrospective
+analysis and feature selection criteria. Saves selected feature subsets
+for later use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Only executes if retro=True</p></li>
+<li><p>Uses RetroFS for retrospective analysis</p></li>
+<li><p>Saves feature subsets to pickle files for each model</p></li>
+<li><p>Updates automl_results.new_features with selected features</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">retro</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">automl</span><span class="o">.</span><span class="n">feature_selection</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">automl</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">new_features</span><span class="p">)</span>
+<span class="c1"># {&#39;model1&#39;: [&#39;feature1&#39;, &#39;feature2&#39;, ...], ...}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.hp_tuning">
+<span class="sig-name descname"><span class="pre">hp_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters_for_optuna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.hp_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.hp_tuning" title="Link to this definition"></a></dt>
+<dd><p>Perform hyperparameter tuning for all models.</p>
+<p>Uses Optuna to find optimal hyperparameters for each model through
+cross-validation. Supports custom parameter search spaces via
+parameters_for_optuna.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameters_for_optuna</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary mapping model names to
+custom Optuna parameter functions. Each function should define the
+search space for that model. Defaults to None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary mapping model names to optimized hyperparameters.
+Empty dictionary for models that failed tuning.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Errors during tuning are logged but don’t stop the process</p></li>
+<li><p>Uses the configured sampler, scoring function, and CV folds</p></li>
+<li><p>Respects model_timeout_seconds if set</p></li>
+<li><p>Returns empty dict for models that fail tuning</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">custom_params</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)}</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model1&#39;</span><span class="p">:</span> <span class="n">custom_params</span><span class="p">}</span>
+<span class="n">new_hp</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">hp_tuning</span><span class="p">(</span><span class="n">parameters_for_optuna</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">new_hp</span><span class="p">[</span><span class="s1">&#39;model1&#39;</span><span class="p">])</span>
+<span class="c1"># {&#39;learning_rate&#39;: 0.15, ...}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.save_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.save_results" title="Link to this definition"></a></dt>
+<dd><p>Save model results to disk and export to Grafana.</p>
+<p>Saves all model results including:
+- Pickle files for service deployment
+- Model configurations as JSON
+- Artifacts via ResultExport
+- Metrics to Grafana database (if connection provided)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>results</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to DSManagerResult objects.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Creates timestamped pickle files for production deployment</p></li>
+<li><p>Exports metrics to Grafana if grafana_connection is provided</p></li>
+<li><p>Errors during Grafana export are logged but don’t stop the process</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">fit_models</span><span class="p">()</span>
+<span class="n">automl</span><span class="o">.</span><span class="n">save_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="c1"># Results saved to disk and exported to Grafana</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.compare_with_previous">
+<span class="sig-name descname"><span class="pre">compare_with_previous</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.compare_with_previous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.compare_with_previous" title="Link to this definition"></a></dt>
+<dd><p>Compare current models with previous versions.</p>
+<p>Loads the last saved model results and compares them with current results.
+Generates comparison metrics, plots, and business metric comparisons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If no previous model exists, comparison is skipped</p></li>
+<li><p>Generates comparison plots for visualization</p></li>
+<li><p>Calculates business metric differences if compare_business_metric is configured</p></li>
+<li><p>Updates automl_results with comparison data</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">automl</span><span class="o">.</span><span class="n">compare_with_previous</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">automl</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">compare_metrics_df</span><span class="p">)</span>
+<span class="c1"># DataFrame comparing current vs previous model metrics</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.deployment">
+<span class="sig-name descname"><span class="pre">deployment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.deployment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.deployment" title="Link to this definition"></a></dt>
+<dd><p>Make deployment decision based on quality criteria.</p>
+<p>Evaluates whether models meet the configured quality thresholds for
+deployment. Checks both business metrics and comparison business metrics
+against configured thresholds. Sets deployment flag to True only if all
+criteria are met.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Deployment is set to True only if ALL criteria are met</p></li>
+<li><p>Uses metric_growth_value from inference_criteria config</p></li>
+<li><p>For CompareBusinessMetric, checks if difference exceeds threshold</p></li>
+<li><p>For other metrics, checks if metric value is better than threshold</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">automl</span><span class="o">.</span><span class="n">deployment</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">automl</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">deployment</span><span class="p">)</span>
+<span class="c1"># True if all criteria met, False otherwise</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.automl_manager.AutoMLManager.review">
+<span class="sig-name descname"><span class="pre">review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_mail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/automl_manager.html#AutoMLManager.review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.automl_manager.AutoMLManager.review" title="Link to this definition"></a></dt>
+<dd><p>Generate review report (email or HTML) for AutoML execution.</p>
+<p>Creates and sends either an email notification or generates an HTML report
+based on the send_mail flag. Includes success reports or error reports
+depending on execution status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<a class="reference internal" href="core/index.html#outboxml.core.email.EMail" title="outboxml.core.email.EMail"><em>EMail</em></a>) – Email instance for sending notifications.</p></li>
+<li><p><strong>send_mail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to send email. If False, generates HTML report instead.</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><em>Exception</em></a><em>, </em><em>optional</em>) – Optional exception that occurred during execution. If provided,
+generates error report. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If send_mail=True and no error: sends success email</p></li>
+<li><p>If send_mail=True and error: sends error email</p></li>
+<li><p>If send_mail=False and no error: generates HTML success report</p></li>
+<li><p>If send_mail=False and error: generates HTML error report</p></li>
+<li><p>Optionally sends release notification if models were released to Git</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">AutoMLReviewEMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">automl</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">send_mail</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Sends email notification</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datadrift.html" class="btn btn-neutral float-right" title="Data Drift Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

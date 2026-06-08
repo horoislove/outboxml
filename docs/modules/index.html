@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AutoML Manager" href="automl_manager.html" />
+    <link rel="prev" title="Quick Start Guide" href="../quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-modules">Core Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#core-package">Core Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core/index.html">Core Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<p>This section contains the complete API reference for OutBoxML.</p>
+<section id="core-modules">
+<h2>Core Modules<a class="headerlink" href="#core-modules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="automl_manager.html">AutoML Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="automl_manager.html#automlresult">AutoMLResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automl_manager.html#mlflowwrapper">MLFlowWrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automl_manager.html#retrofs">RetroFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automl_manager.html#automlmanager">AutoMLManager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datadrift.html">Data Drift Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datadrift.html#outboxml.datadrift.DataDrift"><code class="docutils literal notranslate"><span class="pre">DataDrift</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets_manager.html#outboxml.datasets_manager.DSManagerResult"><code class="docutils literal notranslate"><span class="pre">DSManagerResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets_manager.html#outboxml.datasets_manager.DataSetsManager"><code class="docutils literal notranslate"><span class="pre">DataSetsManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_subsets.html">Data Subsets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#modeldatasubset">ModelDataSubset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#datapreprocessor">DataPreprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#picklemodelsubset">PickleModelSubset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#parquetdataset">ParquetDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#modelconfigpickle">ModelConfigPickle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#prepareengine">PrepareEngine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#pandasinterface">PandasInterface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_subsets.html#polarsinterface">PolarsInterface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extractors.html">Extractors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor"><code class="docutils literal notranslate"><span class="pre">Extractor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.SimpleExtractor"><code class="docutils literal notranslate"><span class="pre">SimpleExtractor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.BaseExtractor"><code class="docutils literal notranslate"><span class="pre">BaseExtractor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.load_dataset_from_local"><code class="docutils literal notranslate"><span class="pre">load_dataset_from_local()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.load_dataset_from_db"><code class="docutils literal notranslate"><span class="pre">load_dataset_from_db()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.database_to_pandas"><code class="docutils literal notranslate"><span class="pre">database_to_pandas()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.get_useful_columns"><code class="docutils literal notranslate"><span class="pre">get_useful_columns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.PolarsExtractor"><code class="docutils literal notranslate"><span class="pre">PolarsExtractor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractors.html#outboxml.extractors.load_dataset_from_local_pl"><code class="docutils literal notranslate"><span class="pre">load_dataset_from_local_pl()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="feature_selection.html">Feature Selection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="feature_selection.html#outboxml.feature_selection.SelectionInterface"><code class="docutils literal notranslate"><span class="pre">SelectionInterface</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_selection.html#outboxml.feature_selection.FeatureSelection"><code class="docutils literal notranslate"><span class="pre">FeatureSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_selection.html#outboxml.feature_selection.FeatureSelectionInterface"><code class="docutils literal notranslate"><span class="pre">FeatureSelectionInterface</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_selection.html#outboxml.feature_selection.BaseFS"><code class="docutils literal notranslate"><span class="pre">BaseFS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameter_tuning.html#outboxml.hyperparameter_tuning.OptunaModel"><code class="docutils literal notranslate"><span class="pre">OptunaModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameter_tuning.html#outboxml.hyperparameter_tuning.HPTuningData"><code class="docutils literal notranslate"><span class="pre">HPTuningData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameter_tuning.html#outboxml.hyperparameter_tuning.HPTuning"><code class="docutils literal notranslate"><span class="pre">HPTuning</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="metrics.html#module-outboxml.metrics.base_metrics">Base Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metrics.html#module-outboxml.metrics.business_metrics">Business Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metrics.html#module-outboxml.metrics.processor">Metrics Processor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.BaseWrapperModel"><code class="docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.DefaultModels"><code class="docutils literal notranslate"><span class="pre">DefaultModels</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.BaselineModels"><code class="docutils literal notranslate"><span class="pre">BaselineModels</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.RandomForestClassifierModel"><code class="docutils literal notranslate"><span class="pre">RandomForestClassifierModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.BaseLineModel"><code class="docutils literal notranslate"><span class="pre">BaseLineModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.GLMCatboostCombineModel"><code class="docutils literal notranslate"><span class="pre">GLMCatboostCombineModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.CatboostOverGLMModel"><code class="docutils literal notranslate"><span class="pre">CatboostOverGLMModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.ModelsWrapper"><code class="docutils literal notranslate"><span class="pre">ModelsWrapper</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.StatsmodelsModel"><code class="docutils literal notranslate"><span class="pre">StatsmodelsModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.CatboostModel"><code class="docutils literal notranslate"><span class="pre">CatboostModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.XgboostModel"><code class="docutils literal notranslate"><span class="pre">XgboostModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#outboxml.models.StatsModelsEstimator"><code class="docutils literal notranslate"><span class="pre">StatsModelsEstimator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_manager.html#outboxml.monitoring_manager.MonitoringManager"><code class="docutils literal notranslate"><span class="pre">MonitoringManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plots.html">Plots</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.DataframeForPlots"><code class="docutils literal notranslate"><span class="pre">DataframeForPlots</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.MLPlot"><code class="docutils literal notranslate"><span class="pre">MLPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.FactorsPlot"><code class="docutils literal notranslate"><span class="pre">FactorsPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.MetricsPlot"><code class="docutils literal notranslate"><span class="pre">MetricsPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.CompareModelsMetrics"><code class="docutils literal notranslate"><span class="pre">CompareModelsMetrics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.CompareModelsPlot"><code class="docutils literal notranslate"><span class="pre">CompareModelsPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots.html#outboxml.plots.PlotlyWrapper"><code class="docutils literal notranslate"><span class="pre">PlotlyWrapper</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="export_results.html">Export Results</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="export_results.html#outboxml.export_results.ResultExport"><code class="docutils literal notranslate"><span class="pre">ResultExport</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="export_results.html#outboxml.export_results.GrafanaExport"><code class="docutils literal notranslate"><span class="pre">GrafanaExport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="core-package">
+<h2>Core Package<a class="headerlink" href="#core-package" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Core Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core/config_builders.html">Config Builders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/data_prepare.html">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/enums.html">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/pydantic_models.html">Pydantic Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/validators.html">Validators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/predict.html">Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/monitoring_factory.html">Monitoring Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/index.html#module-outboxml.core.email">Email Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="automl_manager.html" class="btn btn-neutral float-right" title="AutoML Manager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

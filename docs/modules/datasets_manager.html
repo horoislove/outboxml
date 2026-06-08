@@ -1,0 +1,642 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datasets Manager &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Subsets" href="data_subsets.html" />
+    <link rel="prev" title="Data Drift Detection" href="datadrift.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Datasets Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult"><code class="docutils literal notranslate"><span class="pre">DSManagerResult</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.datasets_manager.DataSetsManager"><code class="docutils literal notranslate"><span class="pre">DataSetsManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Datasets Manager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/datasets_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.datasets_manager">
+<span id="datasets-manager"></span><h1>Datasets Manager<a class="headerlink" href="#module-outboxml.datasets_manager" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.datasets_manager.</span></span><span class="sig-name descname"><span class="pre">DSManagerResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_importance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Container class for model results.</p>
+<p>Stores all information about a trained model including the model object,
+data subsets, predictions, metrics, and configurations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>model</strong> (<em>Any</em>) – Trained model object.</p></li>
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Object containing train/test data subsets with
+X_train/test, y_train/test vectors, numerical and categorical feature
+names, and exposure vectors.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>, </em><em>optional</em>) – Model configuration object.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig" title="outboxml.core.pydantic_models.AllModelsConfig"><em>AllModelsConfig</em></a><em>, </em><em>optional</em>) – Configuration file with source data settings.</p></li>
+<li><p><strong>predictions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with ‘train’ and ‘test’ keys containing predictions.</p></li>
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with ‘train’ and ‘test’ keys containing metrics.</p></li>
+<li><p><strong>feature_importance</strong> (<em>FeatureImportance</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.dict_for_prod_export" title="outboxml.datasets_manager.DSManagerResult.dict_for_prod_export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dict_for_prod_export()</span></code></a> - Returns dictionary for creating pickle file for service</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.from_pickle_model_result" title="outboxml.datasets_manager.DSManagerResult.from_pickle_model_result"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_pickle_model_result()</span></code></a> - Converter from pickle service dictionary to object (class method)</p></li>
+</ul>
+<p class="rubric">Properties</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.X" title="outboxml.datasets_manager.DSManagerResult.X"><code class="xref py py-attr docutils literal notranslate"><span class="pre">X</span></code></a> - Feature vector X</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.y_pred" title="outboxml.datasets_manager.DSManagerResult.y_pred"><code class="xref py py-attr docutils literal notranslate"><span class="pre">y_pred</span></code></a> - Predictions</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.y" title="outboxml.datasets_manager.DSManagerResult.y"><code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code></a> - True target values (y_true)</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult.exposure" title="outboxml.datasets_manager.DSManagerResult.exposure"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exposure</span></code></a> - Exposure vector</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_importance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize DSManagerResult instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>model</strong> (<em>Any</em>) – Trained model object.</p></li>
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Object containing train/test data subsets.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>, </em><em>optional</em>) – Configuration object for the model.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig" title="outboxml.core.pydantic_models.AllModelsConfig"><em>AllModelsConfig</em></a><em>, </em><em>optional</em>) – Configuration object for all models.</p></li>
+<li><p><strong>predictions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with ‘train’ and ‘test’ keys containing predictions.</p></li>
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with ‘train’ and ‘test’ keys containing metrics.</p></li>
+<li><p><strong>feature_importance</strong> (<em>FeatureImportance</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.load_metrics">
+<span class="sig-name descname"><span class="pre">load_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult.load_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.load_metrics" title="Link to this definition"></a></dt>
+<dd><p>Load metrics into the result object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary containing metrics to load.</p></li>
+<li><p><strong>ds_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Dataset type (‘train’ or ‘test’). If None, replaces all metrics.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.load_predictions">
+<span class="sig-name descname"><span class="pre">load_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult.load_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.load_predictions" title="Link to this definition"></a></dt>
+<dd><p>Load predictions into the result object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>Union</em><em>[</em><em>pd.DataFrame</em><em>, </em><em>pd.Series</em><em>]</em>) – DataFrame or Series containing predictions.</p></li>
+<li><p><strong>ds_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Dataset type (‘train’ or ‘test’).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.dict_for_prod_export">
+<span class="sig-name descname"><span class="pre">dict_for_prod_export</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult.dict_for_prod_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.dict_for_prod_export" title="Link to this definition"></a></dt>
+<dd><p>Convert DSManagerResult to dictionary for pickle export to production service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing model configuration, model object, and feature lists.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">export_dict</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">dict_for_prod_export</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">export_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">dict_keys([&#39;model_config&#39;, &#39;model&#39;, &#39;min_max_scaler&#39;, &#39;features_numerical&#39;, &#39;features_categorical&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.from_pickle_model_result">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_pickle_model_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_model_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DSManagerResult.from_pickle_model_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.from_pickle_model_result" title="Link to this definition"></a></dt>
+<dd><p>Convert pickle dictionary to DSManagerResult object.</p>
+<p>Uses library model wrapper format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary loaded from pickle file containing model data.</p></li>
+<li><p><strong>all_model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig" title="outboxml.core.pydantic_models.AllModelsConfig"><em>AllModelsConfig</em></a>) – Configuration object for all models.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DSManagerResult instance created from pickle data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult" title="outboxml.datasets_manager.DSManagerResult">DSManagerResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;model.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">model_result</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="o">.</span><span class="n">from_pickle_model_result</span><span class="p">(</span><span class="n">model_result</span><span class="p">,</span> <span class="n">all_models_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.X">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.X" title="Link to this definition"></a></dt>
+<dd><p>Get combined feature matrix from train and test sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame containing all features.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.y">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.y" title="Link to this definition"></a></dt>
+<dd><p>Get combined target values from train and test sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Series containing all target values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.y_pred">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">y_pred</span></span><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.y_pred" title="Link to this definition"></a></dt>
+<dd><p>Get combined predictions from train and test sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Series containing all predictions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DSManagerResult.exposure">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">exposure</span></span><a class="headerlink" href="#outboxml.datasets_manager.DSManagerResult.exposure" title="Link to this definition"></a></dt>
+<dd><p>Get combined exposure values from train and test sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Series containing all exposure values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.datasets_manager.</span></span><span class="sig-name descname"><span class="pre">DataSetsManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepared_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_temp_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Main class for working with models.</p>
+<p>This is the core class for managing datasets, model training, and evaluation
+in the OutBoxML framework. It handles data loading, preprocessing, model
+fitting, prediction, and result management.</p>
+<p>For framework usage, a properly configured config file is required.
+Out-of-the-box operation is performed using config parameters:
+<code class="docutils literal notranslate"><span class="pre">DataSetsManager(config_name=config)</span></code>.</p>
+<p>For custom framework configuration, import the following modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseWrapperModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.dataset_retro</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetroDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.export_results</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultExport</span>
+</pre></div>
+</div>
+<p>Framework usage starts with creating an object with parameters.
+The required parameter is: path to config file or validated config file
+(AllModelsConfig). Other parameters can be set automatically “out of the box”.
+Work information is output as a log file.
+Modeling results are output in the DSManagerResult container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Dict</em><em>]</em>) – Path to config file or validated config file (AllModelsConfig).</p></li>
+<li><p><strong>extractor</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em>]</em>) – User-defined extractor object inheriting from Extractor interface.
+Main method <code class="docutils literal notranslate"><span class="pre">extract_dataset()</span></code> should return pandas DataFrame.
+Extractor should contain <code class="docutils literal notranslate"><span class="pre">check_object()</span></code> method with data validation
+and verification. Use library RTDMExtractor or ActuarExtractor for
+working with databases.</p></li>
+<li><p><strong>prepared_datasets</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em>]</em><em>]</em>) – Dictionary <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">PreparedDataset}</span></code> with model
+preparation objects. Wrapper of <code class="docutils literal notranslate"><span class="pre">prepare_dataset</span></code> function.
+PreparedDataset by default uses model_config features and has no prep
+and post prep functions.</p></li>
+<li><p><strong>models_dict</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Dictionary <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">Model}</span></code> with models for training
+and prediction inheriting from Model class. Class should have <code class="docutils literal notranslate"><span class="pre">fit()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">predict()</span></code> methods. By default model is chosen by group and project
+name. You can import models from library.</p></li>
+<li><p><strong>business_metric</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a><em>]</em>) – User-defined business metric. Should inherit from
+BaseMetric. Main method is <code class="docutils literal notranslate"><span class="pre">calculate_metric()</span></code>.</p></li>
+<li><p><strong>use_baseline_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Baseline model selection. 1 - RandomForestRegressor,
+2 - DummyRegressor median; 3 - mean. Defaults to 0 (no baseline).</p></li>
+<li><p><strong>retro_changes</strong> (<em>Optional</em><em>[</em><em>RetroDataset</em><em>]</em>) – RetroDataset object for retro analysis.</p></li>
+<li><p><strong>external_config</strong> (<em>Any</em><em>, </em><em>optional</em>) – External configuration object. Defaults to None.</p></li>
+<li><p><strong>use_temp_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to use temporary files for data processing.
+Defaults to False.</p></li>
+<li><p><strong>prepare_engine</strong> (<em>Literal</em><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em>) – Engine to use for data preparation (‘pandas’ or ‘polars’).
+Defaults to ‘pandas’.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="#outboxml.datasets_manager.DataSetsManager.load_dataset" title="outboxml.datasets_manager.DataSetsManager.load_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> - Load dataset from source and path in config file</dt><dd><p>or user-defined extractor class</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_trainDfs()</span></code> - Return prepared data subset to train user model</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_testDfs()</span></code> - Return prepared data subset to test user model</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DataSetsManager.fit_models" title="outboxml.datasets_manager.DataSetsManager.fit_models"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_models()</span></code></a> - Fit, predict and get metrics for all models in model_dict</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DataSetsManager.get_result" title="outboxml.datasets_manager.DataSetsManager.get_result"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_result()</span></code></a> - Return container of results DSManagerResult</p></li>
+<li><p><a class="reference internal" href="#outboxml.datasets_manager.DataSetsManager.check_datadrift" title="outboxml.datasets_manager.DataSetsManager.check_datadrift"><code class="xref py py-meth docutils literal notranslate"><span class="pre">check_datadrift()</span></code></a> - Returns dataframe with datadrift analysis result</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p>Example usage with Titanic dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Post prep function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">data_post_prep_func</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;SEX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;SEX&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="n">titanic_ds_manager</span> <span class="o">=</span> <span class="n">DataSetsManager</span><span class="p">(</span>
+    <span class="n">config_name</span><span class="o">=</span><span class="n">config_name</span><span class="p">,</span>
+    <span class="n">extractor</span><span class="o">=</span><span class="n">TitanicExampleExtractor</span><span class="p">(</span><span class="n">path_to_file</span><span class="o">=</span><span class="n">path_to_data</span><span class="p">),</span>
+    <span class="n">prepared_datasets</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;first&#39;</span><span class="p">:</span> <span class="n">PrepareDataset</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="s1">&#39;survived1&#39;</span><span class="p">,</span>
+            <span class="n">data_post_prep_func</span><span class="o">=</span><span class="n">data_post_prep_func</span><span class="p">,</span>
+            <span class="n">check_prepared</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">calc_corr</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;second&#39;</span><span class="p">:</span> <span class="n">PrepareDataset</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s1">&#39;survived2&#39;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="n">business_metric</span><span class="o">=</span><span class="n">TitanicExampleMetric</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">titanic_TrainDs</span> <span class="o">=</span> <span class="n">titanic_ds_manager</span><span class="o">.</span><span class="n">get_trainDfs</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)</span>
+<span class="n">titanic_results</span> <span class="o">=</span> <span class="n">titanic_ds_manager</span><span class="o">.</span><span class="n">fit_models</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more examples, see the <code class="docutils literal notranslate"><span class="pre">outboxml/examples</span></code> repository.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepared_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_temp_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize DataSetsManager instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Dict</em><em>]</em>) – Path to config file or validated config dictionary (AllModelsConfig).</p></li>
+<li><p><strong>extractor</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em>]</em>) – User-defined extractor object inheriting from Extractor interface.
+Main method extract_dataset() should return pandas DataFrame.
+Extractor should contain check_object() method for data validation.
+Use library RTDMExtractor or ActuarExtractor for database connections.</p></li>
+<li><p><strong>prepared_datasets</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em>]</em><em>]</em>) – Dictionary with model names as keys and PrepareDataset objects as values.
+Wrapper of prepare_dataset function. PreparedDataset by default uses
+model_config features and has no prep and post prep functions.</p></li>
+<li><p><strong>models_dict</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Dictionary with model names as keys and Model objects as values.
+Models should inherit from Model class and have fit(), predict() methods.
+By default model is chosen by group and project name.</p></li>
+<li><p><strong>business_metric</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a><em>]</em>) – User-defined business metric inheriting from BaseMetric.
+Main method is calculate_metric().</p></li>
+<li><p><strong>use_baseline_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Baseline model selection. 0 - no baseline, 1 - RandomForestRegressor,
+2 - DummyRegressor median, 3 - mean.</p></li>
+<li><p><strong>retro_changes</strong> (<em>Optional</em><em>[</em><em>RetroDataset</em><em>]</em>) – RetroDataset object for retro analysis.</p></li>
+<li><p><strong>external_config</strong> (<em>Any</em><em>, </em><em>optional</em>) – External configuration object. If None, uses default config.</p></li>
+<li><p><strong>use_temp_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to use temporary files for data subsets.</p></li>
+<li><p><strong>prepare_engine</strong> (<em>Literal</em><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em>) – Engine to use for data preparation (‘pandas’ or ‘polars’).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.dataset">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dataset</span></span><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.dataset" title="Link to this definition"></a></dt>
+<dd><p>Get the loaded dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame containing the loaded dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.config">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.config" title="Link to this definition"></a></dt>
+<dd><p>Get configuration with updated model configs from results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Deep copy of all models configuration with updated model configs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig" title="outboxml.core.pydantic_models.AllModelsConfig">AllModelsConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.get_result">
+<span class="sig-name descname"><span class="pre">get_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.get_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.get_result" title="Link to this definition"></a></dt>
+<dd><p>Get dictionary of all model results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with model names as keys and DSManagerResult objects as values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult" title="outboxml.datasets_manager.DSManagerResult">DSManagerResult</a>]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;model1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span>
+<span class="go">{&#39;train&#39;: {...}, &#39;test&#39;: {...}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.load_dataset" title="Link to this definition"></a></dt>
+<dd><p>Load data from source according to config or user-defined extractor object.</p>
+<p>Uses .env file or external config for extractor. Can also load dataset directly via parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – Optional DataFrame to load directly. If provided, uses SimpleExtractor.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded dataset as DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">my_dataframe</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.get_subset" title="Link to this definition"></a></dt>
+<dd><p>Get data subset for specified model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the model. If None, uses default model name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ModelDataSubset object containing train/test data for the model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subset</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s1">&#39;model1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subset</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(800, 10)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.data_subsets">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data_subsets</span></span><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.data_subsets" title="Link to this definition"></a></dt>
+<dd><p>Get all data subsets for all models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with model names as keys and ModelDataSubset objects as values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.fit_models">
+<span class="sig-name descname"><span class="pre">fit_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">need_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_feature_importance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.fit_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.fit_models" title="Link to this definition"></a></dt>
+<dd><p>Fit models and calculate metrics.</p>
+<p>If ‘need_fit’ is True, fit methods are called for models.
+If load_subsets_from_pickle option is enabled, loads previously saved datasubsets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary of models to fit. If None, uses default models.</p></li>
+<li><p><strong>need_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to fit models. If False, assumes models are already fitted.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Optional name of specific model to fit. If None, fits all models.</p></li>
+<li><p><strong>calc_feature_importance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with model names as keys and metrics dictionaries as values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">fit_models</span><span class="p">(</span><span class="n">need_fit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;model1&#39;</span><span class="p">][</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;full&#39;</span><span class="p">]</span>
+<span class="go">{&#39;mae&#39;: 0.1234, &#39;rmse&#39;: 0.5678, &#39;r2&#39;: 0.9012}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.check_datadrift">
+<span class="sig-name descname"><span class="pre">check_datadrift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.check_datadrift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.check_datadrift" title="Link to this definition"></a></dt>
+<dd><p>Check data drift between train and test datasets.</p>
+<p>Uses DataDrift library for analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model to check drift for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing data drift analysis results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">drift_report</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">check_datadrift</span><span class="p">(</span><span class="s1">&#39;model1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">drift_report</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.datasets_manager.DataSetsManager.model_predict">
+<span class="sig-name descname"><span class="pre">model_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/datasets_manager.html#DataSetsManager.model_predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.datasets_manager.DataSetsManager.model_predict" title="Link to this definition"></a></dt>
+<dd><p>Construct DSManagerResult for external model or data prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – DataFrame with data to make predictions on.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model to use for prediction.</p></li>
+<li><p><strong>model_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult" title="outboxml.datasets_manager.DSManagerResult"><em>DSManagerResult</em></a><em>, </em><em>optional</em>) – Optional model result as dict from service or DSManagerResult object.
+If None, uses inner results.</p></li>
+<li><p><strong>full_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to return full output with metrics or only predictions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DSManagerResult object containing predictions and optionally metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.datasets_manager.DSManagerResult" title="outboxml.datasets_manager.DSManagerResult">DSManagerResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">model_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;model1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datadrift.html" class="btn btn-neutral float-left" title="Data Drift Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_subsets.html" class="btn btn-neutral float-right" title="Data Subsets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

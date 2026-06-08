@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.datadrift &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.datadrift</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.datadrift</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelEncoder</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.monitoring_factory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DataReviewerRegistry</span><span class="p">,</span>
+    <span class="n">DataReviewerComponent</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataDrift">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift">[docs]</a>
+<span class="nd">@DataReviewerRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;datadrift&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataDrift</span><span class="p">(</span><span class="n">DataReviewerComponent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data drift detection component for monitoring model performance.</span>
+<span class="sd">    </span>
+<span class="sd">    Calculates various drift metrics (PSI, KL divergence, JS divergence) to detect</span>
+<span class="sd">    changes in data distribution between training and test datasets. Supports both</span>
+<span class="sd">    numerical and categorical features.</span>
+<span class="sd">    </span>
+<span class="sd">    :param full_calc: Whether to perform full calculation including base/control</span>
+<span class="sd">        data comparison. Defaults to True.</span>
+<span class="sd">    :type full_calc: bool</span>
+<span class="sd">    :param columns_to_exclude: List of column names to exclude from drift calculation.</span>
+<span class="sd">        Defaults to empty list.</span>
+<span class="sd">    :type columns_to_exclude: list</span>
+<span class="sd">    :param n_bins: Number of bins to use for histogram-based calculations.</span>
+<span class="sd">        Defaults to 100.</span>
+<span class="sd">    :type n_bins: int</span>
+<span class="sd">    :param dif_len_string: Maximum length of difference string in full calculation.</span>
+<span class="sd">        Defaults to 100.</span>
+<span class="sd">    :type dif_len_string: int</span>
+<span class="sd">    </span>
+<span class="sd">    :var types_dict: Dictionary mapping column names to their types (&#39;NUMERICAL&#39; or &#39;CATEGORICAL&#39;).</span>
+<span class="sd">    :var full_report: List for storing full calculation reports.</span>
+<span class="sd">    </span>
+<span class="sd">    .. rubric:: Examples</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from outboxml.datadrift import DataDrift</span>
+<span class="sd">        from outboxml.monitoring_result import DataContext</span>
+<span class="sd">        drift_detector = DataDrift(full_calc=True, n_bins=50)</span>
+<span class="sd">        result = drift_detector.review(data_context)</span>
+<span class="sd">        # Returns DataFrame with PSI, KL, JS metrics for each column</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DataDrift.__init__">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full_calc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">columns_to_exclude</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                 <span class="n">dif_len_string</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize DataDrift instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param full_calc: Whether to perform full calculation including base/control</span>
+<span class="sd">            data comparison. Defaults to True.</span>
+<span class="sd">        :type full_calc: bool</span>
+<span class="sd">        :param columns_to_exclude: List of column names to exclude from drift calculation.</span>
+<span class="sd">            Defaults to empty list.</span>
+<span class="sd">        :type columns_to_exclude: list</span>
+<span class="sd">        :param n_bins: Number of bins to use for histogram-based calculations.</span>
+<span class="sd">            Defaults to 100.</span>
+<span class="sd">        :type n_bins: int</span>
+<span class="sd">        :param dif_len_string: Maximum length of difference string in full calculation.</span>
+<span class="sd">            Defaults to 100.</span>
+<span class="sd">        :type dif_len_string: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dif_len_string</span> <span class="o">=</span> <span class="n">dif_len_string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">n_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_calc</span> <span class="o">=</span> <span class="n">full_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_report</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_exclude</span> <span class="o">=</span> <span class="n">columns_to_exclude</span></div>
+
+
+<div class="viewcode-block" id="DataDrift.review">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift.review">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">review</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_context</span><span class="p">:</span> <span class="n">DataContext</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform data drift review on the provided data context.</span>
+<span class="sd">        </span>
+<span class="sd">        Calculates PSI (Population Stability Index), KL divergence, and JS divergence</span>
+<span class="sd">        for each column in the dataset. Automatically detects column types (numerical</span>
+<span class="sd">        or categorical) and applies appropriate transformations. Optionally performs</span>
+<span class="sd">        full calculation with base/control data comparison.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data_context: DataContext object containing:</span>
+<span class="sd">            - X_train: Training dataset (pandas.DataFrame)</span>
+<span class="sd">            - X_test: Test dataset (pandas.DataFrame)</span>
+<span class="sd">            - base: Base dataset for full calculation (optional, pandas.DataFrame)</span>
+<span class="sd">            - actual: Control/actual dataset for full calculation (optional, pandas.DataFrame)</span>
+<span class="sd">        :type data_context: DataContext</span>
+<span class="sd">        :return: DataFrame with drift metrics for each column. Columns are features,</span>
+<span class="sd">            rows are metrics (PSI, KL, JS). If full_calc=True, additional rows</span>
+<span class="sd">            with detailed statistics are included.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            - Categorical columns are automatically encoded using LabelEncoder</span>
+<span class="sd">            - Columns in columns_to_exclude are skipped</span>
+<span class="sd">            - Errors during calculation are logged but don&#39;t stop the process</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            from outboxml.monitoring_result import DataContext</span>
+<span class="sd">            data_context = DataContext(X_train=train_df, X_test=test_df)</span>
+<span class="sd">            drift_detector = DataDrift(full_calc=True)</span>
+<span class="sd">            result = drift_detector.review(data_context)</span>
+<span class="sd">            # Returns DataFrame with PSI, KL, JS for each column</span>
+<span class="sd">            print(result[&#39;feature_name&#39;][&#39;PSI&#39;])  # Get PSI for a specific feature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">data_context</span><span class="o">.</span><span class="n">X_train</span>
+        <span class="n">test_data</span> <span class="o">=</span> <span class="n">data_context</span><span class="o">.</span><span class="n">X_test</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">train_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_exclude</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NUMERICAL&#39;</span>
+            <span class="n">X_train</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">X_test</span> <span class="o">=</span> <span class="n">test_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">X_train</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;category&#39;</span> <span class="ow">or</span> <span class="n">X_train</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;CATEGORICAL&#39;</span>
+                <span class="n">LE</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+                <span class="n">LE</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+                <span class="n">X_train</span> <span class="o">=</span> <span class="n">LE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+                <span class="n">X_test</span> <span class="o">=</span> <span class="n">LE</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">psi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_psi</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
+                <span class="n">kl_divergence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_kl_divirgence</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
+                <span class="n">js_divergence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_js_divirgence</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">psi</span><span class="p">,</span> <span class="n">kl_divergence</span><span class="p">,</span> <span class="n">js_divergence</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No results for &#39;</span><span class="o">+</span> <span class="n">column</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="s1">&#39;PSI&#39;</span><span class="p">,</span> <span class="s1">&#39;KL&#39;</span><span class="p">,</span> <span class="s1">&#39;JS&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_calc</span><span class="p">:</span>
+            <span class="n">base_data</span> <span class="o">=</span> <span class="n">data_context</span><span class="o">.</span><span class="n">base</span>
+            <span class="n">control_data</span> <span class="o">=</span> <span class="n">data_context</span><span class="o">.</span><span class="n">actual</span>
+            <span class="k">if</span> <span class="n">base_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">control_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No base/control data&#39;</span><span class="p">)</span>
+
+            <span class="n">full_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_calculation</span><span class="p">(</span><span class="n">base_data</span><span class="p">,</span> <span class="n">control_data</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">result</span><span class="p">,</span> <span class="n">full_result</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_psi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_sample</span><span class="p">,</span> <span class="n">test_sample</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Population Stability Index (PSI) between two samples.</span>
+<span class="sd">        </span>
+<span class="sd">        PSI measures the stability of a population over time. It compares the</span>
+<span class="sd">        distribution of a feature between training and test datasets.</span>
+<span class="sd">        </span>
+<span class="sd">        :param train_sample: Training sample data (array-like).</span>
+<span class="sd">        :type train_sample: array-like</span>
+<span class="sd">        :param test_sample: Test sample data (array-like).</span>
+<span class="sd">        :type test_sample: array-like</span>
+<span class="sd">        :param n_bins: Number of bins to use for probability calculation.</span>
+<span class="sd">        :type n_bins: int</span>
+<span class="sd">        :return: PSI value. Lower values indicate more stability.</span>
+<span class="sd">            - PSI &lt; 0.1: No significant change</span>
+<span class="sd">            - PSI 0.1-0.25: Some minor change</span>
+<span class="sd">            - PSI &gt; 0.25: Significant change</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by review().</span>
+<span class="sd">            Infinite values are excluded from the sum.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            drift_detector = DataDrift()</span>
+<span class="sd">            psi = drift_detector._calculate_psi(train_data, test_data, n_bins=50)</span>
+<span class="sd">            print(f&quot;PSI: {psi}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">train_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">test_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">e</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="n">p</span> <span class="o">-</span> <span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span>
+        <span class="n">PSI</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">res</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">PSI</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_js_divirgence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_sample</span><span class="p">,</span> <span class="n">test_sample</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Jensen-Shannon (JS) divergence between two samples.</span>
+<span class="sd">        </span>
+<span class="sd">        JS divergence is a symmetric version of KL divergence that measures the</span>
+<span class="sd">        difference between two probability distributions. It ranges from 0 to 1,</span>
+<span class="sd">        where 0 means identical distributions.</span>
+<span class="sd">        </span>
+<span class="sd">        :param train_sample: Training sample data (array-like).</span>
+<span class="sd">        :type train_sample: array-like</span>
+<span class="sd">        :param test_sample: Test sample data (array-like).</span>
+<span class="sd">        :type test_sample: array-like</span>
+<span class="sd">        :param n_bins: Number of bins to use for probability calculation.</span>
+<span class="sd">        :type n_bins: int</span>
+<span class="sd">        :return: JS divergence value. Range: [0, 1]. Lower values indicate</span>
+<span class="sd">            more similar distributions.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by review().</span>
+<span class="sd">            JS divergence is symmetric and always finite.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            drift_detector = DataDrift()</span>
+<span class="sd">            js = drift_detector._calculate_js_divirgence(train_data, test_data, n_bins=50)</span>
+<span class="sd">            print(f&quot;JS divergence: {js}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">train_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">test_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">list_of_tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_intersection</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_probs</span><span class="p">(</span><span class="n">list_of_tuples</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="n">q</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">q</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">q</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_kl_divirgence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_sample</span><span class="p">,</span> <span class="n">test_sample</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Kullback-Leibler (KL) divergence between two samples.</span>
+<span class="sd">        </span>
+<span class="sd">        KL divergence measures how one probability distribution diverges from</span>
+<span class="sd">        another. It is asymmetric and non-negative. Lower values indicate</span>
+<span class="sd">        more similar distributions.</span>
+<span class="sd">        </span>
+<span class="sd">        :param train_sample: Training sample data (array-like).</span>
+<span class="sd">        :type train_sample: array-like</span>
+<span class="sd">        :param test_sample: Test sample data (array-like).</span>
+<span class="sd">        :type test_sample: array-like</span>
+<span class="sd">        :param n_bins: Number of bins to use for probability calculation.</span>
+<span class="sd">        :type n_bins: int</span>
+<span class="sd">        :return: KL divergence value. Range: [0, inf). Lower values indicate</span>
+<span class="sd">            more similar distributions.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by review().</span>
+<span class="sd">            Only bins where both distributions have non-zero probability are used.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            drift_detector = DataDrift()</span>
+<span class="sd">            kl = drift_detector._calculate_kl_divirgence(train_data, test_data, n_bins=50)</span>
+<span class="sd">            print(f&quot;KL divergence: {kl}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">train_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probs</span><span class="p">(</span><span class="n">test_sample</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="n">list_of_tuples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_intersection</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_probs</span><span class="p">(</span><span class="n">list_of_tuples</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="n">q</span><span class="p">))</span>
+
+<div class="viewcode-block" id="DataDrift.get_probs">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift.get_probs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_tuples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract probability arrays from a list of tuples.</span>
+<span class="sd">        </span>
+<span class="sd">        Converts a list of (p, q) tuples into separate numpy arrays for</span>
+<span class="sd">        probability calculations.</span>
+<span class="sd">        </span>
+<span class="sd">        :param list_of_tuples: List of tuples where each tuple contains</span>
+<span class="sd">            (probability_p, probability_q) pairs.</span>
+<span class="sd">        :type list_of_tuples: list of tuples</span>
+<span class="sd">        :return: Tuple of (p, q) numpy arrays containing probabilities.</span>
+<span class="sd">        :rtype: tuple of numpy.ndarray</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by divergence</span>
+<span class="sd">            calculation methods.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            tuples = [(0.1, 0.2), (0.3, 0.4), (0.5, 0.6)]</span>
+<span class="sd">            p, q = drift_detector.get_probs(tuples)</span>
+<span class="sd">            # p = array([0.1, 0.3, 0.5])</span>
+<span class="sd">            # q = array([0.2, 0.4, 0.6])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">list_of_tuples</span><span class="p">])</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">list_of_tuples</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span></div>
+
+
+<div class="viewcode-block" id="DataDrift.support_intersection">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift.support_intersection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">support_intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find intersection of probability distributions where both are non-zero.</span>
+<span class="sd">        </span>
+<span class="sd">        Filters out bins where either probability distribution has zero probability,</span>
+<span class="sd">        which is necessary for stable KL and JS divergence calculations.</span>
+<span class="sd">        </span>
+<span class="sd">        :param p: First probability distribution array.</span>
+<span class="sd">        :type p: array-like</span>
+<span class="sd">        :param q: Second probability distribution array.</span>
+<span class="sd">        :type q: array-like</span>
+<span class="sd">        :return: List of tuples (p_i, q_i) where both p_i and q_i are non-zero.</span>
+<span class="sd">        :rtype: list of tuples</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by divergence</span>
+<span class="sd">            calculation methods. Prevents division by zero in log calculations.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            p = np.array([0.1, 0.2, 0.0, 0.3])</span>
+<span class="sd">            q = np.array([0.15, 0.0, 0.25, 0.35])</span>
+<span class="sd">            result = drift_detector.support_intersection(p, q)</span>
+<span class="sd">            # Returns: [(0.1, 0.15), (0.3, 0.35)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sup_int</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">filter</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">sup_int</span></div>
+
+
+<div class="viewcode-block" id="DataDrift.compute_probs">
+<a class="viewcode-back" href="../../modules/datadrift.html#outboxml.datadrift.DataDrift.compute_probs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate probabilities for feature bins.</span>
+<span class="sd">        </span>
+<span class="sd">        Computes histogram-based probability distribution for a feature vector.</span>
+<span class="sd">        The data is divided into bins, and probabilities are calculated for each bin.</span>
+<span class="sd">        Also includes a special bin for NaN values.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data: Feature vector (pandas Series or numpy array).</span>
+<span class="sd">        :type data: pandas.Series or numpy.ndarray</span>
+<span class="sd">        :param n: Number of bins to divide the vector into. Defaults to 10.</span>
+<span class="sd">        :type n: int</span>
+<span class="sd">        :return: Tuple of (e, p) where:</span>
+<span class="sd">            - e: Array of bin edges (left boundaries) plus NaN marker</span>
+<span class="sd">            - p: Array of probabilities for each bin plus NaN probability</span>
+<span class="sd">        :rtype: tuple of numpy.ndarray</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            - Object dtype data is automatically converted to numeric</span>
+<span class="sd">            - NaN values are handled separately and included as the last bin</span>
+<span class="sd">            - The last element of e is NaN, and the last element of p is the</span>
+<span class="sd">              proportion of NaN values</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            data = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, None])</span>
+<span class="sd">            e, p = drift_detector.compute_probs(data, n=5)</span>
+<span class="sd">            # e contains bin edges plus NaN</span>
+<span class="sd">            # p contains probabilities for each bin plus NaN probability</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span> <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">notna</span><span class="p">()],</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">e</span><span class="p">,</span> <span class="n">p</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_full_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">control_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform full calculation with detailed statistics for all columns.</span>
+<span class="sd">        </span>
+<span class="sd">        Calculates detailed drift statistics for each column including NaN rates,</span>
+<span class="sd">        unique value counts, modes, means (for numerical), and value differences</span>
+<span class="sd">        between base and control datasets.</span>
+<span class="sd">        </span>
+<span class="sd">        :param base_data: Base/reference dataset for comparison.</span>
+<span class="sd">        :type base_data: pandas.DataFrame</span>
+<span class="sd">        :param control_data: Control/actual dataset to compare against base.</span>
+<span class="sd">        :type control_data: pandas.DataFrame</span>
+<span class="sd">        :return: DataFrame with detailed statistics for each column. Each column</span>
+<span class="sd">            of the result corresponds to a feature, rows contain statistics like</span>
+<span class="sd">            TYPE, col, date, NaN_train, NaN_test, uniq_train, uniq_test, etc.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by review()</span>
+<span class="sd">            when full_calc=True. Uses the types_dict populated during review()</span>
+<span class="sd">            to determine column types.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            base_df = pd.DataFrame({&#39;feature1&#39;: [1, 2, 3], &#39;feature2&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]})</span>
+<span class="sd">            control_df = pd.DataFrame({&#39;feature1&#39;: [1, 2, 4], &#39;feature2&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;d&#39;]})</span>
+<span class="sd">            result = drift_detector._full_calculation(base_df, control_df)</span>
+<span class="sd">            # Returns DataFrame with detailed statistics for each feature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;CATEGORICAL&#39;</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drift_calc</span><span class="p">(</span><span class="n">base_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">control_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;CATEGORICAL&#39;</span><span class="p">)</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NUMERICAL&#39;</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drift_calc</span><span class="p">(</span><span class="n">base_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">control_data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;NUMERICAL&#39;</span><span class="p">)</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unknown type for full calc&#39;</span><span class="p">)</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+                <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">result</span><span class="p">,</span> <span class="n">res</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Error while calculating datadrift for &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">column</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">_drift_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">control</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CATEGORICAL&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate detailed drift statistics for a single column.</span>
+<span class="sd">        </span>
+<span class="sd">        Computes comprehensive statistics comparing base and control datasets</span>
+<span class="sd">        for a single feature, including NaN rates, unique counts, modes, means,</span>
+<span class="sd">        and value differences.</span>
+<span class="sd">        </span>
+<span class="sd">        :param base: Base/reference series for comparison.</span>
+<span class="sd">        :type base: pandas.Series</span>
+<span class="sd">        :param control: Control/actual series to compare against base.</span>
+<span class="sd">        :type control: pandas.Series</span>
+<span class="sd">        :param label: Column name/label for the feature.</span>
+<span class="sd">        :type label: str</span>
+<span class="sd">        :param type: Feature type, either &#39;CATEGORICAL&#39; or &#39;NUMERICAL&#39;.</span>
+<span class="sd">            Defaults to &#39;CATEGORICAL&#39;.</span>
+<span class="sd">        :type type: str</span>
+<span class="sd">        :return: Dictionary containing drift statistics:</span>
+<span class="sd">            - TYPE: Feature type</span>
+<span class="sd">            - col: Column name</span>
+<span class="sd">            - date: Current date</span>
+<span class="sd">            - NaN_train: Proportion of NaN values in base</span>
+<span class="sd">            - NaN_test: Proportion of NaN values in control</span>
+<span class="sd">            - uniq_train: Number of unique values in base</span>
+<span class="sd">            - uniq_test: Number of unique values in control</span>
+<span class="sd">            - mode_train: Most frequent value in base</span>
+<span class="sd">            - mode_test: Most frequent value in control</span>
+<span class="sd">            - mean_train: Mean value in base (NaN for categorical)</span>
+<span class="sd">            - mean_test: Mean value in control (NaN for categorical)</span>
+<span class="sd">            - dif_train: Values in base but not in control (truncated)</span>
+<span class="sd">            - dif_test: Values in control but not in base (truncated)</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is a private method, typically called internally by _full_calculation().</span>
+<span class="sd">            Difference strings are truncated to dif_len_string characters.</span>
+<span class="sd">            </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">        </span>
+<span class="sd">            base_series = pd.Series([1, 2, 3, 4, 5])</span>
+<span class="sd">            control_series = pd.Series([1, 2, 3, 6, 7])</span>
+<span class="sd">            stats = drift_detector._drift_calc(</span>
+<span class="sd">                base_series, control_series, label=&#39;feature1&#39;, type=&#39;NUMERICAL&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">            print(stats[&#39;dif_train&#39;])  # Values in base but not in control</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+
+            <span class="s1">&#39;TYPE&#39;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span>
+            <span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+            <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+            <span class="s2">&quot;NaN_train&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+            <span class="s2">&quot;NaN_test&quot;</span><span class="p">:</span> <span class="n">control</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+            <span class="s2">&quot;uniq_train&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;uniq_test&quot;</span><span class="p">:</span> <span class="n">control</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;mode_train&quot;</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;mode_test&quot;</span><span class="p">:</span> <span class="n">control</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;mean_train&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;CATEGORICAL&#39;</span> <span class="k">else</span> <span class="n">base</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>  <span class="c1"># ,</span>
+            <span class="s2">&quot;mean_test&quot;</span><span class="p">:</span>  <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;CATEGORICAL&#39;</span> <span class="k">else</span> <span class="n">control</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+            <span class="s2">&quot;dif_train&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">unique</span><span class="p">())))[:</span><span class="bp">self</span><span class="o">.</span><span class="n">dif_len_string</span><span class="p">],</span>
+            <span class="s2">&quot;dif_test&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">unique</span><span class="p">())))[:</span><span class="bp">self</span><span class="o">.</span><span class="n">dif_len_string</span><span class="p">]</span>
+        <span class="p">}</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.feature_selection &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.feature_selection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.feature_selection</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.analysis_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationMatrix</span><span class="p">,</span> <span class="n">CatboostShapAnalysis</span><span class="p">,</span><span class="n">CVStability</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.config_builders</span><span class="w"> </span><span class="kn">import</span> <span class="n">feature_params</span><span class="p">,</span> <span class="n">feature_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.data_prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDatasetResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeaturesTypes</span><span class="p">,</span> <span class="n">FeatureEngineering</span><span class="p">,</span> <span class="n">FeatureTypesForSelection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePrepareDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSelectionConfig</span><span class="p">,</span> <span class="n">ModelConfig</span><span class="p">,</span> <span class="n">FeatureModelConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.data_subsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPreprocessor</span><span class="p">,</span> <span class="n">ModelDataSubset</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Feature selection module.</span>
+
+<span class="sd">Provides interfaces and base implementations for feature selection</span>
+<span class="sd">pipelines, including feature preparation, SHAP-based selection,</span>
+<span class="sd">correlation filtering, and CV stability checks.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="SelectionInterface">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.SelectionInterface">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SelectionInterface</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base interface for feature selection algorithms.</span>
+
+<span class="sd">    Abstract base class that defines the interface for feature selection</span>
+<span class="sd">    implementations. All feature selection algorithms should inherit from</span>
+<span class="sd">    this class and implement the ``feature_selection`` method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SelectionInterface.feature_selection">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.SelectionInterface.feature_selection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main feature selection method.</span>
+
+<span class="sd">        This method should be implemented by subclasses to perform the</span>
+<span class="sd">        actual feature selection logic.</span>
+
+<span class="sd">        :param *params: Variable number of parameters depending on the</span>
+<span class="sd">            specific implementation.</span>
+<span class="sd">        :return: List of selected feature names.</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FeatureSelection">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.FeatureSelection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureSelection</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for feature selection implementations.</span>
+
+<span class="sd">    This class provides the interface for feature selection that returns</span>
+<span class="sd">    a ModelDataSubset with selected features. Subclasses should implement</span>
+<span class="sd">    the ``select_features`` method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FeatureSelection.select_features">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.FeatureSelection.select_features">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelDataSubset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute feature selection.</span>
+
+<span class="sd">        This method should be implemented by subclasses to perform feature</span>
+<span class="sd">        selection and return a ModelDataSubset containing only the selected</span>
+<span class="sd">        features.</span>
+
+<span class="sd">        :param *params: Variable number of parameters depending on the</span>
+<span class="sd">            specific implementation.</span>
+<span class="sd">        :return: Dataset subset with selected features.</span>
+<span class="sd">        :rtype: ModelDataSubset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FeatureSelectionInterface">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.FeatureSelectionInterface">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureSelectionInterface</span><span class="p">(</span><span class="n">SelectionInterface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main interface for feature selection algorithms.</span>
+
+<span class="sd">    Uses SHAP values, correlation filtering, and cross-validation</span>
+<span class="sd">    stability analysis to select the most relevant features.</span>
+
+<span class="sd">    :param feature_selection_config: Configuration for feature selection.</span>
+<span class="sd">    :type feature_selection_config: FeatureSelectionConfig</span>
+
+<span class="sd">    :param objective: CatBoost objective name.</span>
+<span class="sd">    :type objective: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FeatureSelectionInterface.__init__">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.FeatureSelectionInterface.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_selection_config</span><span class="p">:</span> <span class="n">FeatureSelectionConfig</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;RMSE&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize feature selection interface.</span>
+
+<span class="sd">        :param feature_selection_config: Configuration for feature selection.</span>
+<span class="sd">        :type feature_selection_config: FeatureSelectionConfig</span>
+<span class="sd">        :param objective: CatBoost objective name. Supports &#39;RMSE&#39;, &#39;poisson&#39;,</span>
+<span class="sd">            &#39;gamma&#39;, &#39;binary&#39;, &#39;binomial&#39;, or any valid CatBoost objective.</span>
+<span class="sd">            Defaults to &#39;RMSE&#39;.</span>
+<span class="sd">        :type objective: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">feature_selection_config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__objective_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;poisson&#39;</span><span class="p">:</span> <span class="s2">&quot;Poisson&quot;</span><span class="p">,</span>
+                                <span class="s1">&#39;gamma&#39;</span><span class="p">:</span> <span class="s2">&quot;Tweedie:variance_power=1.9999999&quot;</span><span class="p">,</span>
+                                <span class="s1">&#39;binary&#39;</span><span class="p">:</span> <span class="s2">&quot;Logloss&quot;</span><span class="p">,</span>
+                                <span class="s1">&#39;binomial&#39;</span><span class="p">:</span> <span class="s2">&quot;Logloss&quot;</span><span class="p">,</span>
+                                <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__objective_map</span><span class="p">[</span><span class="n">objective</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span></div>
+
+
+
+<div class="viewcode-block" id="FeatureSelectionInterface.feature_selection">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.FeatureSelectionInterface.feature_selection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data_subset</span><span class="p">:</span> <span class="n">ModelDataSubset</span><span class="p">,</span> <span class="n">new_features_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Selects features based on SHAP importance and stability criteria.</span>
+
+<span class="sd">                :param data_subset: Prepared dataset subset for model training.</span>
+<span class="sd">                :type data_subset: ModelDataSubset</span>
+
+<span class="sd">                :param new_features_list: List of candidate features.</span>
+<span class="sd">                :type new_features_list: list</span>
+
+<span class="sd">                :param params: Additional CatBoost parameters.</span>
+<span class="sd">                :type params: dict, optional</span>
+
+<span class="sd">                :return: List of selected feature names.</span>
+<span class="sd">                :rtype: list</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="n">catboost_shap_analysis</span> <span class="o">=</span> <span class="n">CatboostShapAnalysis</span><span class="p">(</span><span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                                                      <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span>
+                                                      <span class="n">objective</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+                                                      <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">catboost_shap_analysis</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;eliminated_features_names&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;selected_features_names&#39;</span><span class="p">],</span>
+                            <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;loss_graph&#39;</span><span class="p">][</span><span class="s1">&#39;loss_values&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># .plot()</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">top_feautures_to_select</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">rank</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Choosing top &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39; features&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">max_corr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span> <span class="o">=</span> <span class="n">CorrelationMatrix</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X</span><span class="p">,</span>
+                              <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">max_corr_value</span><span class="p">,</span>
+                              <span class="n">feature_importance_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">,</span>
+                              <span class="n">features_numerical</span><span class="o">=</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span>
+                              <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Features to drop||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span><span class="p">))</span>
+
+        <span class="n">selected_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">cv_diff_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span> <span class="o">=</span> <span class="n">CVStability</span><span class="p">(</span><span class="n">list_to_exclude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span><span class="p">,</span>
+                                       <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                                       <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span>
+                                       <span class="n">objective</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+                                       <span class="n">catboost_params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                                       <span class="n">features</span><span class="o">=</span><span class="n">new_features_list</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_drop</span><span class="p">:</span> <span class="n">selected_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">selected_features</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseFS">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.BaseFS">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseFS</span><span class="p">(</span><span class="n">FeatureSelection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base feature selection pipeline.</span>
+
+<span class="sd">    Orchestrates feature preparation, selection, and dataset filtering.</span>
+
+<span class="sd">    :param data_preprocessor: Dataset preprocessor.</span>
+<span class="sd">    :type data_preprocessor: DataPreprocessor</span>
+
+<span class="sd">    :param parameters: Feature selection configuration.</span>
+<span class="sd">    :type parameters: FeatureSelectionConfig</span>
+
+<span class="sd">    :param feature_selection_interface: Feature selection algorithm.</span>
+<span class="sd">    :type feature_selection_interface: SelectionInterface</span>
+
+<span class="sd">    :param prepare_data_interface: Dataset preparation interface.</span>
+<span class="sd">    :type prepare_data_interface: BasePrepareDataset</span>
+
+<span class="sd">    :param new_features_list: Candidate features.</span>
+<span class="sd">    :type new_features_list: list, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="BaseFS.__init__">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.BaseFS.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data_preprocessor</span><span class="p">:</span> <span class="n">DataPreprocessor</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="p">:</span> <span class="n">FeatureSelectionConfig</span><span class="p">,</span>
+                 <span class="n">feature_selection_interface</span><span class="p">:</span> <span class="n">SelectionInterface</span><span class="p">,</span>
+                 <span class="n">prepare_data_interface</span><span class="p">:</span> <span class="n">BasePrepareDataset</span><span class="p">,</span>
+                 <span class="n">new_features_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span> <span class="o">=</span> <span class="n">data_preprocessor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_selection_interface</span> <span class="o">=</span> <span class="n">feature_selection_interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_prepare_interface</span> <span class="o">=</span> <span class="n">prepare_data_interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_features_list</span> <span class="o">=</span> <span class="n">new_features_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_data_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_features_list</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_features</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="BaseFS.select_features">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.BaseFS.select_features">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the full feature selection pipeline.</span>
+
+<span class="sd">        :param model_name: Model name.</span>
+<span class="sd">        :type model_name: str, optional</span>
+
+<span class="sd">        :param params: Model parameters.</span>
+<span class="sd">        :type params: dict</span>
+
+<span class="sd">        :return: Dataset subset with selected features.</span>
+<span class="sd">        :rtype: ModelDataSubset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Feature selection||Prepare of new_features for research&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">use_temp_data</span><span class="p">:</span>
+            <span class="n">data_for_research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using temp data for preparing new features&#39;</span><span class="p">)</span>
+            <span class="n">data_for_research</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_data_using_temp</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Feature selection||Preparation finished&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">selected_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_selection_interface</span><span class="o">.</span><span class="n">feature_selection</span><span class="p">(</span><span class="n">data_for_research</span><span class="p">,</span>
+                                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span><span class="p">,</span>
+                                                                                    <span class="n">params</span><span class="p">,</span>
+                                                                                    <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;||Return origin&#39;</span><span class="p">)</span>
+            <span class="n">selected_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">final_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_data</span><span class="p">(</span><span class="n">data_for_research</span><span class="p">,</span> <span class="n">selected_features</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">final_data</span></div>
+
+
+<div class="viewcode-block" id="BaseFS.prepare_data">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.BaseFS.prepare_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDataSubset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepares dataset for feature selection.</span>
+
+<span class="sd">                :param model_name: Model name.</span>
+<span class="sd">                :type model_name: str, optional</span>
+
+<span class="sd">                :return: Prepared dataset subset.</span>
+<span class="sd">                :rtype: ModelDataSubset</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="n">feature_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_types</span><span class="p">(</span><span class="n">full_data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span><span class="p">:</span>
+            <span class="n">feature_params</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_feature</span><span class="p">(</span><span class="n">serie</span><span class="o">=</span><span class="n">full_data</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                                  <span class="n">prepare_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_prepare_interface</span><span class="o">.</span><span class="n">prepare_dataset</span><span class="p">,</span>
+                                                  <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;features_params&#39;</span><span class="p">:</span> <span class="n">feature_params</span><span class="p">,</span>
+                                                        <span class="s1">&#39;new_features&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">},</span>
+                                                  <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseFS.feature_types">
+<a class="viewcode-back" href="../../modules/feature_selection.html#outboxml.feature_selection.BaseFS.feature_types">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines feature types for selection.</span>
+
+<span class="sd">                :param data: Input dataset.</span>
+<span class="sd">                :type data: pandas.DataFrame</span>
+
+<span class="sd">                :return: List of feature names suitable for modeling.</span>
+<span class="sd">                :rtype: list</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="n">cutoff_1_category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_1_category</span>
+        <span class="n">cutoff_nan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_nan</span>
+        <span class="n">count_category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">count_category</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">numeric</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">categorical</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Цикл по колонкам датафрейма</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_new_features_list</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">VC</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">col</span> <span class="o">+</span> <span class="s1">&#39; не хэшируемый тип&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="n">feature_type</span><span class="p">(</span><span class="n">serie</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">max_category_num</span><span class="o">=</span><span class="n">count_category</span><span class="p">,</span> <span class="n">cutoff_1_category</span><span class="o">=</span><span class="n">cutoff_1_category</span><span class="p">,</span>
+                         <span class="n">cutoff_nan</span><span class="o">=</span><span class="n">cutoff_nan</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;numerical&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">numeric</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;categorical&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">categorical</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="n">features_for_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">numeric</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="n">FeatureTypesForSelection</span><span class="o">.</span><span class="n">categorical</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">features_for_model</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serie</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>  <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+                         <span class="n">q1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">q2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepares parameters for a single feature.</span>
+
+<span class="sd">                Internal helper method.</span>
+
+<span class="sd">                :param serie: Feature data.</span>
+<span class="sd">                :type serie: pandas.Series</span>
+
+<span class="sd">                :param depth: Category proportion cutoff.</span>
+<span class="sd">                :type depth: float</span>
+
+<span class="sd">                :param q1: Lower quantile.</span>
+<span class="sd">                :type q1: float</span>
+
+<span class="sd">                :param q2: Upper quantile.</span>
+<span class="sd">                :type q2: float</span>
+
+<span class="sd">                :return: Feature parameters dictionary.</span>
+<span class="sd">                :rtype: dict</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">feature_params</span><span class="p">(</span><span class="n">serie</span><span class="o">=</span><span class="n">serie</span><span class="p">,</span> <span class="n">max_category_num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">count_category</span><span class="p">,</span>
+                              <span class="n">cutoff_nan</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_nan</span><span class="p">,</span>
+                              <span class="n">cutoff_1_category</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">cutoff_1_category</span><span class="p">,</span>
+                              <span class="n">default_num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">default_num</span><span class="p">,</span>
+                              <span class="n">default_cat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">default_cat</span><span class="p">,</span>
+                              <span class="n">depth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+                              <span class="n">q1</span><span class="o">=</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="o">=</span><span class="n">q2</span><span class="p">,</span>
+                              <span class="n">encoding_cat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">encoding_cat</span><span class="p">,</span>
+                              <span class="n">encoding_num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">encoding_num</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_subset</span><span class="p">:</span> <span class="n">ModelDataSubset</span><span class="p">,</span> <span class="n">selected_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDataSubset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filters dataset based on selected features.</span>
+
+<span class="sd">        Removes non-selected features and updates model configuration.</span>
+
+<span class="sd">        :param data_subset: Dataset subset to filter.</span>
+<span class="sd">        :type data_subset: ModelDataSubset</span>
+
+<span class="sd">        :param selected_features: Selected feature names.</span>
+<span class="sd">        :type selected_features: list</span>
+
+<span class="sd">        :return: Filtered dataset subset.</span>
+<span class="sd">        :rtype: ModelDataSubset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Feature selection||Preparing results&#39;</span><span class="p">)</span>
+        <span class="n">result_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">selected_feature</span> <span class="ow">in</span> <span class="n">selected_features</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">selected_feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_data_list</span><span class="p">:</span>
+                <span class="n">result_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">selected_feature</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Selected features: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">result_features</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_features</span> <span class="o">=</span> <span class="n">result_features</span>
+        <span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">data_subset</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result_features</span> <span class="ow">and</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_data_list</span><span class="p">:</span>
+                <span class="n">columns_to_drop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Columns to drop||&#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">columns_to_drop</span><span class="p">))</span>
+        <span class="n">ModelDataSubset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">(</span><span class="n">data_subset</span><span class="p">,</span> <span class="n">columns_to_drop</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Features for model||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_prepare_interface</span><span class="o">.</span><span class="n">_new_model_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span><span class="n">data_subset</span><span class="o">.</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">update_model_config</span><span class="p">(</span>
+                <span class="n">features_to_drop</span><span class="o">=</span><span class="n">columns_to_drop</span><span class="p">,</span>
+            <span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="n">data_subset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_data_using_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDataSubset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepares dataset using temporary saved subsets.</span>
+
+<span class="sd">                Used when `use_temp_data=True` in configuration.</span>
+
+<span class="sd">                :param model_name: Model name.</span>
+<span class="sd">                :type model_name: str, optional</span>
+
+<span class="sd">                :return: Combined dataset with original and new features.</span>
+<span class="sd">                :rtype: ModelDataSubset</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="n">init_version</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_version</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_new&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_pickle_subset</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_model_config_pickle</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">version</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loading previously saved subsets&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_use_saved_files</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_use_saved_files</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New data prepare&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_pickle_subset</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">init_version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">init_version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_model_config_pickle</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">init_version</span>
+
+        <span class="n">new_preproc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessor_for_using_temp_files</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="n">new_features_subset</span> <span class="o">=</span> <span class="n">new_preproc</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">update_model_config</span><span class="p">(</span>
+            <span class="n">features_to_drop</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">features_to_append</span><span class="o">=</span><span class="n">new_preproc</span><span class="o">.</span><span class="n">model_config</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">subset</span> <span class="o">+</span> <span class="n">new_features_subset</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocessor_for_using_temp_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new DataPreprocessor for temporary feature preparation.</span>
+
+<span class="sd">                Internal helper for reusing saved dataset subsets.</span>
+
+<span class="sd">                :param model_name: Model name.</span>
+<span class="sd">                :type model_name: str</span>
+
+<span class="sd">                :return: Configured DataPreprocessor instance.</span>
+<span class="sd">                :rtype: DataPreprocessor</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="n">feature_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">new_model_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">model_config</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+        <span class="n">new_model_config</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_dict</span><span class="p">[</span><span class="s1">&#39;NUMERIC&#39;</span><span class="p">]:</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;numerical&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;categorical&#39;</span>
+            <span class="n">feature_params</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_feature</span><span class="p">(</span><span class="n">serie</span><span class="o">=</span><span class="n">full_data</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+            <span class="n">new_model_config</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FeatureModelConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span> <span class="o">**</span><span class="n">feature_params</span><span class="p">[</span><span class="n">feature</span><span class="p">]))</span>
+        <span class="n">new_prepare_datasets</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">)</span>
+        <span class="n">new_prepare_datasets</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">load_model_config</span><span class="p">(</span><span class="n">new_model_config</span><span class="p">)</span>
+        <span class="n">new_data_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_data_config</span><span class="p">)</span>
+        <span class="n">new_data_config</span><span class="o">.</span><span class="n">extra_columns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data_new</span> <span class="o">=</span> <span class="n">full_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features_for_model</span> <span class="o">+</span>
+                             <span class="p">[</span><span class="n">new_model_config</span><span class="o">.</span><span class="n">column_target</span><span class="p">]</span>
+                             <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_prepare_interface</span><span class="o">.</span><span class="n">load_model_config</span><span class="p">(</span><span class="n">new_model_config</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">DataPreprocessor</span><span class="p">(</span><span class="n">prepare_engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_prepare_engine</span><span class="p">,</span>
+                                <span class="n">version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">_version</span> <span class="o">+</span> <span class="s1">&#39;_new&#39;</span><span class="p">,</span>
+                                <span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="n">new_prepare_datasets</span><span class="p">,</span>
+                                <span class="n">data_config</span><span class="o">=</span><span class="n">new_data_config</span><span class="p">,</span>
+                                <span class="n">dataset</span><span class="o">=</span><span class="n">data_new</span><span class="p">,</span>
+                                <span class="n">retro</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">use_saved_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">external_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                                <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

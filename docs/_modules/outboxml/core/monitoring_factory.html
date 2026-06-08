@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.core.monitoring_factory &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.core.monitoring_factory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.core.monitoring_factory</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringContext</span><span class="p">,</span> <span class="n">DataContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+
+<div class="viewcode-block" id="DataReviewerComponent">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerComponent">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataReviewerComponent</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for data reviewer components.</span>
+
+<span class="sd">    Data reviewers are responsible for analyzing datasets</span>
+<span class="sd">    and producing monitoring metrics or diagnostics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataReviewerComponent.review">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerComponent.review">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">review</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MonitoringContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs data review using provided monitoring context.</span>
+
+<span class="sd">        :param context: Monitoring execution context.</span>
+<span class="sd">        :type context: MonitoringContext</span>
+
+<span class="sd">        :return: DataFrame with review results.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ReportComponent">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportComponent">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReportComponent</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for monitoring report components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ReportComponent.__init__">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportComponent.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes report component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ReportComponent.make_report">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportComponent.make_report">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds a monitoring report.</span>
+
+<span class="sd">        :param params: Input results from DataReviewerComponent.</span>
+<span class="sd">        :type params: tuple</span>
+
+<span class="sd">        :return: Final report as DataFrame.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MonitoringItem">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringItem">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringItem</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration container for a single monitoring item.</span>
+
+<span class="sd">    Combines a data reviewer, report generator, and execution settings</span>
+<span class="sd">    into a single monitoring configuration.</span>
+
+<span class="sd">    :var data_reviewer: Component responsible for data review.</span>
+<span class="sd">    :var reviewer_report: Report generator component.</span>
+<span class="sd">    :var group_models: Whether models are processed as a group.</span>
+<span class="sd">    :var name: Monitoring item name.</span>
+<span class="sd">    :var table_name: Target database table name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_reviewer</span><span class="p">:</span> <span class="n">DataReviewerComponent</span>
+    <span class="n">reviewer_report</span><span class="p">:</span> <span class="n">ReportComponent</span>
+    <span class="n">group_models</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">table_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="DataReviewerRegistry">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataReviewerRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Registry for data reviewer components.</span>
+
+<span class="sd">    Allows dynamic registration and lookup of reviewer classes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_monitorings</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="DataReviewerRegistry.register">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerRegistry.register">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a data reviewer class.</span>
+
+<span class="sd">        :param name: Reviewer identifier.</span>
+<span class="sd">        :type name: str</span>
+
+<span class="sd">        :return: Class decorator.</span>
+<span class="sd">        :rtype: callable</span>
+
+<span class="sd">        .. rubric:: Examples</span>
+
+<span class="sd">        &gt;&gt;&gt; @DataReviewerRegistry.register(&quot;datadrift&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; class DataDriftReviewer(DataReviewerComponent):</span>
+<span class="sd">        &gt;&gt;&gt;     ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">monitoring_class</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_monitorings</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">monitoring_class</span>
+            <span class="k">return</span> <span class="n">monitoring_class</span>
+        <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+<div class="viewcode-block" id="DataReviewerRegistry.get">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerRegistry.get">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves a registered data reviewer class.</span>
+
+<span class="sd">        :param name: Reviewer identifier.</span>
+<span class="sd">        :type name: str</span>
+
+<span class="sd">        :return: Reviewer class.</span>
+<span class="sd">        :rtype: type</span>
+
+<span class="sd">        :raises KeyError: If reviewer is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_monitorings</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Monitoring </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not registered&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_monitorings</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DataReviewerRegistry.list">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerRegistry.list">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lists all registered data reviewers.</span>
+
+<span class="sd">        :return: List of reviewer names.</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_monitorings</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ReportRegistry">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReportRegistry</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Registry for monitoring report components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_reports</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="viewcode-block" id="ReportRegistry.register">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportRegistry.register">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a report class.</span>
+
+<span class="sd">        :param name: Report identifier.</span>
+<span class="sd">        :type name: str</span>
+
+<span class="sd">        :return: Class decorator.</span>
+<span class="sd">        :rtype: callable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">report_class</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_reports</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_class</span>
+            <span class="k">return</span> <span class="n">report_class</span>
+        <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+<div class="viewcode-block" id="ReportRegistry.get">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportRegistry.get">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves a registered report class.</span>
+
+<span class="sd">        :param name: Report identifier.</span>
+<span class="sd">        :type name: str</span>
+
+<span class="sd">        :return: Report class.</span>
+<span class="sd">        :rtype: type</span>
+
+<span class="sd">        :raises KeyError: If report is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_reports</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Report </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not registered&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_reports</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ReportRegistry.list">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.ReportRegistry.list">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lists all registered reports.</span>
+
+<span class="sd">        :return: List of report names.</span>
+<span class="sd">        :rtype: list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_reports</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MonitoringService">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringService</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Service responsible for executing monitoring items.</span>
+
+<span class="sd">    Manages a collection of monitoring items and executes them in sequence,</span>
+<span class="sd">    producing review results and formatted reports.</span>
+
+<span class="sd">    :var monitoring_items: List of configured monitoring items.</span>
+<span class="sd">    :vartype monitoring_items: list[MonitoringItem]</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        service = MonitoringService()</span>
+<span class="sd">        service.add_item(monitoring_item)</span>
+<span class="sd">        reviews, reports = service.review_all(context)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MonitoringService.__init__">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes monitoring service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitoring_items</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="MonitoringService.add_item">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService.add_item">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">MonitoringItem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a monitoring item to the service.</span>
+
+<span class="sd">        :param item: Monitoring item configuration.</span>
+<span class="sd">        :type item: MonitoringItem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitoring_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MonitoringService.review_all">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService.review_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">review_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MonitoringContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes all monitoring items.</span>
+
+<span class="sd">        :param context: Monitoring execution context.</span>
+<span class="sd">        :type context: MonitoringContext</span>
+
+<span class="sd">        :return: Tuple of raw review results and formatted reports.</span>
+<span class="sd">        :rtype: tuple</span>
+
+<span class="sd">        .. rubric:: Examples</span>
+
+<span class="sd">        &gt;&gt;&gt; reviews, reports = service.review_all(context)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_context</span> <span class="o">=</span> <span class="n">DataContext</span><span class="p">(</span>
+            <span class="n">base</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">data_preprocessor</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+            <span class="n">actual</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">logs_extractor</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(),</span>
+            <span class="n">_separation_config</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">all_models_config</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span> <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">all_models_config</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">data_reviewer_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">reviewer_report_results</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitoring_items</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">group_models</span><span class="p">:</span>
+                    <span class="n">models_reviewer_result</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">models_config</span><span class="p">:</span>
+                        <span class="n">temp_data_context</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">data_context</span><span class="p">)</span>
+                        <span class="n">temp_data_context</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">data_preprocessor</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+                        <span class="n">reviewer_result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data_reviewer</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">temp_data_context</span><span class="p">)</span>
+                        <span class="n">models_reviewer_result</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reviewer_result</span>
+
+                    <span class="n">final_report</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">reviewer_report</span><span class="o">.</span><span class="n">make_report</span><span class="p">(</span><span class="n">models_reviewer_result</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+                    <span class="n">data_reviewer_results</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">models_reviewer_result</span>
+                    <span class="n">reviewer_report_results</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;df&#39;</span><span class="p">:</span> <span class="n">final_report</span><span class="p">,</span>
+                        <span class="s1">&#39;db_table&#39;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">reviewer_result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data_reviewer</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">data_context</span><span class="p">)</span>
+                    <span class="n">data_reviewer_results</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reviewer_result</span>
+                    <span class="n">reviewer_report_results</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;df&#39;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">reviewer_report</span><span class="o">.</span><span class="n">make_report</span><span class="p">(</span><span class="n">reviewer_result</span><span class="p">,</span> <span class="n">context</span><span class="p">),</span>
+                        <span class="s1">&#39;db_table&#39;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span>
+                    <span class="p">}</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error executing monitoring item &#39;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">data_reviewer_results</span><span class="p">,</span> <span class="n">reviewer_report_results</span></div>
+</div>
+
+
+<div class="viewcode-block" id="MonitoringFactory">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringFactory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory for creating monitoring service from configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MonitoringFactory.create_from_config">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringFactory.create_from_config">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_from_config</span><span class="p">(</span>
+            <span class="n">monitoring_config</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates MonitoringService based on configuration.</span>
+
+<span class="sd">        :param monitoring_config: Monitoring configuration object.</span>
+<span class="sd">        :type monitoring_config: MonitoringConfig</span>
+
+<span class="sd">        :return: Initialized monitoring service.</span>
+<span class="sd">        :rtype: MonitoringService</span>
+
+<span class="sd">        .. rubric:: Examples</span>
+
+<span class="sd">        &gt;&gt;&gt; service = MonitoringFactory.create_from_config(config)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">MonitoringService</span><span class="p">()</span>
+        <span class="n">monitoring_factory</span> <span class="o">=</span> <span class="n">monitoring_config</span><span class="o">.</span><span class="n">monitoring_factory</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">monitoring_factory</span><span class="p">:</span>
+            <span class="n">data_reviewer_type</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span>
+            <span class="n">reviewer_report_type</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">report</span>
+            <span class="n">group_models</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">group_models</span>
+            <span class="n">db_table_name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">db_table_name</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">parameters</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_reviewer_class</span> <span class="o">=</span> <span class="n">DataReviewerRegistry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_reviewer_type</span><span class="p">)</span>
+                <span class="n">reviewer_report_class</span> <span class="o">=</span> <span class="n">ReportRegistry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">reviewer_report_type</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">data_reviewer_instance</span> <span class="o">=</span> <span class="n">data_reviewer_class</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">reviewer_report_instance</span> <span class="o">=</span> <span class="n">reviewer_report_class</span><span class="p">()</span>
+
+            <span class="n">m_item</span> <span class="o">=</span> <span class="n">MonitoringItem</span><span class="p">(</span>
+                <span class="n">data_reviewer</span><span class="o">=</span><span class="n">data_reviewer_instance</span><span class="p">,</span>
+                <span class="n">reviewer_report</span><span class="o">=</span><span class="n">reviewer_report_instance</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">data_reviewer_type</span><span class="p">,</span>
+                <span class="n">group_models</span><span class="o">=</span><span class="n">group_models</span><span class="p">,</span>
+                <span class="n">table_name</span><span class="o">=</span><span class="n">db_table_name</span>
+            <span class="p">)</span>
+
+            <span class="n">service</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">m_item</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">service</span></div>
+</div>
+
+
+<span class="nd">@ReportRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;base_report&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringReport</span><span class="p">(</span><span class="n">ReportComponent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Report without processing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MonitoringContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="MonitoringReport">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringReport">[docs]</a>
+<span class="nd">@ReportRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;base_datadrift_report&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringReport</span><span class="p">(</span><span class="n">ReportComponent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Default monitoring report implementation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MonitoringReport.__init__">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringReport.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes default monitoring report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MonitoringReport.make_report">
+<a class="viewcode-back" href="../../../modules/core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringReport.make_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MonitoringContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds a consolidated monitoring report.</span>
+
+<span class="sd">        :param data_dict: Mapping of model names to review results.</span>
+<span class="sd">        :type data_dict: Dict[str, pandas.DataFrame]</span>
+
+<span class="sd">        :param context: Monitoring execution context.</span>
+<span class="sd">        :type context: MonitoringContext</span>
+
+<span class="sd">        :return: Final monitoring report.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">df_result</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df_result</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+            <span class="n">report</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">report</span><span class="p">,</span> <span class="n">df_result</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">report</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">report</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">report</span><span class="p">[</span><span class="s1">&#39;model_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">monitoring_result</span><span class="o">.</span><span class="n">model_version</span>
+        <span class="k">return</span> <span class="n">report</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

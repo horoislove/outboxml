@@ -1,0 +1,962 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Monitoring Manager" href="monitoring_manager.html" />
+    <link rel="prev" title="Metrics" href="metrics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.BaseWrapperModel"><code class="docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.DefaultModels"><code class="docutils literal notranslate"><span class="pre">DefaultModels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.BaselineModels"><code class="docutils literal notranslate"><span class="pre">BaselineModels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.RandomForestClassifierModel"><code class="docutils literal notranslate"><span class="pre">RandomForestClassifierModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.BaseLineModel"><code class="docutils literal notranslate"><span class="pre">BaseLineModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel"><code class="docutils literal notranslate"><span class="pre">GLMCatboostCombineModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.CatboostOverGLMModel"><code class="docutils literal notranslate"><span class="pre">CatboostOverGLMModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.ModelsWrapper"><code class="docutils literal notranslate"><span class="pre">ModelsWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.StatsmodelsModel"><code class="docutils literal notranslate"><span class="pre">StatsmodelsModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.CatboostModel"><code class="docutils literal notranslate"><span class="pre">CatboostModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.XgboostModel"><code class="docutils literal notranslate"><span class="pre">XgboostModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.models.StatsModelsEstimator"><code class="docutils literal notranslate"><span class="pre">StatsModelsEstimator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.models">
+<span id="models"></span><h1>Models<a class="headerlink" href="#module-outboxml.models" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.BaseWrapperModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">BaseWrapperModel</span></span><a class="reference internal" href="../_modules/outboxml/models.html#BaseWrapperModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaseWrapperModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for all model wrappers inside the framework.</p>
+<p>This class defines a common interface for all models
+that are used within the system.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.BaseWrapperModel.fit">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaseWrapperModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaseWrapperModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits the model using provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Arbitrary keyword arguments for model fitting.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Trained model instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.DefaultModels">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">DefaultModels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#DefaultModels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.DefaultModels" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Factory class for loading default or baseline models.</p>
+<p>This class is used when no custom user-defined models are provided
+in the configuration. It can load wrapper-based models or baseline
+models depending on the configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> – Name of the model group.</p></li>
+<li><p><strong>dataset</strong> – Full dataset used for training.</p></li>
+<li><p><strong>data_subsets</strong> – Prepared datasets for each model.</p></li>
+<li><p><strong>models_configs</strong> – Configuration objects for models.</p></li>
+<li><p><strong>baseline_model</strong> – Identifier of baseline model.</p></li>
+<li><p><strong>models_names</strong> – Names of loaded models.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>data_subsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a><em>]</em>)</p></li>
+<li><p><strong>models_configs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>]</em>)</p></li>
+<li><p><strong>baseline_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.DefaultModels.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#DefaultModels.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.DefaultModels.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes the default models loader.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Full dataset used for training.</p></li>
+<li><p><strong>data_subsets</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a><em>]</em>) – Mapping of model names to prepared data subsets.</p></li>
+<li><p><strong>models_configs</strong> (<em>List</em><em>[</em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>]</em>) – List of model configurations.</p></li>
+<li><p><strong>baseline_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Identifier of baseline model to use.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Hardware type used for training (“CPU” or “GPU”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.DefaultModels.load_default">
+<span class="sig-name descname"><span class="pre">load_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#DefaultModels.load_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.DefaultModels.load_default" title="Link to this definition"></a></dt>
+<dd><p>Loads and initializes models according to configuration.</p>
+<p>If baseline models are specified, baseline models are loaded.
+Otherwise, wrapper-based models are initialized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of trained models.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="n">DefaultModels</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.BaselineModels">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">BaselineModels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaselineModels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaselineModels" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Factory for creating simple baseline models.</p>
+<p>Creates baseline models for comparison purposes. Supports RandomForestRegressor,
+DummyRegressor (median), and mean-based models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – ModelDataSubset containing training data.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>model_number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Baseline model identifier. 1 = RandomForestRegressor,
+2 = DummyRegressor median, 3 = mean.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_name</strong> – Name of the model.</p></li>
+<li><p><strong>dataset</strong> – ModelDataSubset containing training data.</p></li>
+<li><p><strong>model_number</strong> – Baseline model identifier.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.BaselineModels.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaselineModels.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaselineModels.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes baseline model selector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset wrapper containing train data.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>model_number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Baseline model identifier.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.BaselineModels.choose_model">
+<span class="sig-name descname"><span class="pre">choose_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaselineModels.choose_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaselineModels.choose_model" title="Link to this definition"></a></dt>
+<dd><p>Selects and trains a baseline model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Trained baseline estimator.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>sklearn.base.BaseEstimator</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BaselineModels</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;model_1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">choose_model</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.RandomForestClassifierModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">RandomForestClassifierModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'general'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#RandomForestClassifierModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.RandomForestClassifierModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Random Forest regression model wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>_model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.RandomForestClassifierModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'general'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#RandomForestClassifierModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.RandomForestClassifierModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes Random Forest model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset wrapper with training data.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.RandomForestClassifierModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#RandomForestClassifierModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.RandomForestClassifierModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Trains the Random Forest model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Trained RandomForestRegressor.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>sklearn.ensemble.RandomForestRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.BaseLineModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">BaseLineModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'general'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaseLineModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaseLineModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Dummy regressor baseline model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>_model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.BaseLineModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'general'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaseLineModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaseLineModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes dummy baseline model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset wrapper with training data.</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Strategy used by DummyRegressor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.BaseLineModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#BaseLineModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.BaseLineModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits the dummy regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Trained DummyRegressor.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>sklearn.dummy.DummyRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.GLMCatboostCombineModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">GLMCatboostCombineModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max_scaler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#GLMCatboostCombineModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.GLMCatboostCombineModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Unified prediction wrapper for GLM, CatBoost, and XGBoost models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Type of underlying model.</p></li>
+<li><p><strong>model</strong> (<em>Any</em>) – Trained underlying model instance.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – Numerical feature names.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – Categorical feature names.</p></li>
+<li><p><strong>min_max_scaler</strong> (<em>MinMaxScaler</em><em> or </em><em>None</em>) – Scaler used for numerical features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>ModelsParams.glm</em><em>, </em><em>ModelsParams.glm_without_scaler</em><em>, </em><em>ModelsParams.catboost</em><em>, </em><em>ModelsParams.xgboost</em><em>]</em>)</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.GLMCatboostCombineModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_max_scaler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#GLMCatboostCombineModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.GLMCatboostCombineModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes combined model wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Model wrapper type.</p></li>
+<li><p><strong>min_max_scaler</strong> (<em>sklearn.preprocessing.MinMaxScaler</em><em> or </em><em>None</em>) – Scaler used for numerical features.</p></li>
+<li><p><strong>model</strong> (<em>Any</em>) – Trained underlying model.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – List of numerical feature names.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – List of categorical feature names.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.GLMCatboostCombineModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#GLMCatboostCombineModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.GLMCatboostCombineModel.predict" title="Link to this definition"></a></dt>
+<dd><p>Generates predictions for the given dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input features.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Model predictions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)">pandas.Series</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.GLMCatboostCombineModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#GLMCatboostCombineModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.GLMCatboostCombineModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits the model using provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Arbitrary keyword arguments for model fitting.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Trained model instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.CatboostOverGLMModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">CatboostOverGLMModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostOverGLMModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostOverGLMModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>Hybrid model that trains CatBoost on top of GLM predictions.</p>
+<p>This model uses a previously trained GLM as a baseline and
+fits a CatBoost model to learn multiplicative corrections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Configuration of the model.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Hardware type used for training.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>)</p></li>
+<li><p><strong>sm_model</strong> (<a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel" title="outboxml.models.GLMCatboostCombineModel"><em>GLMCatboostCombineModel</em></a>)</p></li>
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>)</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostOverGLMModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostOverGLMModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostOverGLMModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes CatBoost-over-GLM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Configuration object for the model.</p></li>
+<li><p><strong>sm_model</strong> (<a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel" title="outboxml.models.GLMCatboostCombineModel"><em>GLMCatboostCombineModel</em></a>) – Trained GLM wrapper model.</p></li>
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset used for training.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Hardware type used for training (“CPU” or “GPU”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostOverGLMModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostOverGLMModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostOverGLMModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits CatBoost model using GLM predictions as a baseline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><em>None</em>) – Optional training features.</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em> or </em><em>None</em>) – Optional target values.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional CatBoost parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostOverGLMModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostOverGLMModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostOverGLMModel.predict" title="Link to this definition"></a></dt>
+<dd><p>Generates predictions using GLM baseline multiplied by CatBoost correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input features.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Final model predictions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)">pandas.Series</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostOverGLMModel.set_score_request">
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#outboxml.models.CatboostOverGLMModel.set_score_request" title="Link to this definition"></a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <span class="xref std std-term">meta-estimator</span> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please check the <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">score</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#outboxml.models.CatboostOverGLMModel" title="outboxml.models.CatboostOverGLMModel"><em>CatboostOverGLMModel</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.ModelsWrapper">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">ModelsWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#ModelsWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.ModelsWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Factory class for fitting multiple models based on configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_data_subsets</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a><em>]</em>) – Prepared datasets for each model.</p></li>
+<li><p><strong>_models_configs</strong> (<em>List</em><em>[</em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>]</em>) – Configuration objects for models.</p></li>
+<li><p><strong>_models_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary of trained models.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>data_subsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a><em>]</em>)</p></li>
+<li><p><strong>models_configs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>]</em>)</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.ModelsWrapper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#ModelsWrapper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.ModelsWrapper.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes models wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subsets</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a><em>]</em>) – Mapping of model names to datasets.</p></li>
+<li><p><strong>models_configs</strong> (<em>List</em><em>[</em><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a><em>]</em>) – List of model configurations.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Hardware type used for training.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.ModelsWrapper.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#ModelsWrapper.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.ModelsWrapper.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits the model using provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Arbitrary keyword arguments for model fitting.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Trained model instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.ModelsWrapper.models_dict">
+<span class="sig-name descname"><span class="pre">models_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#ModelsWrapper.models_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.ModelsWrapper.models_dict" title="Link to this definition"></a></dt>
+<dd><p>Fits all configured models and returns them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of trained models.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.StatsmodelsModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">StatsmodelsModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsmodelsModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsmodelsModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Wrapper for fitting Generalized Linear Models (GLM) using statsmodels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>objective</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Objective function of the model.</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Wrapper type.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – Numerical features.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – Categorical features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>)</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsmodelsModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsmodelsModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsmodelsModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes statsmodels GLM wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset containing training data.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsmodelsModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsmodelsModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsmodelsModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits a GLM model using statsmodels and returns a unified wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Wrapped GLM model with unified predict interface.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel" title="outboxml.models.GLMCatboostCombineModel">GLMCatboostCombineModel</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glm_model</span> <span class="o">=</span> <span class="n">StatsmodelsModel</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.CatboostModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">CatboostModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Wrapper for training CatBoost models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>objective</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Objective function.</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Wrapper type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>)</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes CatBoost model wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset with training data.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Hardware type used for training (“CPU” or “GPU”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.CatboostModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#CatboostModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.CatboostModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits CatBoost model and returns unified wrapper.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">params_catboost</span></code> sets <code class="docutils literal notranslate"><span class="pre">use_best_model</span></code> to true and the subset has a
+non-empty hold-out (<code class="docutils literal notranslate"><span class="pre">X_test</span></code>, <code class="docutils literal notranslate"><span class="pre">y_test</span></code>), that split is passed as CatBoost
+<code class="docutils literal notranslate"><span class="pre">eval_set</span></code> (same condition as CatBoost’s <code class="docutils literal notranslate"><span class="pre">use_best_model</span></code>). If
+<code class="docutils literal notranslate"><span class="pre">use_best_model</span></code> is true but there is no hold-out, it is forced to false
+so training does not fail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Wrapped CatBoost model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel" title="outboxml.models.GLMCatboostCombineModel">GLMCatboostCombineModel</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">CatboostModel</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.XgboostModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">XgboostModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#XgboostModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.XgboostModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.models.BaseWrapperModel" title="outboxml.models.BaseWrapperModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWrapperModel</span></code></a></p>
+<p>Wrapper for training XGBoost models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model.</p></li>
+<li><p><strong>objective</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Objective function.</p></li>
+<li><p><strong>wrapper</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.ModelsParams" title="outboxml.core.enums.ModelsParams"><em>ModelsParams</em></a>) – Wrapper type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>)</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.XgboostModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#XgboostModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.XgboostModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes XGBoost model wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset with training data.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration.</p></li>
+<li><p><strong>work_type_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Device type (“cpu” or “cuda”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.XgboostModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#XgboostModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.XgboostModel.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits XGBoost model and returns unified wrapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Wrapped XGBoost model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#outboxml.models.GLMCatboostCombineModel" title="outboxml.models.GLMCatboostCombineModel">GLMCatboostCombineModel</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">XgboostModel</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.models.</span></span><span class="sig-name descname"><span class="pre">StatsModelsEstimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sm_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasubset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsModelsEstimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsModelsEstimator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>scikit-learn compatible estimator for statsmodels GLM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration.</p></li>
+<li><p><strong>datasubset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>)</p></li>
+<li><p><strong>datasubset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sm_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasubset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsModelsEstimator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes sklearn-compatible statsmodels estimator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sm_model</strong> (<em>callable</em>) – statsmodels GLM constructor.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration.</p></li>
+<li><p><strong>datasubset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Dataset subset.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsModelsEstimator.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.predict" title="Link to this definition"></a></dt>
+<dd><p>Generates predictions for input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input features.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Predictions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)">pandas.Series</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/models.html#StatsModelsEstimator.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.fit" title="Link to this definition"></a></dt>
+<dd><p>Fits GLM model using sklearn-style interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Training features.</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a>) – Target values.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional fitting parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Trained model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>statsmodels.genmod.generalized_linear_model.GLMResults</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.min_max_scaler">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">min_max_scaler</span></span><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.min_max_scaler" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.model">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.models.StatsModelsEstimator.set_score_request">
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#outboxml.models.StatsModelsEstimator.set_score_request" title="Link to this definition"></a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <span class="xref std std-term">meta-estimator</span> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please check the <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">score</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#outboxml.models.StatsModelsEstimator" title="outboxml.models.StatsModelsEstimator"><em>StatsModelsEstimator</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="metrics.html" class="btn btn-neutral float-left" title="Metrics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="monitoring_manager.html" class="btn btn-neutral float-right" title="Monitoring Manager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

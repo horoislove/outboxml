@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.metrics.base_metrics &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.metrics.base_metrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.metrics.base_metrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">,</span> <span class="n">mean_poisson_deviance</span><span class="p">,</span> <span class="n">mean_gamma_deviance</span><span class="p">,</span>
+    <span class="n">f1_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">root_mean_squared_error</span><span class="p">,</span>
+    <span class="n">silhouette_score</span><span class="p">,</span> <span class="n">davies_bouldin_score</span><span class="p">,</span> <span class="n">calinski_harabasz_score</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelTypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelConfig</span>
+
+
+<div class="viewcode-block" id="BaseMetric">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.base_metrics.BaseMetric">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseMetric</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for metric calculation.</span>
+<span class="sd">    </span>
+<span class="sd">    All metric classes should inherit from this class and implement calculate_metric method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseMetric.calculate_metric">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.base_metrics.BaseMetric.calculate_metric">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate metrics based on provided parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        :param *params: Variable number of parameters depending on implementation.</span>
+<span class="sd">        :return: Dictionary containing calculated metrics.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseMetrics">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.base_metrics.BaseMetrics">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseMetrics</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for calculating standard metrics for different model types.</span>
+<span class="sd">    </span>
+<span class="sd">    Supports regression, classification, and clustering model types.</span>
+<span class="sd">    Calculates metrics with optional exposure weighting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="BaseMetrics.__init__">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.base_metrics.BaseMetrics.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                 <span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">exposure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize BaseMetrics instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param y_pred: Array of predicted values.</span>
+<span class="sd">        :type y_pred: np.array</span>
+<span class="sd">        :param y_true: Array of true values. Optional for clustering models.</span>
+<span class="sd">        :type y_true: np.array, optional</span>
+<span class="sd">        :param exposure: Array of exposure/weight values for weighted metrics.</span>
+<span class="sd">        :type exposure: np.array, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span> <span class="o">=</span> <span class="n">y_true</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_pred</span> <span class="o">=</span> <span class="n">y_pred</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span> <span class="o">=</span> <span class="n">exposure</span></div>
+
+
+<div class="viewcode-block" id="BaseMetrics.calculate_metric">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.base_metrics.BaseMetrics.calculate_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;regression&#39;</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate metrics based on model type.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model_type: Type of model (&#39;regression&#39;, &#39;classification&#39;, or &#39;clustering&#39;).</span>
+<span class="sd">        :type model_type: str</span>
+<span class="sd">        :return: Dictionary containing metrics specific to model type.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; base_metrics = BaseMetrics(y_pred=pred, y_true=actual, exposure=weights)</span>
+<span class="sd">        &gt;&gt;&gt; metrics = base_metrics.calculate_metric(model_type=&#39;regression&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; metrics</span>
+<span class="sd">        {&#39;mae&#39;: 0.1234, &#39;rmse&#39;: 0.5678, &#39;r2&#39;: 0.9012}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_pred_exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y_pred</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_pred_exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y_pred</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="n">ModelTypes</span><span class="o">.</span><span class="n">regression</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span> <span class="n">y_pred_exp</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="s2">&quot;rmse&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">root_mean_squared_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span> <span class="n">y_pred_exp</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span>
+                                  <span class="mi">4</span><span class="p">),</span>
+                    <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">r2_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span> <span class="n">y_pred_exp</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+
+                <span class="p">}</span>
+            <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="n">ModelTypes</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Metrics for classification||cut_off = 0.5&#39;</span><span class="p">)</span>
+                <span class="n">cutoff</span> <span class="o">=</span> <span class="mf">0.5</span>
+                <span class="k">return</span> <span class="p">{</span>
+                        <span class="s1">&#39;f1_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span> <span class="p">(</span><span class="n">y_pred_exp</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                                   <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                        <span class="s1">&#39;precision_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span>
+                                                                 <span class="p">(</span><span class="n">y_pred_exp</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                                                 <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                        <span class="s1">&#39;recall_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span>
+                                                           <span class="p">(</span><span class="n">y_pred_exp</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                                           <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                        <span class="s1">&#39;gini&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_true</span><span class="p">,</span> <span class="n">y_pred_exp</span><span class="p">,</span>
+                                                   <span class="n">sample_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                        <span class="p">}</span>
+            <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="n">ModelTypes</span><span class="o">.</span><span class="n">clustering</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s1">&#39;silhouette_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">silhouette_score</span><span class="p">(</span><span class="n">y_pred_exp</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="s1">&#39;davies_bouldin_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">davies_bouldin_score</span><span class="p">(</span><span class="n">y_pred_exp</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="s1">&#39;calinski_harabasz_score&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">calinski_harabasz_score</span><span class="p">(</span><span class="n">y_pred_exp</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unknown model_type||Returning </span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring Manager &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plots" href="plots.html" />
+    <link rel="prev" title="Models" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Monitoring Manager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.monitoring_manager.MonitoringManager"><code class="docutils literal notranslate"><span class="pre">MonitoringManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Monitoring Manager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/monitoring_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.monitoring_manager">
+<span id="monitoring-manager"></span><h1>Monitoring Manager<a class="headerlink" href="#module-outboxml.monitoring_manager" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.monitoring_manager.MonitoringManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.monitoring_manager.</span></span><span class="sig-name descname"><span class="pre">MonitoringManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitoring_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grafana_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/monitoring_manager.html#MonitoringManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.monitoring_manager.MonitoringManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Orchestrator class for executing model monitoring pipeline.</p>
+<p>This class manages the full monitoring lifecycle: loading configurations,
+extracting data and logs, running monitoring checks, exporting results,
+and sending notifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>monitoring_service</strong> (<a class="reference internal" href="core/monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService" title="outboxml.core.monitoring_factory.MonitoringService"><em>MonitoringService</em></a>) – Service responsible for executing monitoring checks.</p></li>
+<li><p><strong>result</strong> (<em>MonitoringResult</em>) – Object storing monitoring results.</p></li>
+<li><p><strong>logs</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><em>None</em>) – Extracted production logs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>logs_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>)</p></li>
+<li><p><strong>data_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>)</p></li>
+<li><p><strong>target_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>)</p></li>
+<li><p><strong>business_metric</strong> (<a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a>)</p></li>
+<li><p><strong>email</strong> (<a class="reference internal" href="core/index.html#outboxml.core.email.EMailMonitoring" title="outboxml.core.email.EMailMonitoring"><em>EMailMonitoring</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">manager</span> <span class="o">=</span> <span class="n">MonitoringManager</span><span class="p">(</span>
+    <span class="n">monitoring_config</span><span class="o">=</span><span class="s1">&#39;configs/monitoring_test_config.json&#39;</span><span class="p">,</span>
+    <span class="n">models_config</span><span class="o">=</span><span class="s1">&#39;configs/config_example_titanic.json&#39;</span><span class="p">,</span>
+    <span class="n">data_extractor</span><span class="o">=</span><span class="n">TitanicExampleExtractor</span><span class="p">(),</span>
+    <span class="n">logs_extractor</span><span class="o">=</span><span class="n">LogsExtractor</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">send_mail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_grafana</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.monitoring_manager.MonitoringManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitoring_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_extractor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grafana_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/monitoring_manager.html#MonitoringManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.monitoring_manager.MonitoringManager.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes monitoring manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>monitoring_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Monitoring configuration or path to config file.</p></li>
+<li><p><strong>models_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model training configuration or path to config file.</p></li>
+<li><p><strong>external_config</strong> (<em>module</em><em> or </em><em>None</em>) – External configuration (email, connections, etc.).</p></li>
+<li><p><strong>logs_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em> or </em><em>None</em>) – Extractor for production logs.</p></li>
+<li><p><strong>data_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em> or </em><em>None</em>) – Extractor for training data.</p></li>
+<li><p><strong>target_extractor</strong> (<a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a><em> or </em><em>None</em>) – Extractor for target extrapolation.</p></li>
+<li><p><strong>grafana_connection</strong> (<em>Any</em>) – Database connection for Grafana export.</p></li>
+<li><p><strong>business_metric</strong> (<a class="reference internal" href="metrics.html#outboxml.metrics.base_metrics.BaseMetric" title="outboxml.metrics.base_metrics.BaseMetric"><em>BaseMetric</em></a><em> or </em><em>None</em>) – Business metric for model quality evaluation.</p></li>
+<li><p><strong>email</strong> (<a class="reference internal" href="core/index.html#outboxml.core.email.EMailMonitoring" title="outboxml.core.email.EMailMonitoring"><em>EMailMonitoring</em></a><em> or </em><em>None</em>) – Email interface for notifications.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.monitoring_manager.MonitoringManager.review">
+<span class="sig-name descname"><span class="pre">review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">send_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_grafana</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/monitoring_manager.html#MonitoringManager.review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.monitoring_manager.MonitoringManager.review" title="Link to this definition"></a></dt>
+<dd><p>Executes monitoring process.</p>
+<p>This method performs the full monitoring cycle:
+data extraction, model preparation, monitoring checks,
+report generation, export, and notifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>send_mail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to send email notification.</p></li>
+<li><p><strong>to_grafana</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to export results to Grafana.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Monitoring result object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MonitoringResult</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Example usage::
+manager.review(send_mail=True, to_grafana=True)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plots.html" class="btn btn-neutral float-right" title="Plots" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

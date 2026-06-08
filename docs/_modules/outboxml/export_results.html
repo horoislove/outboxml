@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.export_results &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.export_results</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.export_results</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="kn">import</span> <span class="n">show</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">TIMESTAMP</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">env_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLPlot</span><span class="p">,</span> <span class="n">CompareModelsPlot</span><span class="p">,</span> <span class="n">CompareModelsMetrics</span><span class="p">,</span> <span class="n">DataframeForPlots</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSetsManager</span><span class="p">,</span> <span class="n">DSManagerResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_results</span>
+
+
+<div class="viewcode-block" id="ResultExport">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResultExport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main module for exporting and processing calculation and model results.</span>
+
+<span class="sd">    This class handles exporting and processing of model results, including</span>
+<span class="sd">    metrics and plots. Can be used for model comparison and retrospective analysis.</span>
+
+<span class="sd">    :param ds_manager: DataSetsManager object with results (after calling</span>
+<span class="sd">        ``fit_models()`` method).</span>
+<span class="sd">    :type ds_manager: DataSetsManager</span>
+<span class="sd">    :param ds_manager_to_compare: Another DataSetsManager object with results</span>
+<span class="sd">        for comparison. Defaults to None.</span>
+<span class="sd">    :type ds_manager_to_compare: DataSetsManager, optional</span>
+<span class="sd">    :param config: External config file with passwords, logins, paths to save</span>
+<span class="sd">        and folders. Uses .env by default if not provided.</span>
+<span class="sd">    :type config: Any, optional</span>
+
+<span class="sd">    :var _ds_manager: DataSetsManager object with results.</span>
+<span class="sd">    :var result: Dictionary of results from ds_manager.</span>
+<span class="sd">    :var project_name: Name of the project.</span>
+<span class="sd">    :var _ds_manager_to_compare: Optional DataSetsManager for comparison.</span>
+<span class="sd">    :var result_to_compare: Optional results for comparison.</span>
+<span class="sd">    :var project_name_to_compare: Optional project name for comparison.</span>
+
+<span class="sd">    .. rubric:: Examples</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from outboxml.datasets_manager import DataSetsManager</span>
+<span class="sd">        from outboxml.export_results import ResultExport</span>
+
+<span class="sd">        # After training models</span>
+<span class="sd">        ds_manager = DataSetsManager(config_name=&quot;config.json&quot;)</span>
+<span class="sd">        ds_manager.fit_models()</span>
+
+<span class="sd">        # Export results</span>
+<span class="sd">        exporter = ResultExport(ds_manager=ds_manager)</span>
+<span class="sd">        exporter.save(to_pickle=True, to_mlflow=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResultExport.__init__">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">ds_manager</span><span class="p">:</span> <span class="n">DataSetsManager</span><span class="p">,</span>
+                 <span class="n">ds_manager_to_compare</span><span class="p">:</span> <span class="n">DataSetsManager</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize ResultExport class.</span>
+
+<span class="sd">        :param ds_manager: DataSetsManager object with results (after calling fit_models() method)</span>
+<span class="sd">        :type ds_manager: DataSetsManager</span>
+<span class="sd">        :param ds_manager_to_compare: Another DataSetsManager object with results for comparison</span>
+<span class="sd">        :type ds_manager_to_compare: DataSetsManager, optional</span>
+<span class="sd">        :param config: External config file with passwords, logins, paths to save and folders.</span>
+<span class="sd">                       Uses .env by default</span>
+<span class="sd">        :type config: .py, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span> <span class="o">=</span> <span class="n">ds_manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># self._ds_manager.config.project</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">env_config</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Default ENV config for export results&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__base_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__results_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__results_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_to_compare</span> <span class="o">=</span> <span class="n">ds_manager_to_compare</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="p">(</span><span class="s1">&#39;Wrong format of results&#39;</span><span class="p">)</span>
+        <span class="c1">#   logger.debug(str(self.project_name) + &#39;||Results from DS_manager read&#39;)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No result found&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_to_compare</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_to_compare</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_name_to_compare</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager_to_compare</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">group_name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="p">(</span><span class="s1">&#39;Wrong format of results&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_name_to_compare</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;||Results from DS_manager read&#39;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__prepare_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">DSManagerResult</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare results for processing.</span>
+
+<span class="sd">        :param result: DSManagerResult object to prepare</span>
+<span class="sd">        :type result: DSManagerResult</span>
+<span class="sd">        :return: Prepared result</span>
+<span class="sd">        :rtype: DSManagerResult</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="ResultExport.save">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_pickle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">path_to_save</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">to_mlflow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">save_ds_manager</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">ds_manager_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ds_manager&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save results for production.</span>
+
+<span class="sd">        Saves metrics in Excel, predictions in Parquet, models in pickle, and configs in JSON.</span>
+
+<span class="sd">        :param to_pickle: Whether to save models in pickle format, defaults to False</span>
+<span class="sd">        :type to_pickle: bool, optional</span>
+<span class="sd">        :param path_to_save: Path for saving results, defaults to None (uses config path)</span>
+<span class="sd">        :type path_to_save: Path, optional</span>
+<span class="sd">        :param to_mlflow: Whether to save artifacts to MLflow, defaults to False</span>
+<span class="sd">        :type to_mlflow: bool, optional</span>
+<span class="sd">        :param save_ds_manager: Whether to save ds_manager object, defaults to False</span>
+<span class="sd">        :type save_ds_manager: bool, optional</span>
+<span class="sd">        :param ds_manager_name: Name for ds_manager file, defaults to &#39;ds_manager&#39;</span>
+<span class="sd">        :type ds_manager_name: str, optional</span>
+
+<span class="sd">        :raises FileNotFoundError: If saving path does not exist</span>
+<span class="sd">        :raises PermissionError: If no write permissions to the path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path_to_save</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path_to_save</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">results_path</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving due to config file||Check config carefully&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_to_save</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span> <span class="n">path_to_save</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_to_save</span><span class="p">)</span>
+        <span class="n">path_to_save</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Saving started&#39;</span><span class="p">)</span>
+
+        <span class="n">metrics_test</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">save_ds_manager</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Saving ds_manager&#39;</span><span class="p">)</span>
+            <span class="n">path_ds_manager</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_save</span><span class="p">,</span> <span class="n">ds_manager_name</span> <span class="o">+</span> <span class="s2">&quot;.pickle&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_ds_manager</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+            <span class="n">res_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__prepare_results</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;general&#39;</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Results for model &#39;</span> <span class="o">+</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">min_max_scaler</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No min max scaler&#39;</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">predictions</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+                    <span class="n">y_true</span> <span class="o">=</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_train</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span>
+
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">and</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Test data in None&#39;</span><span class="p">)</span>
+                    <span class="n">metrics_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
+                    <span class="k">continue</span>
+
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">and</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">metrics_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)[</span><span class="s1">&#39;full&#39;</span><span class="p">]</span>
+                    <span class="n">y_true</span> <span class="o">=</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_test</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_test</span>
+
+                <span class="n">predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">predictions</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">__save_predictions</span><span class="p">(</span><span class="n">prediction</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                                                                 <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
+                                                                 <span class="n">model_name</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                                                                 <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                                                                 <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                                                                 <span class="p">)])</span>
+
+            <span class="n">save_results</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                         <span class="n">min_max_scaler</span><span class="o">=</span><span class="n">min_max_scaler</span><span class="p">,</span>
+                         <span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds_manager</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+                         <span class="n">model_config</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">model_config</span><span class="p">,</span>
+                         <span class="n">features_numerical</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span><span class="p">,</span>
+                         <span class="n">features_categorical</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span><span class="p">,</span>
+                         <span class="n">model</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                         <span class="n">to_mlflow</span><span class="o">=</span><span class="n">to_mlflow</span><span class="p">,</span>
+                         <span class="n">metrics_train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">res_dict</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)[</span><span class="s1">&#39;full&#39;</span><span class="p">],</span>
+                         <span class="n">metrics_test</span><span class="o">=</span><span class="n">metrics_test</span><span class="p">,</span>
+                         <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
+                         <span class="n">to_pickle</span><span class="o">=</span><span class="n">to_pickle</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.compare_metrics">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.compare_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compare_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">ds_manager_result</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">business_metric</span><span class="p">:</span> <span class="n">BaseMetric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">only_main</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return dataframe with metrics of models and show it on plot.</span>
+
+<span class="sd">        :param model_name: Model name from models_configs</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param ds_manager_result: Dict with results after DataSetsManager.get_results() method.</span>
+<span class="sd">                                  If not provided, uses ds_manager_to_compare from initialization</span>
+<span class="sd">        :type ds_manager_result: dict, optional</span>
+<span class="sd">        :param business_metric: User-defined metric to calculate</span>
+<span class="sd">        :type business_metric: BaseMetric, optional</span>
+<span class="sd">        :param only_main: Whether to show only main metrics, defaults to True</span>
+<span class="sd">        :type only_main: bool, optional</span>
+
+<span class="sd">        :return: DataFrame with comparison metrics</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ds_manager_result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="p">(</span><span class="s1">&#39;No results to compare!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_manager_result</span><span class="p">:</span>
+            <span class="n">result2</span> <span class="o">=</span> <span class="n">ds_manager_result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">CompareModelsMetrics</span><span class="p">(</span><span class="n">result1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+                                  <span class="n">result2</span><span class="o">=</span><span class="n">result2</span><span class="p">,</span>
+                                  <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
+                                  <span class="p">)</span><span class="o">.</span><span class="n">compare_metrics</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                                    <span class="n">business_metric</span><span class="o">=</span><span class="n">business_metric</span><span class="p">,</span>
+                                                    <span class="n">only_main</span><span class="o">=</span><span class="n">only_main</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.compare_models_plot">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.compare_models_plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compare_models_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                            <span class="n">features</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="n">plot_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="n">bins_for_numerical_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                            <span class="n">use_exposure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="n">user_plot_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">cut_min_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+                            <span class="n">cut_max_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                            <span class="n">samples</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                            <span class="n">cohort_base</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;model1&#39;</span><span class="p">,</span>
+                            <span class="n">ds_manager_result</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="n">plotly_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">only_test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return figures with y True and y Predictions for two models and selected features.</span>
+
+<span class="sd">        :param model_name: Model name from models_configs</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param features: List of features to analyze, defaults to None</span>
+<span class="sd">        :type features: list, optional</span>
+<span class="sd">        :param plot_type: Plot type: 0=metrics plot; 1=factors plot; 2=cohort plot; 3=relative models plot,</span>
+<span class="sd">                         defaults to 1</span>
+<span class="sd">        :type plot_type: int, optional</span>
+<span class="sd">        :param bins_for_numerical_features: Number of bins for numerical features, defaults to 5</span>
+<span class="sd">        :type bins_for_numerical_features: int, optional</span>
+<span class="sd">        :param use_exposure: Use exposure vector from column_exposure, defaults to True</span>
+<span class="sd">        :type use_exposure: bool, optional</span>
+<span class="sd">        :param user_plot_func: User-defined plotting function, defaults to None</span>
+<span class="sd">        :type user_plot_func: callable, optional</span>
+<span class="sd">        :param cut_min_value: Lower quantile for cutting in cohort plot, defaults to 0.01</span>
+<span class="sd">        :type cut_min_value: float, optional</span>
+<span class="sd">        :param cut_max_value: Upper quantile for cutting in cohort plot, defaults to 0.9</span>
+<span class="sd">        :type cut_max_value: float, optional</span>
+<span class="sd">        :param samples: Number of samples for grouping in cohort plot, defaults to 100</span>
+<span class="sd">        :type samples: float, optional</span>
+<span class="sd">        :param cohort_base: Base line for cohort plot (&#39;model1&#39;, &#39;model2&#39; or &#39;fact&#39;), defaults to &#39;model1&#39;</span>
+<span class="sd">        :type cohort_base: str, optional</span>
+<span class="sd">        :param ds_manager_result: DataSetsManager.get_results() dict for comparison, defaults to None</span>
+<span class="sd">        :type ds_manager_result: dict, optional</span>
+<span class="sd">        :param plotly_params: Parameters for Plotly visualization, defaults to None</span>
+<span class="sd">        :type plotly_params: dict, optional</span>
+<span class="sd">        :param only_test: Use only test data, defaults to True</span>
+<span class="sd">        :type only_test: bool, optional</span>
+
+<span class="sd">        :return: Plotly figure object</span>
+<span class="sd">        :rtype: plotly.graph_objects.Figure</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ds_manager_result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="p">(</span><span class="s1">&#39;No results to compare!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_manager_result</span><span class="p">:</span>
+            <span class="n">result2</span> <span class="o">=</span> <span class="n">ds_manager_result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_to_compare</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">bins_for_numerical_features</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">features</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__read_config_target_slices</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">features</span> <span class="ow">and</span> <span class="n">plot_type</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s1">&#39;No features to compare models!&#39;</span>
+        <span class="n">df1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_for_graphs</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">use_exposure</span><span class="o">=</span><span class="n">use_exposure</span><span class="p">,</span>
+                                 <span class="n">only_test</span><span class="o">=</span><span class="n">only_test</span><span class="p">)</span>
+        <span class="n">df2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_for_graphs</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result2</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">use_exposure</span><span class="o">=</span><span class="n">use_exposure</span><span class="p">,</span> <span class="n">only_test</span><span class="o">=</span><span class="n">only_test</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_plot_func</span><span class="p">:</span>
+            <span class="n">user_plot_func</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">figure</span> <span class="o">=</span> <span class="n">CompareModelsMetrics</span><span class="p">(</span><span class="n">result1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+                                              <span class="n">result2</span><span class="o">=</span><span class="n">result2</span><span class="p">,</span>
+                                              <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
+                                              <span class="p">)</span><span class="o">.</span><span class="n">compare_metrics</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">figure</span> <span class="o">=</span> <span class="n">CompareModelsPlot</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                           <span class="n">df1</span><span class="o">=</span><span class="n">df1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="n">df2</span><span class="o">=</span><span class="n">df2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="n">features_categorical</span><span class="o">=</span><span class="n">df1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                           <span class="n">features_numerical</span><span class="o">=</span><span class="n">df1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                           <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                           <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                                           <span class="n">plotly_params</span><span class="o">=</span><span class="n">plotly_params</span>
+                                           <span class="p">)</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">plot_type</span><span class="o">=</span><span class="n">plot_type</span><span class="p">,</span>
+                                                  <span class="n">cut_min_value</span><span class="o">=</span><span class="n">cut_min_value</span><span class="p">,</span>
+                                                  <span class="n">cut_max_value</span><span class="o">=</span><span class="n">cut_max_value</span><span class="p">,</span>
+                                                  <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
+                                                  <span class="n">cohort_base</span><span class="o">=</span><span class="n">cohort_base</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">figure</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.grafana_export">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.grafana_export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grafana_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">date_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create DataFrame with all model metrics for Grafana export.</span>
+
+<span class="sd">        :param project_name: Project name for formatting table, defaults to None</span>
+<span class="sd">        :type project_name: str, optional</span>
+<span class="sd">        :param date_time: Date and time for the export, defaults to current datetime</span>
+<span class="sd">        :type date_time: datetime, optional</span>
+
+<span class="sd">        :return: DataFrame formatted for Grafana</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_for_grafana</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Collecting data for Grafana&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">df_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;train&#39;</span>
+            <span class="n">df_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">train_test</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="n">df_test</span><span class="p">[</span><span class="s1">&#39;TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_train</span><span class="p">,</span> <span class="n">df_test</span><span class="p">])</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;MODEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+            <span class="n">df_for_grafana</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_for_grafana</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">df_for_grafana</span><span class="p">[</span><span class="s1">&#39;CALCULATION_DATETIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date_time</span>
+        <span class="n">df_for_grafana</span> <span class="o">=</span> <span class="n">df_for_grafana</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="s1">&#39;TARGET_SLICE&#39;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">df_for_grafana</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.df_for_graphs">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.df_for_graphs">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">df_for_graphs</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">DSManagerResult</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_exposure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                      <span class="n">only_test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> \
+                     <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct dataframe with results and lists of feature names.</span>
+
+<span class="sd">        :param result: DSManagerResult object</span>
+<span class="sd">        :type result: DSManagerResult</span>
+<span class="sd">        :param features: List of features to include, defaults to None</span>
+<span class="sd">        :type features: list, optional</span>
+<span class="sd">        :param use_exposure: Use exposure vector, defaults to False</span>
+<span class="sd">        :type use_exposure: bool, optional</span>
+<span class="sd">        :param only_test: Use only test data, defaults to True</span>
+<span class="sd">        :type only_test: bool, optional</span>
+
+<span class="sd">        :return: Tuple containing (dataframe, categorical_features, numerical_features)</span>
+<span class="sd">        :rtype: tuple[pd.DataFrame, list, list]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_graph</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">,</span> <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">DataframeForPlots</span><span class="p">()</span><span class="o">.</span><span class="n">df_for_plots</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
+                                                                                             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+                                                                                             <span class="n">use_exposure</span><span class="o">=</span><span class="n">use_exposure</span><span class="p">,</span>
+                                                                                             <span class="n">only_test</span><span class="o">=</span><span class="n">only_test</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y_graph</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">,</span> <span class="n">features_numerical</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.metrics_df">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.metrics_df">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metrics_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metrics_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">train_test</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span>
+                  <span class="n">business_metric</span><span class="p">:</span> <span class="n">BaseMetric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct dataframe with metrics.</span>
+
+<span class="sd">        :param model_name: Model name for metrics extraction</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param metrics_dict: External metrics dictionary, defaults to None</span>
+<span class="sd">        :type metrics_dict: dict, optional</span>
+<span class="sd">        :param train_test: Test or train data, defaults to &#39;train&#39;</span>
+<span class="sd">        :type train_test: str, optional</span>
+<span class="sd">        :param business_metric: User-defined business metric, defaults to None</span>
+<span class="sd">        :type business_metric: BaseMetric, optional</span>
+
+<span class="sd">        :return: DataFrame with metrics</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Preparing metrics for &#39;</span> <span class="o">+</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">metrics_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metrics_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="n">train_test</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metrics_dict</span> <span class="o">=</span> <span class="n">metrics_dict</span><span class="p">[</span><span class="n">train_test</span><span class="p">]</span>
+
+        <span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">metrics_dict</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="ResultExport.plots">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.ResultExport.plots">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+              <span class="n">features</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+              <span class="n">plot_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+              <span class="n">bins_for_numerical_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+              <span class="n">use_exposure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+              <span class="n">user_plot_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">cut_min_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+              <span class="n">cut_max_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+              <span class="n">samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+              <span class="n">cohort_base</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span>
+              <span class="n">only_test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+              <span class="n">plotly_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot results for chosen model and features.</span>
+
+<span class="sd">        :param model_name: Model name from models_configs</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param features: List of features to analyze, defaults to None</span>
+<span class="sd">        :type features: list, optional</span>
+<span class="sd">        :param plot_type: Plot type: 0=metrics plot; 1=factors plot; 2=cohort plot, defaults to 1</span>
+<span class="sd">        :type plot_type: int, optional</span>
+<span class="sd">        :param bins_for_numerical_features: Number of bins for numerical features, defaults to 5</span>
+<span class="sd">        :type bins_for_numerical_features: int, optional</span>
+<span class="sd">        :param use_exposure: Use exposure vector from column_exposure, defaults to True</span>
+<span class="sd">        :type use_exposure: bool, optional</span>
+<span class="sd">        :param user_plot_func: User-defined plotting function, defaults to None</span>
+<span class="sd">        :type user_plot_func: callable, optional</span>
+<span class="sd">        :param cut_min_value: Lower quantile for cutting in cohort plot, defaults to 0.01</span>
+<span class="sd">        :type cut_min_value: float, optional</span>
+<span class="sd">        :param cut_max_value: Upper quantile for cutting in cohort plot, defaults to 0.9</span>
+<span class="sd">        :type cut_max_value: float, optional</span>
+<span class="sd">        :param samples: Number of samples for grouping in cohort plot, defaults to 100</span>
+<span class="sd">        :type samples: int, optional</span>
+<span class="sd">        :param cohort_base: Base line for cohort plot (&#39;model&#39; or &#39;fact&#39;), defaults to &#39;model&#39;</span>
+<span class="sd">        :type cohort_base: str, optional</span>
+<span class="sd">        :param only_test: Use only test data, defaults to True</span>
+<span class="sd">        :type only_test: bool, optional</span>
+<span class="sd">        :param plotly_params: Parameters for Plotly visualization, defaults to None</span>
+<span class="sd">        :type plotly_params: dict, optional</span>
+
+<span class="sd">        :return: Plotly figure object</span>
+<span class="sd">        :rtype: plotly.graph_objects.Figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">bins_for_numerical_features</span>
+        <span class="k">if</span> <span class="n">bins_for_numerical_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bins</span> <span class="o">=</span> <span class="n">bins_for_numerical_features</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">features</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__read_config_target_slices</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">features</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No features for plots&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="n">y_graph</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">,</span> <span class="n">features_numerical</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_for_graphs</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span>
+                                                                               <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+                                                                               <span class="n">use_exposure</span><span class="o">=</span><span class="n">use_exposure</span><span class="p">,</span>
+                                                                               <span class="n">only_test</span><span class="o">=</span><span class="n">only_test</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_plot_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">user_plot_func</span><span class="p">(</span><span class="n">y_graph</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">figure</span> <span class="o">=</span> <span class="n">MLPlot</span><span class="p">(</span><span class="n">model_name_1</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="n">y_graph</span><span class="o">=</span><span class="n">y_graph</span><span class="p">,</span>
+                            <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                            <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                            <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                            <span class="n">use_exposure</span><span class="o">=</span><span class="n">use_exposure</span><span class="p">,</span>
+                            <span class="n">plotly_params</span><span class="o">=</span><span class="n">plotly_params</span><span class="p">)</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">plot_type</span><span class="o">=</span><span class="n">plot_type</span><span class="p">,</span>
+                                                              <span class="n">cut_min_value</span><span class="o">=</span><span class="n">cut_min_value</span><span class="p">,</span>
+                                                              <span class="n">cut_max_value</span><span class="o">=</span><span class="n">cut_max_value</span><span class="p">,</span>
+                                                              <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
+                                                              <span class="n">cohort_base</span><span class="o">=</span><span class="n">cohort_base</span><span class="p">,</span>
+                                                              <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">figure</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__save_to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_to_save</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save model to pickle file.</span>
+
+<span class="sd">        :param path_to_save: Path to save the model</span>
+<span class="sd">        :type path_to_save: str</span>
+<span class="sd">        :param model: Model object to save</span>
+<span class="sd">        :type model: object</span>
+<span class="sd">        :param model_name: Name of the model</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_save</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">.pickle&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39; to pickle&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__save_metrics_to_excel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">to_mlflow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save metrics to Excel file.</span>
+
+<span class="sd">        :param metrics: Metrics dictionary</span>
+<span class="sd">        :type metrics: dict</span>
+<span class="sd">        :param model_name: Model name</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param key: Key identifier</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param path: Path to save the file</span>
+<span class="sd">        :type path: str</span>
+<span class="sd">        :param to_mlflow: Whether to save to MLflow, defaults to False</span>
+<span class="sd">        :type to_mlflow: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No metrics for model||&#39;</span> <span class="o">+</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">_metrics_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">.xlsx&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Full results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Full results&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">metrics</span><span class="p">[</span><span class="n">key2</span><span class="p">][</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;_model_1&#39;</span><span class="p">]])</span>
+                    <span class="n">sheet_name</span> <span class="o">=</span> <span class="n">key2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">sheet_name</span><span class="p">)</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">_save</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__save_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save predictions to dataframe.</span>
+
+<span class="sd">        :param y_true: True values</span>
+<span class="sd">        :type y_true: pd.Series</span>
+<span class="sd">        :param prediction: Predictions</span>
+<span class="sd">        :type prediction: pd.DataFrame</span>
+<span class="sd">        :param model_name: Model name</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param key: Key identifier</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param path: Path to save, defaults to None</span>
+<span class="sd">        :type path: str, optional</span>
+<span class="sd">        :param x: Features, defaults to None</span>
+<span class="sd">        :type x: pd.DataFrame, optional</span>
+
+<span class="sd">        :return: Combined dataframe with features, true values, and predictions</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">prediction</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__read_config_target_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read targetslices features from model config.</span>
+
+<span class="sd">        :param model_name: Model name to get configuration for</span>
+<span class="sd">        :type model_name: str</span>
+
+<span class="sd">        :return: Tuple containing (features list, bins)</span>
+<span class="sd">        :rtype: tuple[list, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">features_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">targetslices</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">features_list</span><span class="p">:</span>
+                <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">])</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;slices&#39;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reading feature from config||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; Bins:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bins</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">bins</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No features for plots in config||User features&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span></div>
+
+
+
+<div class="viewcode-block" id="GrafanaExport">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.GrafanaExport">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GrafanaExport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for exporting data to Grafana database.</span>
+
+<span class="sd">    This class facilitates exporting pandas DataFrames to a specified table</span>
+<span class="sd">    in a Grafana-compatible database</span>
+
+<span class="sd">    :param df: DataFrame containing data to export</span>
+<span class="sd">    :type df: pd.DataFrame</span>
+<span class="sd">    :param table_name: Name of the database table to replace/append data, defaults to &#39;FrameworkTest&#39;</span>
+<span class="sd">    :type table_name: str, optional</span>
+<span class="sd">    :param schema: Database schema name, defaults to &#39;public&#39;</span>
+<span class="sd">    :type schema: str, optional</span>
+<span class="sd">    :param connection: Custom SQLAlchemy engine connection, defaults to None (uses env config)</span>
+<span class="sd">    :type connection: sqlalchemy.engine.Engine, optional</span>
+
+<span class="sd">    :raises ValueError: If the input DataFrame is empty</span>
+<span class="sd">    :raises Exception: If database connection fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GrafanaExport.__init__">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.GrafanaExport.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+                 <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;FrameworkTest&#39;</span><span class="p">,</span>
+                 <span class="n">schema</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span>  <span class="c1"># TODO: Consider making None</span>
+                 <span class="n">connection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize GrafanaExport instance.</span>
+
+<span class="sd">        :param df: DataFrame containing data to export</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param table_name: Name of the database table to replace/append data, defaults to &#39;FrameworkTest&#39;</span>
+<span class="sd">        :type table_name: str, optional</span>
+<span class="sd">        :param schema: Database schema name, defaults to &#39;public&#39;</span>
+<span class="sd">        :type schema: str, optional</span>
+<span class="sd">        :param connection: Custom SQLAlchemy engine connection, defaults to None (uses env config)</span>
+<span class="sd">        :type connection: sqlalchemy.engine.Engine, optional</span>
+
+<span class="sd">        :raises Exception: If database connection fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Empty dataframe to load&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__connection</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Connecting to db...&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">connection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__connection</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">env_config</span><span class="o">.</span><span class="n">connection_params</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Connection completed&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GrafanaExport.load_data_to_db">
+<a class="viewcode-back" href="../../modules/export_results.html#outboxml.export_results.GrafanaExport.load_data_to_db">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_data_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load data to Grafana database using parameters from external config.</span>
+
+<span class="sd">        This method appends the DataFrame data to the specified table in the database.</span>
+<span class="sd">        If the table doesn&#39;t exist, it will be created automatically.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Uses `if_exists=&#39;append&#39;` which will add data to existing tables without</span>
+<span class="sd">            clearing previous data. Consider table size implications.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+
+<span class="sd">        :raises sqlalchemy.exc.SQLAlchemyError: If database operation fails</span>
+<span class="sd">        :raises ValueError: If DataFrame contains unsupported data types</span>
+<span class="sd">        :raises Exception: For other unexpected errors during database operations</span>
+
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; df = pd.DataFrame({&#39;metric&#39;: [1, 2, 3], &#39;value&#39;: [10, 20, 30]})</span>
+<span class="sd">            &gt;&gt;&gt; exporter = GrafanaExport(df, table_name=&#39;metrics&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; exporter.load_data_to_db()</span>
+<span class="sd">            Data loaded successfully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loading data to db..&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> 
+                      <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> 
+                      <span class="n">con</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__connection</span><span class="p">,</span> 
+                      <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span> 
+                      <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loading finished&#39;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

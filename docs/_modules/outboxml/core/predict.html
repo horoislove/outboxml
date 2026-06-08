@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.core.predict &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.core.predict</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.core.predict</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for calculating model predictions.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.data_subsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPreprocessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DSManagerResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnsembleResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelConfig</span><span class="p">,</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">SeparationModelConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.data_prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_dataset</span>
+
+
+<div class="viewcode-block" id="ensemble_predict">
+<a class="viewcode-back" href="../../../modules/core/predict.html#outboxml.core.predict.ensemble_predict">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ensemble_predict</span><span class="p">(</span>
+        <span class="n">ensemble_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ensemble</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">EnsembleResult</span><span class="p">],</span>
+        <span class="n">features_values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+        <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">modify_dtypes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">raise_on_encoding_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict ensemble models.</span>
+
+<span class="sd">    :param ensemble_name: Ensemble name.</span>
+<span class="sd">    :type ensemble_name: str</span>
+<span class="sd">    :param ensemble: Object of models ensemble.</span>
+<span class="sd">    :type ensemble: dict, EnsembleResult.</span>
+<span class="sd">    :param features_values: Data for ensemble models.</span>
+<span class="sd">    :type features_values: dict, list[dict], pandas.DataFrame</span>
+<span class="sd">    :param log: Flag for logging.</span>
+<span class="sd">    :type log: bool</span>
+<span class="sd">    :param modify_dtypes: Modify data columns types during data preparation.</span>
+<span class="sd">    :type modify_dtypes: bool</span>
+<span class="sd">    :param Flag for raising exception on encoding error.</span>
+<span class="sd">    :type raise_on_encoding_error: bool</span>
+<span class="sd">    :return: Predictions, data, model info.</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    :raises TypeError: Invalid features_values type.</span>
+<span class="sd">    :raises NotImplementedError: Invalid ensemble: imprecise conditions.</span>
+
+<span class="sd">    .. rubric:: Example</span>
+
+<span class="sd">    features_values = [{</span>
+<span class="sd">        &#39;FEATURE1&#39;: 100,</span>
+<span class="sd">        &#39;FEATIRE2&#39;: 200,</span>
+<span class="sd">        &#39;CHANNEL&#39;: &#39;RETAIL&#39;</span>
+<span class="sd">    }]</span>
+
+<span class="sd">    predictions = ensemble_predict(</span>
+<span class="sd">        ensemble_name=&#39;titanic&#39;,</span>
+<span class="sd">        ensemble=&#39;titanic_channel&#39;,</span>
+<span class="sd">        features_values=features_values,</span>
+<span class="sd">        log=False,</span>
+<span class="sd">        modify_dtypes=False,</span>
+<span class="sd">        raise_on_encoding_error=True</span>
+<span class="sd">    )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">as_dict</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features_values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">features_values</span> <span class="o">=</span> <span class="n">features_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">as_dict</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">features_values</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_values</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">features_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid features_values type&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ensemble</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ensemble</span><span class="p">,</span> <span class="n">EnsembleResult</span><span class="p">):</span>
+
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">model_name</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">models</span>  <span class="c1"># List[tuple[condition: str, group_name: str,  model: ModelsResult]]</span>
+
+        <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
+            <span class="c1"># data = pd.DataFrame([features_values])</span>
+            <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="c1"># FIXME</span>
+                <span class="n">condition</span> <span class="o">=</span> <span class="n">condition</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="c1"># if not data.query(condition).empty:</span>
+                <span class="k">if</span> <span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;features_values.get(&quot;</span><span class="si">{</span><span class="n">condition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;) </span><span class="si">{</span><span class="n">condition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">condition</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">one_model_predict</span><span class="p">(</span>
+                        <span class="n">group_name</span><span class="o">=</span><span class="n">ensemble_name</span><span class="p">,</span>
+                        <span class="n">model_result</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                        <span class="n">features_values</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">features_values</span><span class="p">),</span>
+                        <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+                        <span class="n">modify_dtypes</span><span class="o">=</span><span class="n">modify_dtypes</span><span class="p">,</span>
+                        <span class="n">raise_on_encoding_error</span><span class="o">=</span><span class="n">raise_on_encoding_error</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Invalid ensemble: imprecise conditions&quot;</span><span class="p">)</span>
+
+        <span class="n">result_filtered</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">version_model_filtered</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">df_filtered</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">data_filtered</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">one_model_predict</span><span class="p">(</span>
+                    <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>
+                    <span class="n">model_result</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">features_values</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">,</span>
+                    <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+                    <span class="n">modify_dtypes</span><span class="o">=</span><span class="n">modify_dtypes</span><span class="p">,</span>
+                    <span class="n">raise_on_encoding_error</span><span class="o">=</span><span class="n">raise_on_encoding_error</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">result_filtered</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="n">model_name</span><span class="p">])</span>
+                <span class="n">version_model_filtered</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;version_model&quot;</span><span class="p">][</span><span class="n">model_name</span><span class="p">])</span>
+                <span class="n">df_filtered</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;df&quot;</span><span class="p">][</span><span class="n">model_name</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_filtered</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">predictions</span> <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">predictions</span> <span class="ow">in</span> <span class="n">result_filtered</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+            <span class="n">version_model</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">versions</span> <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">versions</span> <span class="ow">in</span> <span class="n">version_model_filtered</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+            <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_filtered</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result_filtered</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">result_filtered</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">version_model</span> <span class="o">=</span> <span class="n">version_model_filtered</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">version_model_filtered</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">df_result</span> <span class="o">=</span> <span class="n">df_filtered</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">df_filtered</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Invalid ensemble: imprecise conditions&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">ensemble_name</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_name</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+            <span class="s2">&quot;version_model&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_name</span><span class="p">:</span> <span class="n">version_model</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+            <span class="s2">&quot;df&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_name</span><span class="p">:</span> <span class="n">df_result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+        <span class="p">}</span>
+
+    <span class="c1"># not ensemble</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">one_model_predict</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">ensemble_name</span><span class="p">,</span>
+            <span class="n">model_result</span><span class="o">=</span><span class="n">ensemble</span><span class="p">,</span>
+            <span class="n">features_values</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">features_values</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="n">data</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+            <span class="n">modify_dtypes</span><span class="o">=</span><span class="n">modify_dtypes</span><span class="p">,</span>
+            <span class="n">raise_on_encoding_error</span><span class="o">=</span><span class="n">raise_on_encoding_error</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="one_model_predict">
+<a class="viewcode-back" href="../../../modules/core/predict.html#outboxml.core.predict.one_model_predict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">one_model_predict</span><span class="p">(</span>
+        <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">model_result</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">DSManagerResult</span><span class="p">],</span>
+        <span class="n">features_values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+        <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">modify_dtypes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">raise_on_encoding_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict simple models.</span>
+
+<span class="sd">    :param group_name: Model group name.</span>
+<span class="sd">    :type ensemble_name: str</span>
+<span class="sd">    :param model_result: Object with model result.</span>
+<span class="sd">    :type model_result: dict, DSManagerResult.</span>
+<span class="sd">    :param features_values: Data for ensemble models.</span>
+<span class="sd">    :type features_values: dict, pandas.DataFrame</span>
+<span class="sd">    :param log: Flag for logging.</span>
+<span class="sd">    :type log: bool</span>
+<span class="sd">    :param modify_dtypes: Modify data columns types during data preparation.</span>
+<span class="sd">    :type modify_dtypes: bool</span>
+<span class="sd">    :param Flag for raising exception on encoding error.</span>
+<span class="sd">    :type raise_on_encoding_error: bool</span>
+<span class="sd">    :return: Predictions, data, model info.</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    :raises TypeError: Invalid features_values type.</span>
+
+<span class="sd">    .. rubric:: Example</span>
+
+<span class="sd">    model_result = {</span>
+<span class="sd">        &#39;model_config&#39;: {</span>
+<span class="sd">            &#39;name&#39;: &#39;first&#39;,</span>
+<span class="sd">            &#39;column_target&#39;: &#39;TARGET&#39;,</span>
+<span class="sd">            &#39;objective&#39;: &#39;poisson&#39;,</span>
+<span class="sd">            &#39;wrapper&#39;: &#39;catboost&#39;,</span>
+<span class="sd">            &#39;features&#39;: [</span>
+<span class="sd">                {</span>
+<span class="sd">                  &#39;name&#39;: &#39;FEATURE1&#39;,</span>
+<span class="sd">                  &#39;default&#39;: 0,</span>
+<span class="sd">                  &#39;replace&#39;: {&#39;_TYPE_&#39;: &#39;_NUM_&#39;}</span>
+<span class="sd">                },</span>
+<span class="sd">                {</span>
+<span class="sd">                  &#39;name&#39;: &#39;FEATURE2&#39;,</span>
+<span class="sd">                  &#39;default&#39;: 1,</span>
+<span class="sd">                  &#39;replace&#39;: {&#39;_TYPE_&#39;: &#39;_NUM_&#39;}</span>
+<span class="sd">                }</span>
+<span class="sd">            ]</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;model&#39;: titanic_catboost,</span>
+<span class="sd">        &#39;features_numerical&#39;: [&#39;FEATURE1&#39;, &#39;FEATURE2&#39;],</span>
+<span class="sd">        &#39;features_categorical&#39;: []</span>
+<span class="sd">    }</span>
+
+<span class="sd">    features_values = {</span>
+<span class="sd">        &#39;FEATURE1&#39;: 100,</span>
+<span class="sd">        &#39;FEATIRE2&#39;: 200</span>
+<span class="sd">    }</span>
+
+<span class="sd">    predictions = one_model_predict(</span>
+<span class="sd">        group_name=&#39;titanic&#39;,</span>
+<span class="sd">        model_result=&#39;titanic_first&#39;,</span>
+<span class="sd">        features_values=features_values,</span>
+<span class="sd">        log=False,</span>
+<span class="sd">        modify_dtypes=False,</span>
+<span class="sd">        raise_on_encoding_error=True</span>
+<span class="sd">    )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s2">&quot;model_config&quot;</span><span class="p">]</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+
+        <span class="n">features_numerical</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">model_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features_numerical&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">model_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features_numerical&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+        <span class="n">features_categorical</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">model_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features_categorical&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">model_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features_categorical&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_result</span><span class="p">,</span> <span class="n">DSManagerResult</span><span class="p">):</span>
+
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">model_config</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span>
+        <span class="n">features_categorical</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">model</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong input model_result&quot;</span><span class="p">)</span>
+    <span class="n">prepared_dataset</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span>
+        <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">features_values</span><span class="p">,</span>
+        <span class="n">train_ind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">test_ind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+        <span class="n">check_prepared</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">calc_corr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+        <span class="n">modify_dtypes</span><span class="o">=</span><span class="n">modify_dtypes</span><span class="p">,</span>
+        <span class="n">raise_on_encoding_error</span><span class="o">=</span><span class="n">raise_on_encoding_error</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">prepared_dataset</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">chain</span><span class="p">(</span><span class="n">features_numerical</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">,</span>
+        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_config</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+        <span class="s2">&quot;version_model&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_config</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+        <span class="s2">&quot;df&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">model_config</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

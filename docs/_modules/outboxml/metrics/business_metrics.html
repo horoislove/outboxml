@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.metrics.business_metrics &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.metrics.business_metrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.metrics.business_metrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+
+
+<div class="viewcode-block" id="BaseBusinessMetricConverter">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseBusinessMetricConverter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseBusinessMetricConverter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converter class for preparing data for business metric calculations.</span>
+<span class="sd">    </span>
+<span class="sd">    Handles data preparation including exposure weighting and DataFrame conversion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="BaseBusinessMetricConverter.__init__">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseBusinessMetricConverter.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">use_exposure</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize BaseBusinessMetricConverter instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param use_exposure: Whether to use exposure weighting in calculations.</span>
+<span class="sd">        :type use_exposure: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_exposure</span> <span class="o">=</span> <span class="n">use_exposure</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_model_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract and prepare model data for metric calculation.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data: DSManagerResult object containing model predictions and data subsets.</span>
+<span class="sd">        :type data: DSManagerResult</span>
+<span class="sd">        :return: DataFrame with features, true values, predictions, and optionally exposure.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exposure_test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_test</span>
+        <span class="n">exposure_train</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_train</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Collecting data for plots&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_test</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">])</span>
+        <span class="n">y_true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_train</span><span class="p">])</span>
+        <span class="n">y_true</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;y_true&#39;</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]])</span>
+        <span class="n">y_pred</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;y_prediction&#39;</span>
+        <span class="n">y_graph</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">y_true</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exposure_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exposure_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_exposure</span><span class="p">:</span>
+            <span class="n">exposure</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">exposure_test</span><span class="p">,</span> <span class="n">exposure_train</span><span class="p">])</span>
+            <span class="n">exposure</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;exposure&#39;</span>
+            <span class="n">y_graph</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">y_graph</span><span class="p">,</span> <span class="n">exposure</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">y_graph</span><span class="p">[</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_graph</span><span class="p">[</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">y_graph</span><span class="p">[</span><span class="s1">&#39;exposure&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_graph</span><span class="p">[</span><span class="s1">&#39;exposure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">y_graph</span>
+
+<div class="viewcode-block" id="BaseBusinessMetricConverter.convert_to_df">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseBusinessMetricConverter.convert_to_df">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">result2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert model results to DataFrame for comparison.</span>
+<span class="sd">        </span>
+<span class="sd">        :param result1: Dictionary with model results (DSManagerResult objects).</span>
+<span class="sd">        :type result1: dict</span>
+<span class="sd">        :param result2: Optional second dictionary with model results for comparison.</span>
+<span class="sd">        :type result2: dict, optional</span>
+<span class="sd">        :param model_name: Name of the model to extract. If None, uses first key from result1.</span>
+<span class="sd">        :type model_name: str, optional</span>
+<span class="sd">        :return: DataFrame with predictions and true values for comparison.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; converter = BaseBusinessMetricConverter(use_exposure=True)</span>
+<span class="sd">        &gt;&gt;&gt; df = converter.convert_to_df(result1, result2, model_name=&#39;model1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.columns</span>
+<span class="sd">        Index([&#39;first_model_prediction&#39;, &#39;y_true&#39;, &#39;second_model_prediction&#39;], dtype=&#39;object&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result1</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">result1</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="n">y1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">:</span> <span class="s1">&#39;first_model_prediction&#39;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span><span class="p">(</span><span class="n">result2</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">:</span> <span class="s1">&#39;second_model_prediction&#39;</span><span class="p">})</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">y1</span><span class="p">[[</span><span class="s1">&#39;first_model_prediction&#39;</span><span class="p">,</span> <span class="s1">&#39;y_true&#39;</span><span class="p">]],</span> <span class="n">y2</span><span class="p">[</span><span class="s1">&#39;second_model_prediction&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">y1</span><span class="p">[[</span><span class="s1">&#39;first_model_prediction&#39;</span><span class="p">,</span> <span class="s1">&#39;y_true&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseCompareBusinessMetric">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseCompareBusinessMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for comparing business metrics between two models.</span>
+<span class="sd">    </span>
+<span class="sd">    Calculates metrics with optional threshold optimization and model comparison.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="BaseCompareBusinessMetric.__init__">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">metric_function</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">,</span>
+                 <span class="n">metric_converter</span><span class="p">:</span> <span class="n">BaseBusinessMetricConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">calculate_threshold</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">use_exposure</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize BaseCompareBusinessMetric instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param metric_function: Function to calculate the metric (e.g., mean_absolute_error).</span>
+<span class="sd">        :type metric_function: Callable</span>
+<span class="sd">        :param metric_converter: Converter object for data preparation. If None, creates default converter.</span>
+<span class="sd">        :type metric_converter: BaseBusinessMetricConverter, optional</span>
+<span class="sd">        :param calculate_threshold: Whether to automatically calculate optimal threshold.</span>
+<span class="sd">        :type calculate_threshold: bool</span>
+<span class="sd">        :param use_exposure: Whether to use exposure weighting in calculations.</span>
+<span class="sd">        :type use_exposure: bool</span>
+<span class="sd">        :param direction: Optimization direction - &#39;minimize&#39; or &#39;maximize&#39;.</span>
+<span class="sd">        :type direction: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span> <span class="o">=</span> <span class="n">metric_function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_threshold</span> <span class="o">=</span> <span class="n">calculate_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_exposure</span> <span class="o">=</span> <span class="n">use_exposure</span>
+        <span class="k">if</span> <span class="n">metric_converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric_converter</span> <span class="o">=</span> <span class="n">metric_converter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric_converter</span> <span class="o">=</span> <span class="n">BaseBusinessMetricConverter</span><span class="p">(</span><span class="n">use_exposure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_exposure</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;minimize&#39;</span><span class="p">,</span> <span class="s1">&#39;maximize&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;minimize&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span></div>
+
+
+<div class="viewcode-block" id="BaseCompareBusinessMetric.calculate_metric">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">result2</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate business metric for model comparison.</span>
+<span class="sd">        </span>
+<span class="sd">        :param result1: Dictionary with first model results (DSManagerResult objects).</span>
+<span class="sd">        :type result1: dict</span>
+<span class="sd">        :param result2: Optional dictionary with second model results for comparison.</span>
+<span class="sd">        :type result2: dict, optional</span>
+<span class="sd">        :param threshold: Threshold values for filtering predictions. Can be list/tuple of two values or None.</span>
+<span class="sd">        :type threshold: list, tuple, or None</span>
+<span class="sd">        :return: Dictionary with metric results for both models and their difference.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        :raises Exception: If threshold format is incorrect.</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; metric = BaseCompareBusinessMetric(metric_function=mean_absolute_error)</span>
+<span class="sd">        &gt;&gt;&gt; result = metric.calculate_metric(result1, result2, threshold=[0.8, 1.2])</span>
+<span class="sd">        &gt;&gt;&gt; result[&#39;difference&#39;]</span>
+<span class="sd">        0.05</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Compare business metric||Calculating&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Compare business metric||&#39;</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+        <span class="n">second_model_metric_results</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Select correct threshold&quot;</span><span class="p">)</span>
+        <span class="n">df_for_model_comparison</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_converter</span><span class="o">.</span><span class="n">convert_to_df</span><span class="p">(</span><span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">)</span>
+        <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">first_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">second_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">second_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_threshold</span><span class="p">):</span>
+            <span class="n">first_model_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_threshold</span><span class="p">(</span><span class="n">first_model_data</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">,</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">)</span>
+            <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">first_model_threshold</span>
+            <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_threshold</span><span class="p">(</span><span class="n">second_model_data</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">,</span>
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">)</span>
+                <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">second_model_threshold</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                                  <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                                        <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">first_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">second_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">second_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]]</span>
+        <span class="n">first_model_metric_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">(</span><span class="n">first_model_data</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span>
+                                                                           <span class="n">first_model_data</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">second_model_metric_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">(</span><span class="n">second_model_data</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span>
+                                                                                <span class="n">second_model_data</span><span class="p">[</span>
+                                                                                    <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span><span class="p">{</span><span class="s1">&#39;first_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">first_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">first_model_threshold</span><span class="p">},</span>
+                      <span class="s1">&#39;second_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">second_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">second_model_threshold</span><span class="p">}}</span>
+        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;maximize&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>  <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="BaseCompareBusinessMetric.find_threshold">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.find_threshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find optimal threshold value for metric calculation.</span>
+<span class="sd">        </span>
+<span class="sd">        Tests multiple threshold values and returns the one that minimizes the metric.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: DataFrame with true values and predictions.</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param model_name: Name of the column containing predictions.</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param metric_function: Function to calculate the metric.</span>
+<span class="sd">        :type metric_function: Callable</span>
+<span class="sd">        :return: Optimal threshold value that minimizes the metric.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; threshold = metric.find_threshold(df, &#39;first_model_prediction&#39;, mean_absolute_error)</span>
+<span class="sd">        &gt;&gt;&gt; threshold</span>
+<span class="sd">        1.15</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buckets</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">first_model_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">]]</span>
+
+        <span class="n">max_value</span> <span class="o">=</span> <span class="n">first_model_data</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="n">first_model_data</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span> <span class="o">/</span> <span class="n">buckets</span>
+
+        <span class="n">metrics_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">buckets</span><span class="p">):</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">min_value</span> <span class="o">+</span> <span class="n">step</span> <span class="o">*</span> <span class="p">(</span><span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">first_model_data</span><span class="p">[</span><span class="n">first_model_data</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span>
+            <span class="c1"># print(&#39;threshold&#39;, threshold, &#39;len(filtered_data)&#39;, len(filtered_data))</span>
+
+            <span class="n">metric_value</span> <span class="o">=</span> <span class="n">metric_function</span><span class="p">(</span><span class="n">filtered_data</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span> <span class="n">filtered_data</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+            <span class="n">metrics_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_value</span>
+
+        <span class="n">max_metric_threshold</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">metrics_dict</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">metrics_dict</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="n">max_metric_value</span> <span class="o">=</span> <span class="n">metrics_dict</span><span class="p">[</span><span class="n">max_metric_threshold</span><span class="p">]</span>
+
+        <span class="c1"># print(f&#39;Max metric: {max_metric_value} Threshold: {max_metric_threshold}&#39;)</span>
+
+        <span class="k">return</span> <span class="n">max_metric_threshold</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

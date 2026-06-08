@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperparameter Tuning &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metrics" href="metrics.html" />
+    <link rel="prev" title="Feature Selection" href="feature_selection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Hyperparameter Tuning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.hyperparameter_tuning.OptunaModel"><code class="docutils literal notranslate"><span class="pre">OptunaModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.hyperparameter_tuning.HPTuningData"><code class="docutils literal notranslate"><span class="pre">HPTuningData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.hyperparameter_tuning.HPTuning"><code class="docutils literal notranslate"><span class="pre">HPTuning</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Hyperparameter Tuning</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/hyperparameter_tuning.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.hyperparameter_tuning">
+<span id="hyperparameter-tuning"></span><h1>Hyperparameter Tuning<a class="headerlink" href="#module-outboxml.hyperparameter_tuning" title="Link to this heading"></a></h1>
+<p>Module for hyperparameter tuning using optuna algorithm.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.OptunaModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.hyperparameter_tuning.</span></span><span class="sig-name descname"><span class="pre">OptunaModel</span></span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#OptunaModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.OptunaModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Legacy class. Not used.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.OptunaModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#OptunaModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.OptunaModel.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuningData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.hyperparameter_tuning.</span></span><span class="sig-name descname"><span class="pre">HPTuningData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuningData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuningData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for storage data for hyperparameter tuning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>y_train</strong> (<em>Series</em>)</p></li>
+<li><p><strong>X_test</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>y_test</strong> (<em>Series</em>)</p></li>
+<li><p><strong>exposure_train</strong> (<em>Series</em>)</p></li>
+<li><p><strong>exposure_test</strong> (<em>Series</em>)</p></li>
+<li><p><strong>sample_weight_train</strong> (<em>Series</em>)</p></li>
+<li><p><strong>sample_weight_test</strong> (<em>Series</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuningData.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuningData.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuningData.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>pd.DataFrame</em>) – Train dataset with factors.</p></li>
+<li><p><strong>y_train</strong> (<em>pd.Series</em>) – Train series with target.</p></li>
+<li><p><strong>X_test</strong> (<em>pd.DataFrame</em>) – Test dataset with factors.</p></li>
+<li><p><strong>y_test</strong> (<em>pd.Series</em>) – Test series with target.</p></li>
+<li><p><strong>exposure_train</strong> (<em>pd.Series</em>) – Train series with exposure column.</p></li>
+<li><p><strong>exposure_test</strong> (<em>pd.Series</em>) – Test series with exposure column.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Array of numerical features.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Array of categorical features.</p></li>
+<li><p><strong>sample_weight_train</strong> (<em>Series</em>)</p></li>
+<li><p><strong>sample_weight_test</strong> (<em>Series</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuningData.load_from_ds_manager_subset">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_from_ds_manager_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuningData.load_from_ds_manager_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuningData.load_from_ds_manager_subset" title="Link to this definition"></a></dt>
+<dd><p>Create class instance using model dataset object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Model dataset.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Class instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.hyperparameter_tuning.HPTuningData" title="outboxml.hyperparameter_tuning.HPTuningData">HPTuningData</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuning">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.hyperparameter_tuning.</span></span><span class="sig-name descname"><span class="pre">HPTuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TPE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'neg_mean_absolute_error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folds_num_for_cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuning" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for hyperparameter tuning using optuna algorithm.</p>
+<p>To set the range of hyperparameters values pass function like this:
+def parameters_for_optuna(trial):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>return {</dt><dd><p>‘iterations’: trial.suggest_int(‘iterations’, 100, 1200, step=100),
+‘depth’: trial.suggest_int(‘depth’, 1, 15, step=2),
+‘learning_rate’: trial.suggest_float(‘learning_rate’, 0.01, 0.1, log=True),
+‘l2_leaf_reg’: trial.suggest_float(“l2_leaf_reg”, 1e-5, 100.0, log=True),
+‘subsample’: trial.suggest_float(“subsample”, 0.05, 1.0),
+‘colsample_bylevel’: trial.suggest_float(“colsample_bylevel”, 0.05, 1.0),
+‘min_data_in_leaf’: trial.suggest_int(“min_data_in_leaf”, 1, 101, step=10),</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_preprocessor</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.DataPreprocessor" title="outboxml.data_subsets.DataPreprocessor"><em>DataPreprocessor</em></a>)</p></li>
+<li><p><strong>scoring_fun</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a>)</p></li>
+<li><p><strong>folds_num_for_cv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>random_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>work_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuning.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TPE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'neg_mean_absolute_error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folds_num_for_cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuning.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuning.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_preprocessor</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.DataPreprocessor" title="outboxml.data_subsets.DataPreprocessor"><em>DataPreprocessor</em></a>) – Object of data processing.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Sampler of optuna algorith: ‘TPE’, ‘RandomSampler’, ‘CmaEsSampler’, None.</p></li>
+<li><p><strong>model</strong> – Default model using in hyperparameter tuning.</p></li>
+<li><p><strong>scoring_fun</strong> (<em>Callable</em>) – Default scoring function for calculating score for cross-validation. Name from sklearn.metrics.</p></li>
+<li><p><strong>folds_num_for_cv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Cross-validation folds count.</p></li>
+<li><p><strong>objective</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Default model objective.</p></li>
+<li><p><strong>random_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Seed for sampler.</p></li>
+<li><p><strong>work_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Work type: ‘CPU’, ‘GPU’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuning.parameters_for_optuna">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parameters_for_optuna</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuning.parameters_for_optuna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuning.parameters_for_optuna" title="Link to this definition"></a></dt>
+<dd><p>Default function for calculation hyperparameters values for current trial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trial</strong> (<em>optuna.trial.Trial</em>) – Trial of hyperparameter tuning.</p></li>
+<li><p><strong>work_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Work type: ‘CPU’, ‘GPU’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hyperparameters values for current trial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.hyperparameter_tuning.HPTuning.best_params">
+<span class="sig-name descname"><span class="pre">best_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'maximize'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters_for_optuna_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/hyperparameter_tuning.html#HPTuning.best_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.hyperparameter_tuning.HPTuning.best_params" title="Link to this definition"></a></dt>
+<dd><p>Calculation the best hyperparameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p></li>
+<li><p><strong>scoring_fun</strong> (<em>Callable</em>) – Scoring function.</p></li>
+<li><p><strong>trials</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Trials count.</p></li>
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Optimization direction: ‘minimize’, ‘maximize’.</p></li>
+<li><p><strong>parameters_for_optuna_func</strong> (<em>Callable</em>) – Function for calculation hyperparameters values for current trial.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Hyperparameter tuning timeout is seconds.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Best hyperparameters.</p>
+</dd>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<dl>
+<dt>def titanic_parameters_for_optuna(trial):</dt><dd><dl class="simple">
+<dt>parameters = {</dt><dd><p>‘iterations’: trial.suggest_int(‘iterations’, 100, 1200, step=100),
+‘depth’: trial.suggest_int(‘depth’, 1, 15, step=2),</p>
+</dd>
+</dl>
+<p>}
+return parameters</p>
+</dd>
+<dt>tuning = HPTuning(</dt><dd><p>titanic_data_preprocessor,
+sampler=’TPE’,
+model=None,
+scoring_fun=’neg_mean_absolute_error’,
+folds_num_for_cv=3,
+objective=’RMSE’,
+random_state=42,
+work_type=’CPU’</p>
+</dd>
+</dl>
+<p>)
+best_params2 = tuning.best_params(</p>
+<blockquote>
+<div><p>model_name=’titanic_first’,
+scoring_fun=’neg_mean_absolute_error’,
+trials=50,
+direction=’maximize’,
+parameters_for_optuna_func=titanic_parameters_for_optuna,
+timeout=600</p>
+</div></blockquote>
+<p>)
+best_params2 = tuning.best_params(</p>
+<blockquote>
+<div><p>model_name=’titanic_first’,
+scoring_fun=’neg_mean_poisson_deviance’,
+trials=50,
+direction=’maximize’,
+parameters_for_optuna_func=titanic_parameters_for_optuna,
+timeout=600</p>
+</div></blockquote>
+<p>)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="feature_selection.html" class="btn btn-neutral float-left" title="Feature Selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metrics.html" class="btn btn-neutral float-right" title="Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

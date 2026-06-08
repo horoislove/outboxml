@@ -1,0 +1,1126 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Subsets &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Extractors" href="extractors.html" />
+    <link rel="prev" title="Datasets Manager" href="datasets_manager.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Data Subsets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#modeldatasubset">ModelDataSubset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#datapreprocessor">DataPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#picklemodelsubset">PickleModelSubset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parquetdataset">ParquetDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modelconfigpickle">ModelConfigPickle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prepareengine">PrepareEngine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pandasinterface">PandasInterface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polarsinterface">PolarsInterface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_selection.html">Feature Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Data Subsets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/data_subsets.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-subsets">
+<h1>Data Subsets<a class="headerlink" href="#data-subsets" title="Link to this heading"></a></h1>
+<p>This module provides classes for managing prepared datasets, feature metadata, and data preprocessing pipelines.</p>
+<section id="modeldatasubset">
+<h2>ModelDataSubset<a class="headerlink" href="#modeldatasubset" title="Link to this heading"></a></h2>
+<p>Container for prepared datasets, targets, exposures, and feature metadata.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">ModelDataSubset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Empty</span> <span class="pre">DataFrame</span> <span class="pre">Columns:</span> <span class="pre">[]</span> <span class="pre">Index:</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Series([]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Container for prepared datasets, targets, exposures, and feature metadata.</p>
+<p>Stores train/test splits, feature lists, optional full X matrix, exposure
+series, and any extra columns. Provides helpers to construct subsets from
+pandas or polars data, combine two subsets, and drop columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model the subset belongs to.</p></li>
+<li><p><strong>X_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Training feature matrix.</p></li>
+<li><p><strong>y_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a>) – Training target series.</p></li>
+<li><p><strong>X_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Test feature matrix, if available.</p></li>
+<li><p><strong>y_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test target series, if available.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – List of numerical feature names.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – List of categorical feature names.</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Full feature matrix (unsplit), if stored.</p></li>
+<li><p><strong>exposure_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Training exposure (weights), if any.</p></li>
+<li><p><strong>exposure_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test exposure (weights), if any.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame of extra columns to carry along.</p></li>
+<li><p><strong>sample_weight_train</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>sample_weight_test</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span>
+
+<span class="c1"># Direct construction</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span>
+    <span class="n">X_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;f1&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]}),</span>
+    <span class="n">y_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">),</span>
+    <span class="n">X_test</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;f1&quot;</span><span class="p">:[</span><span class="mi">3</span><span class="p">]}),</span>
+    <span class="n">y_test</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.3</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">),</span>
+    <span class="n">features_numerical</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">],</span>
+    <span class="n">features_categorical</span><span class="o">=</span><span class="p">[]</span>
+<span class="p">)</span>
+
+<span class="c1"># Combine two subsets (features concatenated, targets taken from left)</span>
+<span class="n">combined</span> <span class="o">=</span> <span class="n">subset</span> <span class="o">+</span> <span class="n">subset</span>
+
+<span class="c1"># Drop columns in-place and keep feature lists in sync</span>
+<span class="n">ModelDataSubset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Empty</span> <span class="pre">DataFrame</span> <span class="pre">Columns:</span> <span class="pre">[]</span> <span class="pre">Index:</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Series([]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>X_train</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>y_train</strong> (<em>Series</em>)</p></li>
+<li><p><strong>X_test</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>y_test</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>X</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>exposure_train</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>exposure_test</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>sample_weight_train</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>sample_weight_test</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>extra_columns</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset.load_subset">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_exposure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset.load_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset.load_subset" title="Link to this definition"></a></dt>
+<dd><p>Build a ModelDataSubset from pandas DataFrames and index splits.</p>
+<p>Uses explicit index_train/index_test to slice X and Y, optionally
+extracting target and exposure columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name for the subset.</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Full feature matrix.</p></li>
+<li><p><strong>Y</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – DataFrame containing target and optionally exposure columns.</p></li>
+<li><p><strong>index_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)"><em>pandas.Index</em></a>) – Index labels of training rows.</p></li>
+<li><p><strong>index_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)"><em>pandas.Index</em></a>) – Index labels of test rows.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Numerical feature names.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Categorical feature names.</p></li>
+<li><p><strong>column_exposure</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Exposure column name in Y, if any.</p></li>
+<li><p><strong>column_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Target column name in Y, if any.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame with extra columns to store.</p></li>
+<li><p><strong>column_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Constructed ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;f1&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;f2&quot;</span><span class="p">:[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">]})</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;target&quot;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="s2">&quot;exposure&quot;</span><span class="p">:[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]})</span>
+<span class="n">index_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">index_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="n">subset</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="o">.</span><span class="n">load_subset</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span>
+    <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+    <span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span>
+    <span class="n">index_train</span><span class="o">=</span><span class="n">index_train</span><span class="p">,</span>
+    <span class="n">index_test</span><span class="o">=</span><span class="n">index_test</span><span class="p">,</span>
+    <span class="n">features_numerical</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">,</span><span class="s2">&quot;f2&quot;</span><span class="p">],</span>
+    <span class="n">features_categorical</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">column_exposure</span><span class="o">=</span><span class="s2">&quot;exposure&quot;</span><span class="p">,</span>
+    <span class="n">column_target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset.load_subset_pl">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_subset_pl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_numerical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_exposure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset.load_subset_pl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset.load_subset_pl" title="Link to this definition"></a></dt>
+<dd><p>Build a ModelDataSubset from a Polars’ DataFrame with split flags.</p>
+<p>Expects a boolean/int column ‘is_train_obml’ to indicate split.
+Extracts target/exposure columns if provided and returns a pandas-based subset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name for the subset.</p></li>
+<li><p><strong>X</strong> (<em>polars.DataFrame</em>) – Polars DataFrame with an ‘is_train_obml’ column.</p></li>
+<li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Numerical feature names.</p></li>
+<li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Categorical feature names.</p></li>
+<li><p><strong>column_exposure</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Exposure column name, if any.</p></li>
+<li><p><strong>column_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Target column name, if any.</p></li>
+<li><p><strong>extra_columns_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Extra column names to include in extra_columns.</p></li>
+<li><p><strong>column_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Constructed ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;is_train_obml&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+    <span class="s2">&quot;f1&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+    <span class="s2">&quot;f2&quot;</span><span class="p">:[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">],</span>
+    <span class="s2">&quot;target&quot;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+    <span class="s2">&quot;exposure&quot;</span><span class="p">:[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="s2">&quot;keep_me&quot;</span><span class="p">:[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="n">subset</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="o">.</span><span class="n">load_subset_pl</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">features_numerical</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">,</span><span class="s2">&quot;f2&quot;</span><span class="p">],</span>
+    <span class="n">features_categorical</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">column_exposure</span><span class="o">=</span><span class="s2">&quot;exposure&quot;</span><span class="p">,</span>
+    <span class="n">column_target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+    <span class="n">extra_columns_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;keep_me&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset.__add__">
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset.__add__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset.__add__" title="Link to this definition"></a></dt>
+<dd><p>Combine two ModelDataSubset objects by concatenating aligned columns.</p>
+<ul class="simple">
+<li><p>Concatenates X_train and X_test column-wise</p></li>
+<li><p>Merges feature lists (unique union)</p></li>
+<li><p>Concatenates X if both present</p></li>
+<li><p>Concatenates extra_columns if both present</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Another ModelDataSubset to combine with this one.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New combined ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Target and exposure series are taken from <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">left</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">X_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">]}),</span> <span class="n">y_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">]))</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">X_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;b&quot;</span><span class="p">:[</span><span class="mi">2</span><span class="p">]}),</span> <span class="n">y_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.2</span><span class="p">]))</span>
+<span class="n">both</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+<span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">both</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelDataSubset.drop_columns">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">drop_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_to_drop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelDataSubset.drop_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelDataSubset.drop_columns" title="Link to this definition"></a></dt>
+<dd><p>Drop columns in-place from a ModelDataSubset and update feature lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Subset to modify.</p></li>
+<li><p><strong>columns_to_drop</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Column names to remove.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The modified ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+                     <span class="n">X_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;b&quot;</span><span class="p">:[</span><span class="mi">2</span><span class="p">]}),</span>
+                     <span class="n">y_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]),</span>
+                     <span class="n">features_numerical</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">])</span>
+<span class="n">ModelDataSubset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">])</span>
+            <span class="k">assert</span> <span class="s2">&quot;b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">features_numerical</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="datapreprocessor">
+<h2>DataPreprocessor<a class="headerlink" href="#datapreprocessor" title="Link to this heading"></a></h2>
+<p>High-level data preprocessor that prepares and persists model subsets.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">DataPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prepare_dataset_interface_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_saved_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>High-level data preprocessor that prepares and persists model subsets.</p>
+<p>Handles:
+- Train/test splitting via TrainTestIndexes or TrainTestIndexesPl
+- Delegating feature preparation to PrepareDataset / PrepareDatasetPl
+- Optional exposure weighting of the target
+- Persisting intermediate datasets to Parquet and subsets to pickle
+- Loading subsets for multiple models</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prepare_dataset_interface_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em> | </em><em>PrepareDatasetPl</em><em>]</em>) – Mapping of model_name to preparation
+interface (pandas or polars).</p></li>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>) – Raw dataset or an Extractor implementation.</p></li>
+<li><p><strong>data_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.DataModelConfig" title="outboxml.core.pydantic_models.DataModelConfig"><em>DataModelConfig</em></a>) – Data configuration with separation settings and extras.</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Version string used in filenames. Defaults to ‘1’.</p></li>
+<li><p><strong>prepare_engine</strong> (<em>Literal</em><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em><em>, </em><em>optional</em>) – Engine to use (‘pandas’ or ‘polars’). Defaults to ‘pandas’.</p></li>
+<li><p><strong>external_config</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a><em>, </em><em>optional</em>) – External config with results_path. Defaults to None.</p></li>
+<li><p><strong>use_saved_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, reuse existing pickled subsets. Defaults to False.</p></li>
+<li><p><strong>retro</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, keep full columns when saving dataset for retro analysis.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model_names</strong> – List of model names to process.</p></li>
+<li><p><strong>index_train</strong> – Cached training index after preparation.</p></li>
+<li><p><strong>index_test</strong> – Cached test index after preparation.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume you have:</span>
+<span class="c1"># - data_config: DataModelConfig</span>
+<span class="c1"># - df: pandas.DataFrame with all required columns</span>
+<span class="c1"># - pd_interface: an instance implementing PrepareDataset for pandas</span>
+<span class="c1">#</span>
+<span class="c1"># Basic pandas flow</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">DataPreprocessor</span><span class="p">(</span>
+    <span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;my_model&quot;</span><span class="p">:</span> <span class="n">pd_interface</span><span class="p">},</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">data_config</span><span class="o">=</span><span class="n">data_config</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="n">prepare_engine</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">use_saved_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>  <span class="c1"># prepares, saves, and loads from pickle</span>
+
+<span class="c1"># Access all subsets for all configured models</span>
+<span class="n">all_subsets</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subsets</span><span class="p">()</span>
+
+<span class="c1"># Polars flow (if you have a polars PrepareDatasetPl)</span>
+<span class="c1"># polars_interface: PrepareDatasetPl</span>
+<span class="n">p_pl</span> <span class="o">=</span> <span class="n">DataPreprocessor</span><span class="p">(</span>
+    <span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;my_model_pl&quot;</span><span class="p">:</span> <span class="n">polars_interface</span><span class="p">},</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>  <span class="c1"># or a real polars DataFrame</span>
+    <span class="n">data_config</span><span class="o">=</span><span class="n">data_config</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="n">prepare_engine</span><span class="o">=</span><span class="s2">&quot;polars&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">subset_pl</span> <span class="o">=</span> <span class="n">p_pl</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s2">&quot;my_model_pl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prepare_dataset_interface_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_saved_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prepare_dataset_interface_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em> | </em><em>PrepareDatasetPl</em><em>]</em>)</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em><em> | </em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>)</p></li>
+<li><p><strong>data_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.DataModelConfig" title="outboxml.core.pydantic_models.DataModelConfig"><em>DataModelConfig</em></a>)</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>prepare_engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em>)</p></li>
+<li><p><strong>use_saved_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>retro</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.dataset">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></span><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.dataset" title="Link to this definition"></a></dt>
+<dd><p>Return the dataset, persisting to Parquet and reloading on first access.</p>
+<ul class="simple">
+<li><p>If a pandas DataFrame or Extractor is supplied, it is saved to Parquet
+(optionally reduced to only used columns if retro=False), then replaced
+with the Parquet-backed version to reduce memory.</p></li>
+<li><p>Subsequent calls read from the Parquet file.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dataset from Parquet in the selected engine format.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dp</span> <span class="o">=</span> <span class="n">DataPreprocessor</span><span class="p">(</span><span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="n">pd_interface</span><span class="p">},</span>
+                      <span class="n">dataset</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+                      <span class="n">data_config</span><span class="o">=</span><span class="n">data_config</span><span class="p">)</span>
+<span class="c1"># First access triggers save to parquet and then read</span>
+<span class="n">data_for_preparation</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">dataset</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor.model_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.model_config" title="Link to this definition"></a></dt>
+<dd><p>Get the ModelConfig for a given model name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ModelConfig object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig">ModelConfig</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mc</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">model_config</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mc</span><span class="o">.</span><span class="n">column_target</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.save_subset_to_pickle">
+<span class="sig-name descname"><span class="pre">save_subset_to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor.save_subset_to_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.save_subset_to_pickle" title="Link to this definition"></a></dt>
+<dd><p>Save a prepared subset and its model config to pickle files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p></li>
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Prepared data subset to persist.</p></li>
+<li><p><strong>rewrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing files if True. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subset</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># prepare in-memory</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">save_subset_to_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_pickle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.get_subset" title="Link to this definition"></a></dt>
+<dd><p>Get a prepared subset for a model, loading from pickle or preparing anew.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Model name. Defaults to the first in model_names.</p></li>
+<li><p><strong>from_pickle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, load from pickle or prepare-then-load.</p></li>
+<li><p><strong>prepare_func</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Optional custom preparation function to override default.</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Keyword arguments to pass to prepare_func.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prepared ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default path (uses interface.prepare_dataset and pickle cache)</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Custom preparation function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_prepare</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index_train</span><span class="p">,</span> <span class="n">index_test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="c1"># Return an object compatible with PrepareDatasetResult</span>
+    <span class="c1"># with attributes: data, model_config, features_numerical, features_categorical</span>
+    <span class="o">...</span>
+<span class="n">subset2</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prepare_func</span><span class="o">=</span><span class="n">my_prepare</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.DataPreprocessor.data_subsets">
+<span class="sig-name descname"><span class="pre">data_subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#DataPreprocessor.data_subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.DataPreprocessor.data_subsets" title="Link to this definition"></a></dt>
+<dd><p>Return prepared subsets for all configured models.</p>
+<p>Ensures subsets exist (preparing if necessary) and returns a mapping
+of model_name to ModelDataSubset loaded from pickle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of model subsets.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a>]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">dp</span><span class="o">.</span><span class="n">data_subsets</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">subset</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="picklemodelsubset">
+<h2>PickleModelSubset<a class="headerlink" href="#picklemodelsubset" title="Link to this heading"></a></h2>
+<p>Utility for persisting and loading ModelDataSubset objects to/from pickle.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PickleModelSubset">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">PickleModelSubset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PickleModelSubset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PickleModelSubset" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Utility for persisting and loading ModelDataSubset objects to/from pickle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – External configuration (must have results_path).</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Version string used in filenames.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">PickleModelSubset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">save_subset_to_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">subset2</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">load_subsets_from_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PickleModelSubset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PickleModelSubset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PickleModelSubset.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PickleModelSubset.load_subsets_from_pickle">
+<span class="sig-name descname"><span class="pre">load_subsets_from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PickleModelSubset.load_subsets_from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PickleModelSubset.load_subsets_from_pickle" title="Link to this definition"></a></dt>
+<dd><p>Load a ModelDataSubset from a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Deprecated/unused parameter (kept for compatibility).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded ModelDataSubset with arrays copied to avoid WRITEABLE flag issues.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">PickleModelSubset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">load_subsets_from_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PickleModelSubset.save_subset_to_pickle">
+<span class="sig-name descname"><span class="pre">save_subset_to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PickleModelSubset.save_subset_to_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PickleModelSubset.save_subset_to_pickle" title="Link to this definition"></a></dt>
+<dd><p>Save a ModelDataSubset to a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p></li>
+<li><p><strong>subset</strong> (<a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Subset to save.</p></li>
+<li><p><strong>rewrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing file if True. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">PickleModelSubset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">save_subset_to_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="parquetdataset">
+<h2>ParquetDataset<a class="headerlink" href="#parquetdataset" title="Link to this heading"></a></h2>
+<p>Helper to persist datasets to a Parquet file and read them back.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ParquetDataset">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">ParquetDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parquet_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ParquetDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ParquetDataset" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Helper to persist datasets to a Parquet file and read them back.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – External config with results_path.</p></li>
+<li><p><strong>parquet_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Base file name for Parquet dataset.</p></li>
+<li><p><strong>prepare_engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Engine hint (‘pandas’ or ‘polars’) for reading.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pq</span> <span class="o">=</span> <span class="n">ParquetDataset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">parquet_name</span><span class="o">=</span><span class="s2">&quot;temp_dataset_v1&quot;</span><span class="p">,</span> <span class="n">prepare_engine</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="n">pq</span><span class="o">.</span><span class="n">save_parquet</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]}),</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ParquetDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parquet_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ParquetDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ParquetDataset.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parquet_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>prepare_engine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ParquetDataset.save_parquet">
+<span class="sig-name descname"><span class="pre">save_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ParquetDataset.save_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ParquetDataset.save_parquet" title="Link to this definition"></a></dt>
+<dd><p>Save a DataFrame to Parquet under results_path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – Data to save (pandas or polars DataFrame).</p></li>
+<li><p><strong>rewrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing file if True. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pq</span> <span class="o">=</span> <span class="n">ParquetDataset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">parquet_name</span><span class="o">=</span><span class="s2">&quot;tmp_v1&quot;</span><span class="p">,</span> <span class="n">prepare_engine</span><span class="o">=</span><span class="s2">&quot;polars&quot;</span><span class="p">)</span>
+<span class="n">pq</span><span class="o">.</span><span class="n">save_parquet</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]}),</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ParquetDataset.read_parquet">
+<span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_polars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ParquetDataset.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ParquetDataset.read_parquet" title="Link to this definition"></a></dt>
+<dd><p>Read the persisted Parquet dataset using the configured engine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>to_polars</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Deprecated parameter; reading engine is determined by init.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded dataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)">pandas.DataFrame</a> or polars.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pq</span> <span class="o">=</span> <span class="n">ParquetDataset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">parquet_name</span><span class="o">=</span><span class="s2">&quot;tmp_v1&quot;</span><span class="p">,</span> <span class="n">prepare_engine</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="modelconfigpickle">
+<h2>ModelConfigPickle<a class="headerlink" href="#modelconfigpickle" title="Link to this heading"></a></h2>
+<p>Persist and load ModelConfig objects to/from pickle files.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelConfigPickle">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">ModelConfigPickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelConfigPickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelConfigPickle" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Persist and load ModelConfig objects to/from pickle files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="core/enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – External config with results_path.</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Version string used in filenames.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelConfigPickle</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">save_config_to_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">load_config_from_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelConfigPickle.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelConfigPickle.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelConfigPickle.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelConfigPickle.load_config_from_pickle">
+<span class="sig-name descname"><span class="pre">load_config_from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelConfigPickle.load_config_from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelConfigPickle.load_config_from_pickle" title="Link to this definition"></a></dt>
+<dd><p>Load a ModelConfig from a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded ModelConfig.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig">ModelConfig</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelConfigPickle</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">load_config_from_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.ModelConfigPickle.save_config_to_pickle">
+<span class="sig-name descname"><span class="pre">save_config_to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#ModelConfigPickle.save_config_to_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.ModelConfigPickle.save_config_to_pickle" title="Link to this definition"></a></dt>
+<dd><p>Save a ModelConfig to a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig" title="outboxml.core.pydantic_models.ModelConfig"><em>ModelConfig</em></a>) – Model configuration to persist.</p></li>
+<li><p><strong>rewrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing file if True. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">ModelConfigPickle</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">save_config_to_pickle</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">rewrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="prepareengine">
+<h2>PrepareEngine<a class="headerlink" href="#prepareengine" title="Link to this heading"></a></h2>
+<p>Abstract base class for dataset preparation engines (pandas/polars).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PrepareEngine">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">PrepareEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PrepareEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PrepareEngine" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for dataset preparation engines (pandas/polars).</p>
+<blockquote>
+<div><p>Validates separation_config type and stores the dataset reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param dataset<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Input dataset (pandas or polars).</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>:type</p>
+<dl>
+<dt>dataset: Any</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param separation_config<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Train/test split configuration.</p>
+</dd>
+<dt class="field-even">type separation_config<span class="colon">:</span></dt>
+<dd class="field-even"><p>SeparationModelConfig</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Subclassing pattern (simplified)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyEngine</span><span class="p">(</span><span class="n">PrepareEngine</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepared_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">):</span>
+        <span class="c1"># return a ModelDataSubset</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PrepareEngine.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PrepareEngine.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PrepareEngine.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PrepareEngine.prepared_subset">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepared_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PrepareEngine.prepared_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PrepareEngine.prepared_subset" title="Link to this definition"></a></dt>
+<dd><p>Prepare and return a ModelDataSubset for a single model.</p>
+<p>Specific signature depends on concrete engine implementation.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Implemented by PandasInterface / PolarsInterface</span>
+<span class="c1"># engine.prepared_subset(...)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="pandasinterface">
+<h2>PandasInterface<a class="headerlink" href="#pandasinterface" title="Link to this heading"></a></h2>
+<p>Pandas-based preparation engine wrapping a PrepareDataset interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PandasInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">PandasInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PandasInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PandasInterface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.data_subsets.PrepareEngine" title="outboxml.data_subsets.PrepareEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareEngine</span></code></a></p>
+<p>Pandas-based preparation engine wrapping a PrepareDataset interface.</p>
+<p>Performs:
+- Train/test split computation
+- Optional exposure-based filtering/weighting
+- Model-specific feature preparation via PrepareDataset
+- Packaging into a ModelDataSubset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input dataset (pandas DataFrame).</p></li>
+<li><p><strong>prepare_interface</strong> (<em>PrepareDataset</em>) – Model-specific prepare interface.</p></li>
+<li><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>) – Train/test split configuration.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Extra column names to keep alongside the subset.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume pd_interface implements PrepareDataset and provides get_model_config/prepare_dataset</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">PandasInterface</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">prepare_interface</span><span class="o">=</span><span class="n">pd_interface</span><span class="p">,</span>
+    <span class="n">separation_config</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span><span class="p">,</span>
+    <span class="n">extra_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">index_train</span><span class="p">,</span> <span class="n">index_test</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_train_test_indexes</span><span class="p">()</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PandasInterface.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PandasInterface.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PandasInterface.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>prepare_interface</strong> (<em>PrepareDataset</em>)</p></li>
+<li><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>)</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PandasInterface.get_train_test_indexes">
+<span class="sig-name descname"><span class="pre">get_train_test_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PandasInterface.get_train_test_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PandasInterface.get_train_test_indexes" title="Link to this definition"></a></dt>
+<dd><p>Compute train/test indexes using TrainTestIndexes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of (index_train, index_test).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)">pandas.Index</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)">pandas.Index</a>]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">index_train</span><span class="p">,</span> <span class="n">index_test</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_train_test_indexes</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PandasInterface.prepared_subset">
+<span class="sig-name descname"><span class="pre">prepared_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prepare_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PandasInterface.prepared_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PandasInterface.prepared_subset" title="Link to this definition"></a></dt>
+<dd><p>Prepare a subset using pandas path and return ModelDataSubset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prepare_func</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Optional custom function to prepare the dataset.
+Signature should be (X, index_train, index_test, target, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs).</p></li>
+<li><p><strong>args_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Keyword arguments for prepare_func or interface method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prepared ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default path using interface</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">()</span>
+
+<span class="c1"># With a custom function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_prepare</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index_train</span><span class="p">,</span> <span class="n">index_test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="o">...</span>
+<span class="n">subset2</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">(</span><span class="n">prepare_func</span><span class="o">=</span><span class="n">my_prepare</span><span class="p">,</span> <span class="n">args_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="polarsinterface">
+<h2>PolarsInterface<a class="headerlink" href="#polarsinterface" title="Link to this heading"></a></h2>
+<p>Polars-based preparation engine wrapping a PrepareDatasetPl interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PolarsInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.data_subsets.</span></span><span class="sig-name descname"><span class="pre">PolarsInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PolarsInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PolarsInterface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.data_subsets.PrepareEngine" title="outboxml.data_subsets.PrepareEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrepareEngine</span></code></a></p>
+<p>Polars-based preparation engine wrapping a PrepareDatasetPl interface.</p>
+<p>Performs:
+- Train/test split generation with a split flag
+- Optional exposure-based filtering/weighting
+- Model-specific preparation via PrepareDatasetPl
+- Packaging into a ModelDataSubset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>polars.DataFrame</em>) – Input dataset (polars DataFrame).</p></li>
+<li><p><strong>prepare_interface</strong> (<em>PrepareDatasetPl</em>) – Model-specific prepare interface (polars).</p></li>
+<li><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>) – Train/test split configuration.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] or </em><em>None</em>) – Extra columns to include in the final subset.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">engine</span> <span class="o">=</span> <span class="n">PolarsInterface</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>  <span class="c1"># or a real polars DataFrame</span>
+    <span class="n">prepare_interface</span><span class="o">=</span><span class="n">polars_interface</span><span class="p">,</span>
+    <span class="n">separation_config</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span><span class="p">,</span>
+    <span class="n">extra_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">split_df</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_train_test_split</span><span class="p">()</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PolarsInterface.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PolarsInterface.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PolarsInterface.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>prepare_interface</strong> (<em>PrepareDatasetPl</em>)</p></li>
+<li><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>)</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PolarsInterface.get_train_test_split">
+<span class="sig-name descname"><span class="pre">get_train_test_split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PolarsInterface.get_train_test_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PolarsInterface.get_train_test_split" title="Link to this definition"></a></dt>
+<dd><p>Create and return a DataFrame with a train/test split flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Polars DataFrame augmented with ‘is_train_obml’ column.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>polars.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">split_df</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_train_test_split</span><span class="p">()</span>
+<span class="k">assert</span> <span class="s2">&quot;is_train_obml&quot;</span> <span class="ow">in</span> <span class="n">split_df</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.data_subsets.PolarsInterface.prepared_subset">
+<span class="sig-name descname"><span class="pre">prepared_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prepare_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/data_subsets.html#PolarsInterface.prepared_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.data_subsets.PolarsInterface.prepared_subset" title="Link to this definition"></a></dt>
+<dd><p>Prepare a subset using Polars and return ModelDataSubset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prepare_func</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Optional custom function to prepare the dataset.
+Signature should be (X_pl_df, target_pl_df_or_none, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs).</p></li>
+<li><p><strong>args_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Keyword arguments passed to prepare_func or interface method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prepared ModelDataSubset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default path using interface</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">()</span>
+
+<span class="c1"># With a custom function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_prepare</span><span class="p">(</span><span class="n">X_pl</span><span class="p">,</span> <span class="n">target_pl</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="o">...</span>
+<span class="n">subset2</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">prepared_subset</span><span class="p">(</span><span class="n">prepare_func</span><span class="o">=</span><span class="n">my_prepare</span><span class="p">,</span> <span class="n">args_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="datasets_manager.html" class="btn btn-neutral float-left" title="Datasets Manager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="extractors.html" class="btn btn-neutral float-right" title="Extractors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

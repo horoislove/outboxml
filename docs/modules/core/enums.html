@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enums &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Pydantic Models" href="pydantic_models.html" />
+    <link rel="prev" title="Data Preparation" href="data_prepare.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#core-modules">Core Modules</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-package">Core Package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Core Package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="config_builders.html">Config Builders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data_prepare.html">Data Preparation</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydantic_models.html">Pydantic Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="validators.html">Validators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="predict.html">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="monitoring_factory.html">Monitoring Factory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#module-outboxml.core.email">Email Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core Package</a></li>
+      <li class="breadcrumb-item active">Enums</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modules/core/enums.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.core.enums">
+<span id="enums"></span><h1>Enums<a class="headerlink" href="#module-outboxml.core.enums" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">FilesNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#FilesNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.FilesNames" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.data_init">
+<span class="sig-name descname"><span class="pre">data_init</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'data_init'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.data_init" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.parquet">
+<span class="sig-name descname"><span class="pre">parquet</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'parquet'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.parquet" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.database">
+<span class="sig-name descname"><span class="pre">database</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'database'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.database" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.pickle">
+<span class="sig-name descname"><span class="pre">pickle</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pickle'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.pickle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.csv">
+<span class="sig-name descname"><span class="pre">csv</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.csv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FilesNames.hadoop">
+<span class="sig-name descname"><span class="pre">hadoop</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hadoop'</span></span><a class="headerlink" href="#outboxml.core.enums.FilesNames.hadoop" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">FeatureEngineering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#FeatureEngineering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.feature_type">
+<span class="sig-name descname"><span class="pre">feature_type</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_TYPE_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.feature_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.numerical">
+<span class="sig-name descname"><span class="pre">numerical</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_NUM_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.numerical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.not_changed">
+<span class="sig-name descname"><span class="pre">not_changed</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_NOTCHANGED_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.not_changed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.min_value">
+<span class="sig-name descname"><span class="pre">min_value</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'min_value'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.min_value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.max_value">
+<span class="sig-name descname"><span class="pre">max_value</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'max_value'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.max_value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.nan">
+<span class="sig-name descname"><span class="pre">nan</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_NAN_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.nan" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.min">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_MIN_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.min" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.max">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_MAX_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.max" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.mean">
+<span class="sig-name descname"><span class="pre">mean</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_MEAN_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.mean" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureEngineering.median">
+<span class="sig-name descname"><span class="pre">median</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_MEDIAN_'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureEngineering.median" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeaturesTypes">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">FeaturesTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#FeaturesTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.FeaturesTypes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeaturesTypes.feature">
+<span class="sig-name descname"><span class="pre">feature</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'feature'</span></span><a class="headerlink" href="#outboxml.core.enums.FeaturesTypes.feature" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeaturesTypes.target_encoding">
+<span class="sig-name descname"><span class="pre">target_encoding</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'target_encoding'</span></span><a class="headerlink" href="#outboxml.core.enums.FeaturesTypes.target_encoding" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeaturesTypes.numerical">
+<span class="sig-name descname"><span class="pre">numerical</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numerical'</span></span><a class="headerlink" href="#outboxml.core.enums.FeaturesTypes.numerical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeaturesTypes.categorical">
+<span class="sig-name descname"><span class="pre">categorical</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'categorical'</span></span><a class="headerlink" href="#outboxml.core.enums.FeaturesTypes.categorical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">ModelsParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#ModelsParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.ModelsParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.poisson">
+<span class="sig-name descname"><span class="pre">poisson</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'poisson'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.poisson" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gamma'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.gamma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.binary">
+<span class="sig-name descname"><span class="pre">binary</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.binary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.rmse">
+<span class="sig-name descname"><span class="pre">rmse</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RMSE'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.rmse" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.rmsewithuncertainty">
+<span class="sig-name descname"><span class="pre">rmsewithuncertainty</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rmsewithuncertainty'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.rmsewithuncertainty" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.glm">
+<span class="sig-name descname"><span class="pre">glm</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'glm'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.glm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.glm_without_scaler">
+<span class="sig-name descname"><span class="pre">glm_without_scaler</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'glm_without_scaler'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.glm_without_scaler" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.catboost">
+<span class="sig-name descname"><span class="pre">catboost</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'catboost'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.catboost" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.catboost_over_glm">
+<span class="sig-name descname"><span class="pre">catboost_over_glm</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'catboost_over_glm'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.catboost_over_glm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.xgboost">
+<span class="sig-name descname"><span class="pre">xgboost</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xgboost'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.xgboost" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelsParams.clustering">
+<span class="sig-name descname"><span class="pre">clustering</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clustering'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelsParams.clustering" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">ResultNames</span></span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#ResultNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.ResultNames" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.model_name">
+<span class="sig-name descname"><span class="pre">model_name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Имя</span> <span class="pre">модели'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.model_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.metric">
+<span class="sig-name descname"><span class="pre">metric</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Метрика'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.metric" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.new_model">
+<span class="sig-name descname"><span class="pre">new_model</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Новая</span> <span class="pre">модель'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.new_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.new_result_train">
+<span class="sig-name descname"><span class="pre">new_result_train</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Новая</span> <span class="pre">модель||Тренировочная</span> <span class="pre">выборка'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.new_result_train" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.new_result_test">
+<span class="sig-name descname"><span class="pre">new_result_test</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Новая</span> <span class="pre">модель||Тестовая</span> <span class="pre">выборка'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.new_result_test" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.old_result_train">
+<span class="sig-name descname"><span class="pre">old_result_train</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Предыдущая</span> <span class="pre">модель||Тренировочная</span> <span class="pre">выборка'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.old_result_train" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ResultNames.old_result_test">
+<span class="sig-name descname"><span class="pre">old_result_test</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Предыдущая</span> <span class="pre">модель||Тестовая</span> <span class="pre">выборка'</span></span><a class="headerlink" href="#outboxml.core.enums.ResultNames.old_result_test" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.SeparationParams">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">SeparationParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#SeparationParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.SeparationParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.SeparationParams.rand">
+<span class="sig-name descname"><span class="pre">rand</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'random'</span></span><a class="headerlink" href="#outboxml.core.enums.SeparationParams.rand" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.SeparationParams.period">
+<span class="sig-name descname"><span class="pre">period</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'date'</span></span><a class="headerlink" href="#outboxml.core.enums.SeparationParams.period" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.SeparationParams.null">
+<span class="sig-name descname"><span class="pre">null</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'none'</span></span><a class="headerlink" href="#outboxml.core.enums.SeparationParams.null" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.ColumnsNames">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">ColumnsNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#ColumnsNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.ColumnsNames" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ColumnsNames.is_train">
+<span class="sig-name descname"><span class="pre">is_train</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'is_train'</span></span><a class="headerlink" href="#outboxml.core.enums.ColumnsNames.is_train" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ColumnsNames.is_test">
+<span class="sig-name descname"><span class="pre">is_test</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'is_test'</span></span><a class="headerlink" href="#outboxml.core.enums.ColumnsNames.is_test" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ColumnsNames.is_train_obml">
+<span class="sig-name descname"><span class="pre">is_train_obml</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'is_train_obml'</span></span><a class="headerlink" href="#outboxml.core.enums.ColumnsNames.is_train_obml" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">EncodingNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#EncodingNames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.EncodingNames" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.woe_num">
+<span class="sig-name descname"><span class="pre">woe_num</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WoE_num_to_cat'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.woe_num" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.woe_cat">
+<span class="sig-name descname"><span class="pre">woe_cat</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WoE_cat_to_num'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.woe_cat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.to_float">
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'to_float'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.to_float" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.to_int">
+<span class="sig-name descname"><span class="pre">to_int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'to_int'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.to_int" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.woe_num_num">
+<span class="sig-name descname"><span class="pre">woe_num_num</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WoE_num_to_num'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.woe_num_num" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.EncodingNames.cut_num">
+<span class="sig-name descname"><span class="pre">cut_num</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cut_num'</span></span><a class="headerlink" href="#outboxml.core.enums.EncodingNames.cut_num" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">FeatureTypesForSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#FeatureTypesForSelection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection.binary">
+<span class="sig-name descname"><span class="pre">binary</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BINARY'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection.binary" title="Link to this definition"></a></dt>
+<dd><p>[‘EventCreatedByGIBDDFlag’, ‘E-Garant’, &lt; … &gt;]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection.categorical">
+<span class="sig-name descname"><span class="pre">categorical</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CATEGORСAL'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection.categorical" title="Link to this definition"></a></dt>
+<dd><p>[‘CustomerImportance’, ‘DTPOSAGOType’, &lt; … &gt;]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection.numeric">
+<span class="sig-name descname"><span class="pre">numeric</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NUMERIC'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection.numeric" title="Link to this definition"></a></dt>
+<dd><p>[‘LossNumber’, ‘InsuredSum’, ‘LossDateTime’, &lt; … &gt;]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection.to_drop">
+<span class="sig-name descname"><span class="pre">to_drop</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TO_DROP'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection.to_drop" title="Link to this definition"></a></dt>
+<dd><p>[‘EventTypeDescription’, ‘InsuranceTypeName’, &lt; … &gt;]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.FeatureTypesForSelection.object">
+<span class="sig-name descname"><span class="pre">object</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OBJECT'</span></span><a class="headerlink" href="#outboxml.core.enums.FeatureTypesForSelection.object" title="Link to this definition"></a></dt>
+<dd><p>[‘ContractNumber’, ‘VictimContractNumber’, &lt; … &gt;]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelTypes">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.enums.</span></span><span class="sig-name descname"><span class="pre">ModelTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/enums.html#ModelTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.enums.ModelTypes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelTypes.regression">
+<span class="sig-name descname"><span class="pre">regression</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'regression'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelTypes.regression" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelTypes.classification">
+<span class="sig-name descname"><span class="pre">classification</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'classification'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelTypes.classification" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="outboxml.core.enums.ModelTypes.clustering">
+<span class="sig-name descname"><span class="pre">clustering</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clustering'</span></span><a class="headerlink" href="#outboxml.core.enums.ModelTypes.clustering" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_prepare.html" class="btn btn-neutral float-left" title="Data Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pydantic_models.html" class="btn btn-neutral float-right" title="Pydantic Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature Selection &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Hyperparameter Tuning" href="hyperparameter_tuning.html" />
+    <link rel="prev" title="Extractors" href="extractors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-modules">Core Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="automl_manager.html">AutoML Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datadrift.html">Data Drift Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets_manager.html">Datasets Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_subsets.html">Data Subsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extractors.html">Extractors</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Selection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.feature_selection.SelectionInterface"><code class="docutils literal notranslate"><span class="pre">SelectionInterface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.feature_selection.FeatureSelection"><code class="docutils literal notranslate"><span class="pre">FeatureSelection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.feature_selection.FeatureSelectionInterface"><code class="docutils literal notranslate"><span class="pre">FeatureSelectionInterface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outboxml.feature_selection.BaseFS"><code class="docutils literal notranslate"><span class="pre">BaseFS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hyperparameter_tuning.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="monitoring_manager.html">Monitoring Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plots.html">Plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export_results.html">Export Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-package">Core Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Feature Selection</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/feature_selection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-outboxml.feature_selection">
+<span id="feature-selection"></span><h1>Feature Selection<a class="headerlink" href="#module-outboxml.feature_selection" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.feature_selection.SelectionInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.feature_selection.</span></span><span class="sig-name descname"><span class="pre">SelectionInterface</span></span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#SelectionInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.SelectionInterface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Base interface for feature selection algorithms.</p>
+<p>Abstract base class that defines the interface for feature selection
+implementations. All feature selection algorithms should inherit from
+this class and implement the <code class="docutils literal notranslate"><span class="pre">feature_selection</span></code> method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.SelectionInterface.feature_selection">
+<span class="sig-name descname"><span class="pre">feature_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#SelectionInterface.feature_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.SelectionInterface.feature_selection" title="Link to this definition"></a></dt>
+<dd><p>Main feature selection method.</p>
+<p>This method should be implemented by subclasses to perform the
+actual feature selection logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*params</strong> – <p>Variable number of parameters depending on the
+specific implementation.</p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of selected feature names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.feature_selection.FeatureSelection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.feature_selection.</span></span><span class="sig-name descname"><span class="pre">FeatureSelection</span></span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#FeatureSelection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.FeatureSelection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for feature selection implementations.</p>
+<p>This class provides the interface for feature selection that returns
+a ModelDataSubset with selected features. Subclasses should implement
+the <code class="docutils literal notranslate"><span class="pre">select_features</span></code> method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.FeatureSelection.select_features">
+<span class="sig-name descname"><span class="pre">select_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#FeatureSelection.select_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.FeatureSelection.select_features" title="Link to this definition"></a></dt>
+<dd><p>Execute feature selection.</p>
+<p>This method should be implemented by subclasses to perform feature
+selection and return a ModelDataSubset containing only the selected
+features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*params</strong> – <p>Variable number of parameters depending on the
+specific implementation.</p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataset subset with selected features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.feature_selection.FeatureSelectionInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.feature_selection.</span></span><span class="sig-name descname"><span class="pre">FeatureSelectionInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_selection_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RMSE'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#FeatureSelectionInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.FeatureSelectionInterface" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.feature_selection.SelectionInterface" title="outboxml.feature_selection.SelectionInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectionInterface</span></code></a></p>
+<p>Main interface for feature selection algorithms.</p>
+<p>Uses SHAP values, correlation filtering, and cross-validation
+stability analysis to select the most relevant features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_selection_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig" title="outboxml.core.pydantic_models.FeatureSelectionConfig"><em>FeatureSelectionConfig</em></a>) – Configuration for feature selection.</p></li>
+<li><p><strong>objective</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – CatBoost objective name.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.FeatureSelectionInterface.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_selection_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RMSE'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#FeatureSelectionInterface.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.FeatureSelectionInterface.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize feature selection interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_selection_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig" title="outboxml.core.pydantic_models.FeatureSelectionConfig"><em>FeatureSelectionConfig</em></a>) – Configuration for feature selection.</p></li>
+<li><p><strong>objective</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – CatBoost objective name. Supports ‘RMSE’, ‘poisson’,
+‘gamma’, ‘binary’, ‘binomial’, or any valid CatBoost objective.
+Defaults to ‘RMSE’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.FeatureSelectionInterface.feature_selection">
+<span class="sig-name descname"><span class="pre">feature_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_features_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#FeatureSelectionInterface.feature_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.FeatureSelectionInterface.feature_selection" title="Link to this definition"></a></dt>
+<dd><p>Selects features based on SHAP importance and stability criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_subset</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset"><em>ModelDataSubset</em></a>) – Prepared dataset subset for model training.</p></li>
+<li><p><strong>new_features_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of candidate features.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Additional CatBoost parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of selected feature names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.feature_selection.BaseFS">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.feature_selection.</span></span><span class="sig-name descname"><span class="pre">BaseFS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_selection_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_data_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_features_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#BaseFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.BaseFS" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.feature_selection.FeatureSelection" title="outboxml.feature_selection.FeatureSelection"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSelection</span></code></a></p>
+<p>Base feature selection pipeline.</p>
+<p>Orchestrates feature preparation, selection, and dataset filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_preprocessor</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.DataPreprocessor" title="outboxml.data_subsets.DataPreprocessor"><em>DataPreprocessor</em></a>) – Dataset preprocessor.</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig" title="outboxml.core.pydantic_models.FeatureSelectionConfig"><em>FeatureSelectionConfig</em></a>) – Feature selection configuration.</p></li>
+<li><p><strong>feature_selection_interface</strong> (<a class="reference internal" href="#outboxml.feature_selection.SelectionInterface" title="outboxml.feature_selection.SelectionInterface"><em>SelectionInterface</em></a>) – Feature selection algorithm.</p></li>
+<li><p><strong>prepare_data_interface</strong> (<em>BasePrepareDataset</em>) – Dataset preparation interface.</p></li>
+<li><p><strong>new_features_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – Candidate features.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.BaseFS.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_selection_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_data_interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_features_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#BaseFS.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.BaseFS.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_preprocessor</strong> (<a class="reference internal" href="data_subsets.html#outboxml.data_subsets.DataPreprocessor" title="outboxml.data_subsets.DataPreprocessor"><em>DataPreprocessor</em></a>)</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig" title="outboxml.core.pydantic_models.FeatureSelectionConfig"><em>FeatureSelectionConfig</em></a>)</p></li>
+<li><p><strong>feature_selection_interface</strong> (<a class="reference internal" href="#outboxml.feature_selection.SelectionInterface" title="outboxml.feature_selection.SelectionInterface"><em>SelectionInterface</em></a>)</p></li>
+<li><p><strong>prepare_data_interface</strong> (<em>BasePrepareDataset</em>)</p></li>
+<li><p><strong>new_features_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.BaseFS.select_features">
+<span class="sig-name descname"><span class="pre">select_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#BaseFS.select_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.BaseFS.select_features" title="Link to this definition"></a></dt>
+<dd><p>Executes the full feature selection pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Model name.</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Model parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataset subset with selected features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.BaseFS.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#BaseFS.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.BaseFS.prepare_data" title="Link to this definition"></a></dt>
+<dd><p>Prepares dataset for feature selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Model name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prepared dataset subset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="data_subsets.html#outboxml.data_subsets.ModelDataSubset" title="outboxml.data_subsets.ModelDataSubset">ModelDataSubset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.feature_selection.BaseFS.feature_types">
+<span class="sig-name descname"><span class="pre">feature_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/feature_selection.html#BaseFS.feature_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.feature_selection.BaseFS.feature_types" title="Link to this definition"></a></dt>
+<dd><p>Determines feature types for selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input dataset.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of feature names suitable for modeling.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="extractors.html" class="btn btn-neutral float-left" title="Extractors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hyperparameter_tuning.html" class="btn btn-neutral float-right" title="Hyperparameter Tuning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

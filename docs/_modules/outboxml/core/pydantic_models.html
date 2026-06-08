@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.core.pydantic_models &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.core.pydantic_models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.core.pydantic_models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">model_validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilesNames</span><span class="p">,</span> <span class="n">SeparationParams</span><span class="p">,</span> <span class="n">FeatureEngineering</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigError</span>
+
+
+<div class="viewcode-block" id="SeparationModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SeparationModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="n">SeparationParams</span><span class="o">.</span><span class="n">rand</span><span class="p">,</span> <span class="n">SeparationParams</span><span class="o">.</span><span class="n">period</span><span class="p">,</span> <span class="n">SeparationParams</span><span class="o">.</span><span class="n">null</span><span class="p">]</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">test_train_proportion</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">train_period</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">test_period</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">period_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1"># TODO: remove class</span>
+<div class="viewcode-block" id="DataConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.DataConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+
+    <span class="n">targetslices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span>  <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">queries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="DataModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.DataModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">processing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">showGraphs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="n">FilesNames</span><span class="o">.</span><span class="n">parquet</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">database</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">csv</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">pickle</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">hadoop</span><span class="p">]]</span>
+    <span class="n">table_name_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">local_name_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extra_conditions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extra_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">separation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeparationModelConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extra_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">targetslices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataConfig</span><span class="p">]</span>   <span class="c1"># TODO: remove</span></div>
+
+
+
+<div class="viewcode-block" id="RelativeFeatureModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.RelativeFeatureModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelativeFeatureModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">numerator</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">denominator</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">default</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RelativeFeatureModelConfig.check_rel_default">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.RelativeFeatureModelConfig.check_rel_default">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_rel_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">nan</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid default value for numerical feature </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FeatureModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.FeatureModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">replace</span><span class="p">:</span> <span class="n">Dict</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cut_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">fillna</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># For categorical features only</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">optbinning_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FeatureModelConfig.check_replace">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.FeatureModelConfig.check_replace">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Numerical</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">feature_type</span><span class="p">)</span> <span class="o">==</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">numerical</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">key</span> <span class="o">!=</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">feature_type</span>
+                    <span class="ow">and</span> <span class="n">val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
+                                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">max</span><span class="p">,</span>   <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">min</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid value for replace in numerical feature&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Categorical</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">key</span> <span class="o">!=</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">feature_type</span>
+                    <span class="ow">and</span> <span class="n">val</span> <span class="o">!=</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid value for replace in categorical feature&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="FeatureModelConfig.check_default">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.FeatureModelConfig.check_default">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Numerical</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">feature_type</span><span class="p">)</span> <span class="o">==</span> <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">numerical</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
+                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span>
+                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">max</span><span class="p">,</span>
+                    <span class="n">FeatureEngineering</span><span class="o">.</span><span class="n">min</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid default value for numerical feature&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Categorical</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid default value for categorical feature&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fillna</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillna</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: invalid fillna value for categorical feature&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+    <span class="c1"># @model_validator(mode=&quot;after&quot;)</span>
+    <span class="c1"># def check_clip(self):</span>
+    <span class="c1">#     # Numerical</span>
+    <span class="c1">#     if self.replace.get(FeatureEngineering.feature_type) == FeatureEngineering.numerical:</span>
+    <span class="c1">#         if not self.clip:</span>
+    <span class="c1">#             raise ConfigError(f&quot;{self.name}: clip value is required for numerical feature&quot;)</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             for key in [FeatureEngineering.min_value, FeatureEngineering.max_value]:</span>
+    <span class="c1">#                 val = self.clip.get(key)</span>
+    <span class="c1">#                 if not isinstance(val, (float, int)):</span>
+    <span class="c1">#                     raise ConfigError(f&quot;{self.name}: invalid clip value for numerical feature&quot;)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return self</span>
+
+
+<div class="viewcode-block" id="IntersectionModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.IntersectionModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IntersectionModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">features_to_intersect</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ModelConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">wrapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">column_target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">column_exposure</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">column_weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">relative_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RelativeFeatureModelConfig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FeatureModelConfig</span><span class="p">]</span>
+    <span class="n">intersections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">IntersectionModelConfig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">params_catboost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">params_xgb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">params_glm</span><span class="p">:</span>  <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">treatment_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cat_features_catboost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: move to features</span>
+    <span class="n">data_filter_condition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ModelConfig.check_unique_features_names">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.ModelConfig.check_unique_features_names">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_unique_features_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">features_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">]</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">features_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Not unique features names&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AllModelsConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AllModelsConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span>
+    <span class="n">models_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelConfig</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AllModelsConfig.check_unique_models_names">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig.check_unique_models_names">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_unique_models_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">models_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_configs</span><span class="p">]</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">models_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Not unique models names&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ServiceRequest">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.ServiceRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">main_model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">main_request</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span>
+    <span class="n">second_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">second_request</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="FeatureSelectionConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureSelectionConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">top_feautures_to_select</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">count_category</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">cutoff_1_category</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span>
+    <span class="n">cutoff_nan</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">max_corr_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span>
+    <span class="n">metric_eval</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;metric_name&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">cv_diff_value</span><span class="p">:</span>  <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">encoding_cat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;WoE_cat_to_num&#39;</span>
+    <span class="n">encoding_num</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;WoE_num_to_num&#39;</span>
+    <span class="n">default_cat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_NAN_&#39;</span>
+    <span class="n">default_num</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_MEDIAN_&#39;</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">features_to_ignore</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">use_temp_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="OptunaOptimizeConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.OptunaOptimizeConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OptunaOptimizeConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="s2">&quot;categorical&quot;</span><span class="p">]</span>
+    <span class="n">low</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">high</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">choices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="HPTuneConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.HPTuneConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HPTuneConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">sampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span><span class="s1">&#39;TPE&#39;</span>
+    <span class="n">cv_folds_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptunaOptimizeConfig</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">trials</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">metric_score</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;neg_mean_absolute_error&quot;</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="ModelInferenceConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.ModelInferenceConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelInferenceConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">prod_models_folder</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">metric_growth_value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">calculate_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+    <span class="n">prod_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+
+<div class="viewcode-block" id="AutoMLConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.AutoMLConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoMLConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">feature_selection</span><span class="p">:</span> <span class="n">FeatureSelectionConfig</span>
+    <span class="n">hp_tune</span><span class="p">:</span> <span class="n">HPTuneConfig</span>
+    <span class="n">inference_criteria</span><span class="p">:</span> <span class="n">ModelInferenceConfig</span>
+    <span class="n">mlflow_experiment</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">grafana_table_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dashboard_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">trigger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="MonitoringFactoryConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.MonitoringFactoryConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringFactoryConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datadrift&quot;</span>
+    <span class="n">report</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;base_datadrift_report&quot;</span>
+    <span class="n">group_models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">db_table_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="MonitoringConfig">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.MonitoringConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">prod_models_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pickle_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">grafana_table_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dashboard_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">monitoring_factory</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MonitoringFactoryConfig</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">MonitoringFactoryConfig</span><span class="p">()]</span>
+    <span class="n">extrapolation_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+
+<div class="viewcode-block" id="UpdateRequest">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.UpdateRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UpdateRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">auto_ml_config</span><span class="p">:</span> <span class="n">AutoMLConfig</span>
+    <span class="n">all_model_config</span><span class="p">:</span> <span class="n">AllModelsConfig</span>
+    <span class="n">user_parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="MonitoringRequest">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.MonitoringRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">all_model_config</span><span class="p">:</span> <span class="n">AllModelsConfig</span>
+    <span class="n">monitoring_config</span><span class="p">:</span> <span class="n">MonitoringConfig</span>
+    <span class="n">user_parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="AutoMLResultRequest">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.AutoMLResultRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoMLResultRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">main_model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="MonitoringResultRequest">
+<a class="viewcode-back" href="../../../modules/core/pydantic_models.html#outboxml.core.pydantic_models.MonitoringResultRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitoringResultRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">main_model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

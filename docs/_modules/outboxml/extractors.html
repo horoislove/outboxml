@@ -1,0 +1,623 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.extractors &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.extractors</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.extractors</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;&quot;Module for dataset extraction.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">AllModelsConfig</span><span class="p">,</span> <span class="n">ModelConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilesNames</span>
+
+
+<div class="viewcode-block" id="Extractor">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.Extractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Extractor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base interface for extracting data.</span>
+
+<span class="sd">    Abstract base class that defines the interface for data extraction.</span>
+<span class="sd">    Inherited user classes should implement the ``extract_dataset`` method</span>
+<span class="sd">    which returns a pandas or polars DataFrame.</span>
+
+<span class="sd">    :var __connection_config: Internal connection configuration.</span>
+<span class="sd">    :var load_config_from_env: Whether to load configuration from environment.</span>
+<span class="sd">    :var connection_config: Connection configuration object.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Subclasses must implement the :meth:`extract_dataset` method.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        class MyExtractor(Extractor):</span>
+<span class="sd">            def extract_dataset(self) -&gt; pd.DataFrame:</span>
+<span class="sd">                # Your extraction logic here</span>
+<span class="sd">                return pd.read_csv(&#39;data.csv&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Extractor.__init__">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.Extractor.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialization.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__connection_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_config_from_env</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_config</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Extractor.extract_dataset">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.Extractor.extract_dataset">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract dataset.</span>
+
+<span class="sd">        :return: Dataset.</span>
+<span class="sd">        :rtype: pandas.DataFrame, polars.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Extractor.load_config">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.Extractor.load_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load connection config.</span>
+
+<span class="sd">        :param connection_config: Connection config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_config</span> <span class="o">=</span> <span class="n">connection_config</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and validate dataset.</span>
+
+<span class="sd">        This method can be overridden in subclasses to perform data validation</span>
+<span class="sd">        and verification.</span>
+
+<span class="sd">        :param dataset: Dataset to check.</span>
+<span class="sd">        :type dataset: pandas.DataFrame or polars.DataFrame</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="SimpleExtractor">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.SimpleExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimpleExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple extractor for pre-loaded data.</span>
+
+<span class="sd">    This extractor is used when data is already loaded into memory as a</span>
+<span class="sd">    Pandas&#39; DataFrame or Polars&#39; DataFrame. It does not require any.</span>
+
+<span class="sd">    :param data: Pre-loaded dataset.</span>
+<span class="sd">    :type data: Pandas&#39; DataFrame or Polars&#39; DataFrame</span>
+<span class="sd">    :param *params: Additional parameters (currently unused).</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        data = pd.read_csv(&#39;my_data.csv&#39;)</span>
+<span class="sd">        extractor = SimpleExtractor(data=data)</span>
+<span class="sd">        dataset = extractor.extract_dataset()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SimpleExtractor.__init__">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.SimpleExtractor.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialization.</span>
+<span class="sd">        :param data: Dataset.</span>
+<span class="sd">        :type data: pandas.DataFrame.</span>
+<span class="sd">        :param params: Parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="SimpleExtractor.extract_dataset">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.SimpleExtractor.extract_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract dataset.</span>
+
+<span class="sd">        :return: Dataset.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseExtractor">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.BaseExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for extractor supporting multiple data sources.</span>
+
+<span class="sd">    Supports extraction from:</span>
+<span class="sd">    - CSV files</span>
+<span class="sd">    - Pickle files</span>
+<span class="sd">    - Parquet files</span>
+<span class="sd">    - Databases (PostgreSQL, etc.)</span>
+
+<span class="sd">    :param data_config: Data configuration object specifying the data source</span>
+<span class="sd">        and connection parameters.</span>
+<span class="sd">    :type data_config: DataModelConfig</span>
+
+<span class="sd">    :var __data_config: Internal data configuration object.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        from outboxml.core.pydantic_models import DataModelConfig</span>
+
+<span class="sd">        config = DataModelConfig(</span>
+<span class="sd">            source=&quot;csv&quot;,</span>
+<span class="sd">            local_name_source=&quot;data.csv&quot;</span>
+<span class="sd">        )</span>
+<span class="sd">        extractor = BaseExtractor(data_config=config)</span>
+<span class="sd">        dataset = extractor.extract_dataset()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseExtractor.__init__">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.BaseExtractor.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialization.</span>
+
+<span class="sd">        :param data_config: Object of data config.</span>
+<span class="sd">        :type data_config: DataModelConfig</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span> <span class="o">=</span> <span class="n">data_config</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_db_trigger_postgre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">connection_params</span><span class="p">)</span>
+
+        <span class="n">trigger_sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            -- 🔹 Function for DML (data operations)</span>
+<span class="s2">            CREATE OR REPLACE FUNCTION notify_on_dml()</span>
+<span class="s2">            RETURNS trigger AS $$</span>
+<span class="s2">            BEGIN</span>
+<span class="s2">                PERFORM pg_notify(</span>
+<span class="s2">                    &#39;table_changes&#39;,</span>
+<span class="s2">                    format(&#39;DML event: %s on table %s&#39;, TG_OP, TG_TABLE_NAME)</span>
+<span class="s2">                );</span>
+<span class="s2">                RETURN NULL;</span>
+<span class="s2">            END;</span>
+<span class="s2">            $$ LANGUAGE plpgsql;</span>
+<span class="s2">            </span>
+<span class="s2">            -- Drop old trigger if it exists</span>
+<span class="s2">            DROP TRIGGER IF EXISTS my_trigger ON &quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;;</span>
+<span class="s2">            </span>
+<span class="s2">            -- Create new trigger for DML</span>
+<span class="s2">            CREATE TRIGGER my_trigger</span>
+<span class="s2">            AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON &quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">            FOR EACH STATEMENT</span>
+<span class="s2">            EXECUTE FUNCTION notify_on_dml();</span>
+<span class="s2">            </span>
+<span class="s2">            </span>
+<span class="s2">            -- 🔹 Function for DDL (schema changes)</span>
+<span class="s2">            CREATE OR REPLACE FUNCTION notify_on_ddl()</span>
+<span class="s2">            RETURNS event_trigger AS $$</span>
+<span class="s2">            BEGIN</span>
+<span class="s2">                PERFORM pg_notify(</span>
+<span class="s2">                    &#39;table_changes&#39;,</span>
+<span class="s2">                    format(&#39;DDL event: %s in schema %s&#39;, TG_TAG, current_schema())</span>
+<span class="s2">                );</span>
+<span class="s2">            END;</span>
+<span class="s2">            $$ LANGUAGE plpgsql;</span>
+<span class="s2">            </span>
+<span class="s2">            -- Drop event trigger if it exists</span>
+<span class="s2">            DROP EVENT TRIGGER IF EXISTS ddl_notify;</span>
+<span class="s2">            </span>
+<span class="s2">            -- Create event trigger</span>
+<span class="s2">            CREATE EVENT TRIGGER ddl_notify</span>
+<span class="s2">            ON ddl_command_end</span>
+<span class="s2">            WHEN TAG IN (&#39;ALTER TABLE&#39;)</span>
+<span class="s2">            EXECUTE FUNCTION notify_on_ddl();</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="n">trigger_sql</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BaseExtractor.extract_dataset">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.BaseExtractor.extract_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract dataset.</span>
+
+<span class="sd">        :return: Dataset.</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="o">.</span><span class="n">source</span>
+
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">FilesNames</span><span class="o">.</span><span class="n">csv</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">pickle</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">parquet</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset_from_local</span><span class="p">(</span><span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="p">)</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="o">.</span><span class="n">table_name_source</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="o">.</span><span class="n">table_name_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;public.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span>
+                               <span class="n">con</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">connection_params</span><span class="p">,</span>
+                               <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_db_trigger_postgre</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Loading local file to db error||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">FilesNames</span><span class="o">.</span><span class="n">database</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">hadoop</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset_from_db</span><span class="p">(</span><span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__data_config</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_object</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="load_dataset_from_local">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.load_dataset_from_local">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_from_local</span><span class="p">(</span><span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load dataset from local csv, pickle or parquet file.</span>
+
+<span class="sd">    :param data_config: Object of data config.</span>
+<span class="sd">    :type data_config: DataModelConfig</span>
+<span class="sd">    :return: Dataset.</span>
+<span class="sd">    :rtype: pandas.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Load data from local file&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid local name source&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Invalid local name source&quot;</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_params</span> <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_params</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">pickle</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">parquet</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reading extra conditions||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="p">))</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data loaded successfully from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="sa">f</span><span class="s2">&quot;No Data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="load_dataset_from_db">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.load_dataset_from_db">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_from_db</span><span class="p">(</span><span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load dataset from database.</span>
+
+<span class="sd">    :param data_config: Object of data config.</span>
+<span class="sd">    :type data_config: DataModelConfig</span>
+<span class="sd">    :return: Dataset.</span>
+<span class="sd">    :rtype: pandas.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid table name source&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Invalid table name source&quot;</span><span class="p">)</span>
+
+    <span class="n">sql_query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            select *</span>
+<span class="s2">            from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span><span class="si">}</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            where </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="si">}</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">database</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Load data from database&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">database_to_pandas</span><span class="p">(</span><span class="n">sql_query</span><span class="o">=</span><span class="n">sql_query</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data loaded successfully from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="sa">f</span><span class="s2">&quot;No Data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">table_name_source</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="database_to_pandas">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.database_to_pandas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">database_to_pandas</span><span class="p">(</span><span class="n">sql_query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load data from database to pandas dataframe.</span>
+
+<span class="sd">    :param sql_query: SQL query.</span>
+<span class="sd">    :type sql_query: str</span>
+<span class="sd">    :return: Dataset.</span>
+<span class="sd">    :rtype: pandas.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">connection_params</span>
+        <span class="n">connect</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot connect to database&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="s2">&quot;Cannot connect to database&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">connect</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Sql query error&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="get_useful_columns">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.get_useful_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_useful_columns</span><span class="p">(</span><span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">models_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Getting useful columns ...&quot;</span><span class="p">)</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">mc</span> <span class="ow">in</span> <span class="n">models_configs</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">mc</span><span class="o">.</span><span class="n">features</span><span class="p">]</span>
+    <span class="p">))</span>
+
+    <span class="n">targets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">column_target</span> <span class="k">for</span> <span class="n">mc</span> <span class="ow">in</span> <span class="n">models_configs</span><span class="p">]</span>
+        <span class="o">+</span> <span class="p">[</span><span class="n">mc</span><span class="o">.</span><span class="n">column_exposure</span> <span class="k">for</span> <span class="n">mc</span> <span class="ow">in</span> <span class="n">models_configs</span> <span class="k">if</span> <span class="n">mc</span><span class="o">.</span><span class="n">column_exposure</span><span class="p">]</span>
+    <span class="p">))</span>
+
+    <span class="n">extra_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_columns</span> <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_columns</span> <span class="k">else</span> <span class="p">[])</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span><span class="o">.</span><span class="n">period_column</span> <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">separation</span><span class="o">.</span><span class="n">period_column</span> <span class="k">else</span> <span class="p">[])</span>
+    <span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Useful columns | features: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="si">}</span><span class="s2">, targets: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span><span class="si">}</span><span class="s2">, extra_columns: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">extra_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">extra_columns</span></div>
+
+
+
+<div class="viewcode-block" id="PolarsExtractor">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.PolarsExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PolarsExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PolarsExtractor.__init__">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.PolarsExtractor.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_config_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing Polars Extractor for </span><span class="si">{</span><span class="n">model_config_name</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_config_name</span> <span class="o">=</span> <span class="n">model_config_name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_config_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span> <span class="o">=</span> <span class="n">AllModelsConfig</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_config_name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_config_name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config validation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config validation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">data_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">models_configs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_columns</span> <span class="o">=</span> <span class="n">get_useful_columns</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PolarsExtractor.custom_transformations">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.PolarsExtractor.custom_transformations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">custom_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PolarsExtractor.extract_dataset">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.PolarsExtractor.extract_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_config</span><span class="o">.</span><span class="n">source</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading dataset from </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="n">FilesNames</span><span class="o">.</span><span class="n">csv</span><span class="p">,</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">parquet</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset_from_local_pl</span><span class="p">(</span>
+                <span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_config</span><span class="p">,</span>
+                <span class="n">useful_columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_columns</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_transformations</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_object</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__check_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="load_dataset_from_local_pl">
+<a class="viewcode-back" href="../../modules/extractors.html#outboxml.extractors.load_dataset_from_local_pl">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_from_local_pl</span><span class="p">(</span><span class="n">data_config</span><span class="p">:</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">useful_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load dataset from a local csv or parquet file to Polars DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid local name source.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Invalid local name source.&quot;</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_params</span> <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_params</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load data from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> to Polars DataFrame | params: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_config</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">FilesNames</span><span class="o">.</span><span class="n">parquet</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extra conditions | </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="s2">&quot;select&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">useful_columns</span><span class="p">),</span>
+            <span class="s2">&quot;from self&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;where </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">extra_conditions</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;and&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No extra conditions.&quot;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="s2">&quot;select&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">useful_columns</span><span class="p">),</span>
+            <span class="s2">&quot;from self&quot;</span><span class="p">,</span>
+        <span class="p">])</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">dataset</span>
+        <span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset is loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2"> | shape: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="sa">f</span><span class="s2">&quot;No Data loaded from </span><span class="si">{</span><span class="n">data_config</span><span class="o">.</span><span class="n">local_name_source</span><span class="si">}</span><span class="s2">.&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1053 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>outboxml.datasets_manager &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">outboxml.datasets_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for outboxml.datasets_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_classifier</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelEncoder</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.feature_importance</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureImportance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelsParams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.data_subsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPreprocessor</span><span class="p">,</span> <span class="n">ModelDataSubset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.dataset_retro</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetroDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datadrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataDrift</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.data_prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllModelsConfig</span><span class="p">,</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">ModelConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">BaseExtractor</span><span class="p">,</span> <span class="n">SimpleExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">BaseMetrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span><span class="p">,</span> <span class="n">TrainTestIndexes</span><span class="p">,</span> <span class="n">PrepareDatasetPl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelMetrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultModels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="DSManagerResult">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DSManagerResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Container class for model results.</span>
+
+<span class="sd">    Stores all information about a trained model including the model object,</span>
+<span class="sd">    data subsets, predictions, metrics, and configurations.</span>
+
+<span class="sd">    :param model_name: Name of the model.</span>
+<span class="sd">    :type model_name: str</span>
+<span class="sd">    :param model: Trained model object.</span>
+<span class="sd">    :type model: Any</span>
+<span class="sd">    :param data_subset: Object containing train/test data subsets with</span>
+<span class="sd">        X_train/test, y_train/test vectors, numerical and categorical feature</span>
+<span class="sd">        names, and exposure vectors.</span>
+<span class="sd">    :type data_subset: ModelDataSubset</span>
+<span class="sd">    :param model_config: Model configuration object.</span>
+<span class="sd">    :type model_config: ModelConfig, optional</span>
+<span class="sd">    :param config: Configuration file with source data settings.</span>
+<span class="sd">    :type config: AllModelsConfig, optional</span>
+<span class="sd">    :param predictions: Dictionary with &#39;train&#39; and &#39;test&#39; keys containing predictions.</span>
+<span class="sd">    :type predictions: dict, optional</span>
+<span class="sd">    :param metrics: Dictionary with &#39;train&#39; and &#39;test&#39; keys containing metrics.</span>
+<span class="sd">    :type metrics: dict, optional</span>
+
+<span class="sd">    .. rubric:: Methods</span>
+
+<span class="sd">    - :meth:`dict_for_prod_export` - Returns dictionary for creating pickle file for service</span>
+<span class="sd">    - :meth:`from_pickle_model_result` - Converter from pickle service dictionary to object (class method)</span>
+
+<span class="sd">    .. rubric:: Properties</span>
+
+<span class="sd">    - :attr:`X` - Feature vector X</span>
+<span class="sd">    - :attr:`y_pred` - Predictions</span>
+<span class="sd">    - :attr:`y` - True target values (y_true)</span>
+<span class="sd">    - :attr:`exposure` - Exposure vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DSManagerResult.__init__">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+                 <span class="n">data_subset</span><span class="p">:</span> <span class="n">ModelDataSubset</span><span class="p">,</span>
+                 <span class="n">model_config</span><span class="p">:</span> <span class="n">ModelConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">config</span><span class="p">:</span> <span class="n">AllModelsConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">predictions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">feature_importance</span><span class="p">:</span> <span class="n">FeatureImportance</span> <span class="o">=</span> <span class="kc">None</span>
+                 <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize DSManagerResult instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model_name: Name of the model.</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param model: Trained model object.</span>
+<span class="sd">        :type model: Any</span>
+<span class="sd">        :param data_subset: Object containing train/test data subsets.</span>
+<span class="sd">        :type data_subset: ModelDataSubset</span>
+<span class="sd">        :param model_config: Configuration object for the model.</span>
+<span class="sd">        :type model_config: ModelConfig, optional</span>
+<span class="sd">        :param config: Configuration object for all models.</span>
+<span class="sd">        :type config: AllModelsConfig, optional</span>
+<span class="sd">        :param predictions: Dictionary with &#39;train&#39; and &#39;test&#39; keys containing predictions.</span>
+<span class="sd">        :type predictions: dict, optional</span>
+<span class="sd">        :param metrics: Dictionary with &#39;train&#39; and &#39;test&#39; keys containing metrics.</span>
+<span class="sd">        :type metrics: dict, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span> <span class="o">=</span> <span class="n">data_subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span> <span class="o">=</span> <span class="n">feature_importance</span></div>
+
+
+<div class="viewcode-block" id="DSManagerResult.load_metrics">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.load_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">ds_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load metrics into the result object.</span>
+<span class="sd">        </span>
+<span class="sd">        :param metrics: Dictionary containing metrics to load.</span>
+<span class="sd">        :type metrics: dict</span>
+<span class="sd">        :param ds_type: Dataset type (&#39;train&#39; or &#39;test&#39;). If None, replaces all metrics.</span>
+<span class="sd">        :type ds_type: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ds_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="n">ds_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">metrics</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span></div>
+
+
+<div class="viewcode-block" id="DSManagerResult.load_predictions">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.load_predictions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">ds_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load predictions into the result object.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: DataFrame or Series containing predictions.</span>
+<span class="sd">        :type df: Union[pd.DataFrame, pd.Series]</span>
+<span class="sd">        :param ds_type: Dataset type (&#39;train&#39; or &#39;test&#39;).</span>
+<span class="sd">        :type ds_type: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="n">ds_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="DSManagerResult.dict_for_prod_export">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.dict_for_prod_export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dict_for_prod_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert DSManagerResult to dictionary for pickle export to production service.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary containing model configuration, model object, and feature lists.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; result = DSManagerResult(...)</span>
+<span class="sd">        &gt;&gt;&gt; export_dict = result.dict_for_prod_export()</span>
+<span class="sd">        &gt;&gt;&gt; export_dict.keys()</span>
+<span class="sd">        dict_keys([&#39;model_config&#39;, &#39;model&#39;, &#39;min_max_scaler&#39;, &#39;features_numerical&#39;, &#39;features_categorical&#39;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">model_results</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;model_config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">&quot;min_max_scaler&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;features_numerical&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span><span class="p">,</span>
+            <span class="s2">&quot;features_categorical&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">model_results</span></div>
+
+
+<div class="viewcode-block" id="DSManagerResult.from_pickle_model_result">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.from_pickle_model_result">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pickle_model_result</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_model_config</span><span class="p">:</span> <span class="n">AllModelsConfig</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert pickle dictionary to DSManagerResult object.</span>
+<span class="sd">        </span>
+<span class="sd">        Uses library model wrapper format.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model_result: Dictionary loaded from pickle file containing model data.</span>
+<span class="sd">        :type model_result: dict</span>
+<span class="sd">        :param all_model_config: Configuration object for all models.</span>
+<span class="sd">        :type all_model_config: AllModelsConfig</span>
+<span class="sd">        :return: DSManagerResult instance created from pickle data.</span>
+<span class="sd">        :rtype: DSManagerResult</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; with open(&#39;model.pickle&#39;, &#39;rb&#39;) as f:</span>
+<span class="sd">        ...     model_result = pickle.load(f)</span>
+<span class="sd">        &gt;&gt;&gt; result = DSManagerResult.from_pickle_model_result(model_result, all_models_config)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">]</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span>
+        <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;features_numerical&#39;</span><span class="p">]</span>
+        <span class="n">features_categorical</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;features_categorical&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                   <span class="n">config</span><span class="o">=</span><span class="n">all_model_config</span><span class="p">,</span>
+                   <span class="n">data_subset</span><span class="o">=</span><span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                               <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                               <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                               <span class="p">),</span>
+                   <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                   <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">X</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get combined feature matrix from train and test sets.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: DataFrame containing all features.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_test</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get combined target values from train and test sets.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Series containing all target values.</span>
+<span class="sd">        :rtype: pd.Series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_test</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y_pred</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get combined predictions from train and test sets.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Series containing all predictions.</span>
+<span class="sd">        :rtype: pd.Series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">y_pred</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exposure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get combined exposure values from train and test sets.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Series containing all exposure values.</span>
+<span class="sd">        :rtype: pd.Series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exposure</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_test</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">exposure</span></div>
+
+
+
+<div class="viewcode-block" id="DataSetsManager">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataSetsManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main class for working with models.</span>
+
+<span class="sd">    This is the core class for managing datasets, model training, and evaluation</span>
+<span class="sd">    in the OutBoxML framework. It handles data loading, preprocessing, model</span>
+<span class="sd">    fitting, prediction, and result management.</span>
+
+<span class="sd">    For framework usage, a properly configured config file is required.</span>
+<span class="sd">    Out-of-the-box operation is performed using config parameters:</span>
+<span class="sd">    ``DataSetsManager(config_name=config)``.</span>
+
+<span class="sd">    For custom framework configuration, import the following modules:</span>
+<span class="sd">    ::</span>
+
+<span class="sd">        from outboxml.extractors import Extractor</span>
+<span class="sd">        from outboxml.metrics.base_metrics import BaseMetric</span>
+<span class="sd">        from outboxml.models import BaseWrapperModel</span>
+<span class="sd">        from outboxml.dataset_retro import RetroDataset</span>
+<span class="sd">        from outboxml.export_results import ResultExport</span>
+
+<span class="sd">    Framework usage starts with creating an object with parameters.</span>
+<span class="sd">    The required parameter is: path to config file or validated config file</span>
+<span class="sd">    (AllModelsConfig). Other parameters can be set automatically &quot;out of the box&quot;.</span>
+<span class="sd">    Work information is output as a log file.</span>
+<span class="sd">    Modeling results are output in the DSManagerResult container.</span>
+
+<span class="sd">    :param config_name: Path to config file or validated config file (AllModelsConfig).</span>
+<span class="sd">    :type config_name: Union[str, Dict]</span>
+<span class="sd">    :param extractor: User-defined extractor object inheriting from Extractor interface.</span>
+<span class="sd">        Main method ``extract_dataset()`` should return pandas DataFrame.</span>
+<span class="sd">        Extractor should contain ``check_object()`` method with data validation</span>
+<span class="sd">        and verification. Use library RTDMExtractor or ActuarExtractor for</span>
+<span class="sd">        working with databases.</span>
+<span class="sd">    :type extractor: Optional[Extractor]</span>
+<span class="sd">    :param prepared_datasets: Dictionary ``{name: PreparedDataset}`` with model</span>
+<span class="sd">        preparation objects. Wrapper of ``prepare_dataset`` function.</span>
+<span class="sd">        PreparedDataset by default uses model_config features and has no prep</span>
+<span class="sd">        and post prep functions.</span>
+<span class="sd">    :type prepared_datasets: Optional[Dict[str, PrepareDataset]]</span>
+<span class="sd">    :param models_dict: Dictionary ``{name: Model}`` with models for training</span>
+<span class="sd">        and prediction inheriting from Model class. Class should have ``fit()``,</span>
+<span class="sd">        ``predict()`` methods. By default model is chosen by group and project</span>
+<span class="sd">        name. You can import models from library.</span>
+<span class="sd">    :type models_dict: Optional[Dict]</span>
+<span class="sd">    :param business_metric: User-defined business metric. Should inherit from</span>
+<span class="sd">        BaseMetric. Main method is ``calculate_metric()``.</span>
+<span class="sd">    :type business_metric: Optional[BaseMetric]</span>
+<span class="sd">    :param use_baseline_model: Baseline model selection. 1 - RandomForestRegressor,</span>
+<span class="sd">        2 - DummyRegressor median; 3 - mean. Defaults to 0 (no baseline).</span>
+<span class="sd">    :type use_baseline_model: int</span>
+<span class="sd">    :param retro_changes: RetroDataset object for retro analysis.</span>
+<span class="sd">    :type retro_changes: Optional[RetroDataset]</span>
+<span class="sd">    :param external_config: External configuration object. Defaults to None.</span>
+<span class="sd">    :type external_config: Any, optional</span>
+<span class="sd">    :param use_temp_files: Whether to use temporary files for data processing.</span>
+<span class="sd">        Defaults to False.</span>
+<span class="sd">    :type use_temp_files: bool</span>
+<span class="sd">    :param prepare_engine: Engine to use for data preparation (&#39;pandas&#39; or &#39;polars&#39;).</span>
+<span class="sd">        Defaults to &#39;pandas&#39;.</span>
+<span class="sd">    :type prepare_engine: Literal[&#39;pandas&#39;, &#39;polars&#39;]</span>
+
+<span class="sd">    .. rubric:: Methods</span>
+
+<span class="sd">    - :meth:`load_dataset` - Load dataset from source and path in config file</span>
+<span class="sd">        or user-defined extractor class</span>
+<span class="sd">    - :meth:`get_trainDfs` - Return prepared data subset to train user model</span>
+<span class="sd">    - :meth:`get_testDfs` - Return prepared data subset to test user model</span>
+<span class="sd">    - :meth:`fit_models` - Fit, predict and get metrics for all models in model_dict</span>
+<span class="sd">    - :meth:`get_result` - Return container of results DSManagerResult</span>
+<span class="sd">    - :meth:`check_datadrift` - Returns dataframe with datadrift analysis result</span>
+
+<span class="sd">    .. rubric:: Examples</span>
+
+<span class="sd">    Example usage with Titanic dataset:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Post prep function</span>
+<span class="sd">        def data_post_prep_func(data: pd.DataFrame):</span>
+<span class="sd">            data[&quot;SEX&quot;] = pd.to_numeric(data[&quot;SEX&quot;])</span>
+<span class="sd">            return data</span>
+
+<span class="sd">        titanic_ds_manager = DataSetsManager(</span>
+<span class="sd">            config_name=config_name,</span>
+<span class="sd">            extractor=TitanicExampleExtractor(path_to_file=path_to_data),</span>
+<span class="sd">            prepared_datasets={</span>
+<span class="sd">                &#39;first&#39;: PrepareDataset(</span>
+<span class="sd">                    group_name=&#39;survived1&#39;,</span>
+<span class="sd">                    data_post_prep_func=data_post_prep_func,</span>
+<span class="sd">                    check_prepared=True,</span>
+<span class="sd">                    calc_corr=True</span>
+<span class="sd">                ),</span>
+<span class="sd">                &#39;second&#39;: PrepareDataset(group_name=&#39;survived2&#39;)</span>
+<span class="sd">            },</span>
+<span class="sd">            business_metric=TitanicExampleMetric()</span>
+<span class="sd">        )</span>
+<span class="sd">        titanic_TrainDs = titanic_ds_manager.get_trainDfs(model_name=&#39;first&#39;)</span>
+<span class="sd">        titanic_results = titanic_ds_manager.fit_models()</span>
+
+<span class="sd">    For more examples, see the ``outboxml/examples`` repository.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataSetsManager.__init__">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">config_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
+            <span class="n">extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Extractor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">prepared_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PrepareDataset</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">models_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">business_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMetric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">use_baseline_model</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">retro_changes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RetroDataset</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">external_config</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">use_temp_files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">prepare_engine</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;pandas&#39;</span><span class="p">,</span> <span class="s1">&#39;polars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pandas&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize DataSetsManager instance.</span>
+<span class="sd">        </span>
+<span class="sd">        :param config_name: Path to config file or validated config dictionary (AllModelsConfig).</span>
+<span class="sd">        :type config_name: Union[str, Dict]</span>
+<span class="sd">        :param extractor: User-defined extractor object inheriting from Extractor interface.</span>
+<span class="sd">                         Main method extract_dataset() should return pandas DataFrame.</span>
+<span class="sd">                         Extractor should contain check_object() method for data validation.</span>
+<span class="sd">                         Use library RTDMExtractor or ActuarExtractor for database connections.</span>
+<span class="sd">        :type extractor: Optional[Extractor]</span>
+<span class="sd">        :param prepared_datasets: Dictionary with model names as keys and PrepareDataset objects as values.</span>
+<span class="sd">                                 Wrapper of prepare_dataset function. PreparedDataset by default uses</span>
+<span class="sd">                                 model_config features and has no prep and post prep functions.</span>
+<span class="sd">        :type prepared_datasets: Optional[Dict[str, PrepareDataset]]</span>
+<span class="sd">        :param models_dict: Dictionary with model names as keys and Model objects as values.</span>
+<span class="sd">                           Models should inherit from Model class and have fit(), predict() methods.</span>
+<span class="sd">                           By default model is chosen by group and project name.</span>
+<span class="sd">        :type models_dict: Optional[Dict]</span>
+<span class="sd">        :param business_metric: User-defined business metric inheriting from BaseMetric.</span>
+<span class="sd">                               Main method is calculate_metric().</span>
+<span class="sd">        :type business_metric: Optional[BaseMetric]</span>
+<span class="sd">        :param use_baseline_model: Baseline model selection. 0 - no baseline, 1 - RandomForestRegressor,</span>
+<span class="sd">                                   2 - DummyRegressor median, 3 - mean.</span>
+<span class="sd">        :type use_baseline_model: int</span>
+<span class="sd">        :param retro_changes: RetroDataset object for retro analysis.</span>
+<span class="sd">        :type retro_changes: Optional[RetroDataset]</span>
+<span class="sd">        :param external_config: External configuration object. If None, uses default config.</span>
+<span class="sd">        :type external_config: Any, optional</span>
+<span class="sd">        :param use_temp_files: Whether to use temporary files for data subsets.</span>
+<span class="sd">        :type use_temp_files: bool</span>
+<span class="sd">        :param prepare_engine: Engine to use for data preparation (&#39;pandas&#39; or &#39;polars&#39;).</span>
+<span class="sd">        :type prepare_engine: Literal[&#39;pandas&#39;, &#39;polars&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">external_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span> <span class="o">=</span> <span class="n">external_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_work_type_fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="o">.</span><span class="n">work_type_fit</span> <span class="k">if</span> <span class="s2">&quot;work_type_fit&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">else</span> <span class="s2">&quot;CPU&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_work_type_hptune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="o">.</span><span class="n">work_type_hptune</span> <span class="k">if</span> <span class="s2">&quot;work_type_hptune&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">else</span> <span class="s2">&quot;CPU&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_temp_files</span> <span class="o">=</span> <span class="n">use_temp_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_engine</span> <span class="o">=</span> <span class="n">prepare_engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exposure</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DSManagerResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Extractor</span><span class="p">]</span> <span class="o">=</span> <span class="n">extractor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PrepareDataset</span><span class="p">]]</span> <span class="o">=</span> <span class="n">prepared_datasets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">models_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_baseline_model</span> <span class="o">=</span> <span class="n">use_baseline_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMetric</span><span class="p">]</span> <span class="o">=</span> <span class="n">business_metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataPreprocessor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_train</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_test</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_columns_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_models_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllModelsConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;general&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataModelConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelConfig</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retro</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">business_metric_value</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retro_changes</span> <span class="o">=</span> <span class="n">retro_changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retro_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_dsmanager</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the loaded dataset.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: DataFrame containing the loaded dataset.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">dataset</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get configuration with updated model configs from results.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Deep copy of all models configuration with updated model configs.</span>
+<span class="sd">        :rtype: AllModelsConfig</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_to_return</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">!=</span> <span class="p">{}:</span>
+            <span class="n">updated_models_configs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">updated_models_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">model_config</span><span class="p">)</span>
+            <span class="n">config_to_return</span><span class="o">.</span><span class="n">models_configs</span> <span class="o">=</span> <span class="n">updated_models_configs</span>
+
+        <span class="k">return</span> <span class="n">config_to_return</span>
+
+<div class="viewcode-block" id="DataSetsManager.get_result">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.get_result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DSManagerResult</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get dictionary of all model results.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary with model names as keys and DSManagerResult objects as values.</span>
+<span class="sd">        :rtype: Dict[str, DSManagerResult]</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; results = ds_manager.get_result()</span>
+<span class="sd">        &gt;&gt;&gt; results[&#39;model1&#39;].metrics</span>
+<span class="sd">        {&#39;train&#39;: {...}, &#39;test&#39;: {...}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span></div>
+
+
+<div class="viewcode-block" id="DataSetsManager.load_dataset">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.load_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load data from source according to config or user-defined extractor object.</span>
+<span class="sd">        </span>
+<span class="sd">        Uses .env file or external config for extractor. Can also load dataset directly via parameter.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data: Optional DataFrame to load directly. If provided, uses SimpleExtractor.</span>
+<span class="sd">        :type data: pd.DataFrame, optional</span>
+<span class="sd">        :return: Loaded dataset as DataFrame.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; dataset = ds_manager.load_dataset()</span>
+<span class="sd">        &gt;&gt;&gt; # or</span>
+<span class="sd">        &gt;&gt;&gt; dataset = ds_manager.load_dataset(data=my_dataframe)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dataset loading&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span> <span class="o">=</span> <span class="n">SimpleExtractor</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;DataSet is extracted&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="DataSetsManager.get_subset">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.get_subset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get data subset for specified model.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model_name: Name of the model. If None, uses default model name.</span>
+<span class="sd">        :type model_name: str, optional</span>
+<span class="sd">        :return: ModelDataSubset object containing train/test data for the model.</span>
+<span class="sd">        :rtype: ModelDataSubset</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; subset = ds_manager.get_subset(&#39;model1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; subset.X_train.shape</span>
+<span class="sd">        (800, 10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_name</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Model &#39;</span> <span class="o">+</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39; || Subset export&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all data subsets for all models.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary with model names as keys and ModelDataSubset objects as values.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">data_subsets</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DataSetsManager.fit_models">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.fit_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">need_fit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">calc_feature_importance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit models and calculate metrics.</span>
+<span class="sd">        </span>
+<span class="sd">        If &#39;need_fit&#39; is True, fit methods are called for models.</span>
+<span class="sd">        If load_subsets_from_pickle option is enabled, loads previously saved datasubsets.</span>
+<span class="sd">        </span>
+<span class="sd">        :param models_dict: Optional dictionary of models to fit. If None, uses default models.</span>
+<span class="sd">        :type models_dict: dict, optional</span>
+<span class="sd">        :param need_fit: Whether to fit models. If False, assumes models are already fitted.</span>
+<span class="sd">        :type need_fit: bool</span>
+<span class="sd">        :param model_name: Optional name of specific model to fit. If None, fits all models.</span>
+<span class="sd">        :type model_name: str, optional</span>
+<span class="sd">        :return: Dictionary with model names as keys and metrics dictionaries as values.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; metrics = ds_manager.fit_models(need_fit=True)</span>
+<span class="sd">        &gt;&gt;&gt; metrics[&#39;model1&#39;][&#39;train&#39;][&#39;full&#39;]</span>
+<span class="sd">        {&#39;mae&#39;: 0.1234, &#39;rmse&#39;: 0.5678, &#39;r2&#39;: 0.9012}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fitted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Fitting model started&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">models_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">models</span> <span class="o">=</span> <span class="n">models_dict</span>
+            <span class="k">if</span> <span class="n">need_fit</span><span class="p">:</span>
+                <span class="n">fitted</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;User-defined models&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting default models&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__load_models</span><span class="p">()</span>
+                <span class="n">fitted</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_dict</span>
+
+        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">chosen_model</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">chosen_model</span><span class="p">:</span> <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]}</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Wrong model name in input&#39;</span><span class="p">)</span>
+
+        <span class="n">fitted_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_fitted_models</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">fitted</span><span class="o">=</span><span class="n">fitted</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">fitted_models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data_subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">predictions_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">)</span>
+            <span class="n">predictions_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data_subset</span><span class="o">.</span><span class="n">X_test</span><span class="p">)</span>
+
+            <span class="n">metrics</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ModelMetrics</span><span class="p">(</span><span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">,</span>
+                                               <span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get_model_config</span><span class="p">(),</span>
+                                               <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                                               <span class="p">)</span><span class="o">.</span><span class="n">result_dict</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">predictions_train</span><span class="p">,</span>
+                                                                          <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">predictions_test</span><span class="p">})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                                        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                                                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                                                        <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                                                        <span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span>
+                                                            <span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get_model_config</span><span class="p">(),</span>
+                                                        <span class="n">predictions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">predictions_train</span><span class="p">,</span>
+                                                                     <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">predictions_test</span><span class="p">},</span>
+                                                        <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">calc_feature_importance</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_importances</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="n">use_test</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_business_metric</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Error while calculation business metric||&#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">metrics</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_importances</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">use_test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">ds_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">feature_importances</span> <span class="o">=</span> <span class="n">FeatureImportance</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">ds_result</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">data_subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">data_subset</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">feature_importances</span><span class="o">.</span><span class="n">calculate_importance</span><span class="p">(</span><span class="n">use_test</span><span class="o">=</span><span class="n">use_test</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">feature_importance</span> <span class="o">=</span> <span class="n">feature_importances</span>
+
+<div class="viewcode-block" id="DataSetsManager.check_datadrift">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.check_datadrift">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_datadrift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check data drift between train and test datasets.</span>
+<span class="sd">        </span>
+<span class="sd">        Uses DataDrift library for analysis.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model_name: Name of the model to check drift for.</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :return: DataFrame containing data drift analysis results.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; drift_report = ds_manager.check_datadrift(&#39;model1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; drift_report.head()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">DataDrift</span><span class="p">(</span><span class="n">full_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">DataContext</span><span class="p">(</span><span class="n">X_train</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">X_test</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">report</span></div>
+
+
+<div class="viewcode-block" id="DataSetsManager.model_predict">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.model_predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">model_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+                      <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                      <span class="n">model_result</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">full_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                      <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DSManagerResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct DSManagerResult for external model or data prediction.</span>
+<span class="sd">        </span>
+<span class="sd">        :param data: DataFrame with data to make predictions on.</span>
+<span class="sd">        :type data: pd.DataFrame</span>
+<span class="sd">        :param model_name: Name of the model to use for prediction.</span>
+<span class="sd">        :type model_name: str</span>
+<span class="sd">        :param model_result: Optional model result as dict from service or DSManagerResult object.</span>
+<span class="sd">                            If None, uses inner results.</span>
+<span class="sd">        :type model_result: dict or DSManagerResult, optional</span>
+<span class="sd">        :param full_output: Whether to return full output with metrics or only predictions.</span>
+<span class="sd">        :type full_output: bool</span>
+<span class="sd">        :return: DSManagerResult object containing predictions and optionally metrics.</span>
+<span class="sd">        :rtype: DSManagerResult</span>
+<span class="sd">        </span>
+<span class="sd">        .. rubric:: Examples</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; result = ds_manager.model_predict(data=new_data, model_name=&#39;model1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; result.predictions[&#39;test&#39;].head()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Prediction for external data||&#39;</span> <span class="o">+</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No external model||Using inner results&#39;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+            <span class="n">model_result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">model_result</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># logger.error(e)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Converting pickle to DSManagerResult&#39;</span><span class="p">)</span>
+                    <span class="n">model_result</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="o">.</span><span class="n">from_pickle_model_result</span><span class="p">(</span><span class="n">model_result</span><span class="o">=</span><span class="n">model_result</span><span class="p">,</span>
+                                                                            <span class="n">all_model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="p">)</span>
+
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">model_result</span><span class="o">.</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="n">model_config</span><span class="o">.</span><span class="n">column_exposure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model_config</span><span class="o">.</span><span class="n">column_weight</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span>
+        <span class="n">features_categorical</span> <span class="o">=</span> <span class="n">model_result</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span>
+        <span class="n">data_to_predict</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">preproc</span> <span class="o">=</span> <span class="n">DataPreprocessor</span><span class="p">(</span><span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="p">{</span><span class="n">model_name</span><span class="p">:</span>
+                                                                           <span class="n">PrepareDataset</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                                                   <span class="n">check_prepared</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                   <span class="p">)},</span>
+                                       <span class="n">dataset</span><span class="o">=</span><span class="n">data_to_predict</span><span class="p">,</span>
+                                       <span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">,</span>
+                                       <span class="n">prepare_engine</span><span class="o">=</span><span class="s1">&#39;pandas&#39;</span><span class="p">,)</span>
+        <span class="n">data_subset</span> <span class="o">=</span> <span class="n">preproc</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">output_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">chain</span><span class="p">(</span><span class="n">features_numerical</span><span class="p">,</span> <span class="n">features_categorical</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">ModelMetrics</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                               <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                               <span class="n">data_config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">result_dict</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">prediction</span><span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">preproc</span><span class="o">.</span><span class="n">index_train</span><span class="p">)],</span>
+                         <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">prediction</span><span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">preproc</span><span class="o">.</span><span class="n">index_test</span><span class="p">)]},</span>
+        <span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                              <span class="n">config</span><span class="o">=</span><span class="n">model_result</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">model</span><span class="o">=</span><span class="n">output_model</span><span class="p">,</span>
+                              <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                              <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                              <span class="n">predictions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">prediction</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">preproc</span><span class="o">.</span><span class="n">index_train</span><span class="p">)],</span>
+                                           <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">prediction</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">preproc</span><span class="o">.</span><span class="n">index_test</span><span class="p">)]},</span>
+                              <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span>
+                              <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Prediction for external data finished&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_fitted_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">fitted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get fitted models, fitting them if necessary.</span>
+<span class="sd">        </span>
+<span class="sd">        :param models: Dictionary of models to fit.</span>
+<span class="sd">        :type models: dict</span>
+<span class="sd">        :param fitted: Whether models are already fitted.</span>
+<span class="sd">        :type fitted: bool</span>
+<span class="sd">        :return: Dictionary of fitted models.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fitted</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">data_subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+                <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span> <span class="n">data_subset</span><span class="o">.</span><span class="n">y_train</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">models</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make predictions using the model.</span>
+<span class="sd">        </span>
+<span class="sd">        Handles special case for Prophet models.</span>
+<span class="sd">        </span>
+<span class="sd">        :param model: Trained model object with predict method.</span>
+<span class="sd">        :type model: Any</span>
+<span class="sd">        :param X: Feature matrix for prediction.</span>
+<span class="sd">        :type X: pd.DataFrame</span>
+<span class="sd">        :return: Series of predictions with same index as X.</span>
+<span class="sd">        :rtype: pd.Series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;Prophet&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Prophet in work..&#39;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">prediction_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;yhat&#39;</span><span class="p">]),</span> <span class="n">index</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Prophet finished&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">prediction_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prediction_series</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_business_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate business metric if business_metric is configured.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Dictionary with business metric results.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metric</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric</span><span class="o">.</span><span class="n">calculate_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_result</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">business_metric_value</span> <span class="o">=</span> <span class="n">metric</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Business metric value||&#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No business metrics&#39;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating metrics finished&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_all_models_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load and validate all models configuration from file or dict.</span>
+<span class="sd">        </span>
+<span class="sd">        :raises FileNotFoundError: If config file is not found.</span>
+<span class="sd">        :raises ValidationError: If config validation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config_name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All models config from dict&quot;</span><span class="p">)</span>
+            <span class="n">all_models_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config_name</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All models config from path&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">all_models_config</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid all models config name&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid config name&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span> <span class="o">=</span> <span class="n">AllModelsConfig</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">all_models_config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Config validation error&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">data_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">models_configs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">version</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">:</span>
+
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="o">.</span><span class="n">results_path</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_v&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">+</span> <span class="s1">&#39;_subset.pickle&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retro</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">||File </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> already exists. Change version in config file to for new data prepare&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">||File </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> already exists. Changing version in config file for A/B test&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">+</span> <span class="s1">&#39;_new&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">project</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_models_config</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Config is loaded&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_targets_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load target column names from model configs and set random state.</span>
+<span class="sd">        </span>
+<span class="sd">        Extracts unique target and exposure column names from all model configurations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">separation</span><span class="o">.</span><span class="n">random_state</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_columns_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">column_target</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">column_target</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">column_exposure</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">column_exposure</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">column_weight</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">column_weight</span><span class="p">]</span>
+        <span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_prepare_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load or create PrepareDataset objects for all models.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates default PrepareDataset objects if not provided by user.</span>
+<span class="sd">        Supports both pandas and polars engines.</span>
+<span class="sd">        </span>
+<span class="sd">        :raises ValueError: If prepare engine is unknown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_engine</span> <span class="o">==</span> <span class="s2">&quot;pandas&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Load models prepare datasets&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">model_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span><span class="n">model_config</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrepareDataset</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                                                                           <span class="n">check_prepared</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                           <span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_engine</span> <span class="o">==</span> <span class="s2">&quot;polars&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Load models prepare datasets with polars&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">model_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">[</span><span class="n">model_config</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrepareDatasetPl</span><span class="p">(</span>
+                    <span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span> <span class="n">check_prepared</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unknown prepare engine&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown prepare engine&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;User models prepare datasets&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">get_model_config</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load config  from DS Manager&quot;</span><span class="p">)</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">load_model_config</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load default models if models_dict is not provided.</span>
+<span class="sd">        </span>
+<span class="sd">        Uses DefaultModels class to create models based on configurations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_models_dict</span> <span class="o">=</span> <span class="n">DefaultModels</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                                              <span class="n">data_subsets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span><span class="o">.</span><span class="n">data_subsets</span><span class="p">(),</span>
+                                              <span class="n">models_configs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">,</span>
+                                              <span class="n">group_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+                                              <span class="n">baseline_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_baseline_model</span><span class="p">,</span>
+                                              <span class="n">work_type_fit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_type_fit</span><span class="p">)</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_retro</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize retro analysis if retro_changes is configured.</span>
+<span class="sd">        </span>
+<span class="sd">        Sets up retro dataset and modifies model configs for retro analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initializing retro&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retro_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retro_changes</span><span class="o">.</span><span class="n">get_retro_dataset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retro_changes</span><span class="o">.</span><span class="n">models_config_for_retro</span><span class="p">(</span><span class="n">models_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_configs</span><span class="p">,</span>
+                                                                           <span class="n">target_columns_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_columns_names</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_dsmanager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize DataSetsManager by loading configs, datasets, and extractors.</span>
+<span class="sd">        </span>
+<span class="sd">        This is the main initialization method called in __init__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initializing DSManager&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__load_all_models_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__load_targets_names</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retro_changes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init_retro</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__load_prepare_datasets</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading user extractor&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">load_config_from_env</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading config from env&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="n">connection_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span> <span class="o">=</span> <span class="n">BaseExtractor</span><span class="p">(</span><span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initializing completed&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_preprocessor</span> <span class="o">=</span> <span class="n">DataPreprocessor</span><span class="p">(</span><span class="n">prepare_dataset_interface_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_datasets</span><span class="p">,</span>
+                                                   <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="p">,</span>
+                                                   <span class="n">external_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span><span class="p">,</span>
+                                                   <span class="n">version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                                                   <span class="n">prepare_engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepare_engine</span><span class="p">,</span>
+                                                   <span class="n">use_saved_files</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_temp_files</span><span class="p">,</span>
+                                                   <span class="n">data_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">,</span>
+                                                   <span class="n">retro</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_retro</span>
+                                                   <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

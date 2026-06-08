@@ -1,0 +1,1090 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Package &mdash; OutBoxML 0.9.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Config Builders" href="config_builders.html" />
+    <link rel="prev" title="Export Results" href="../export_results.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            OutBoxML
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#core-modules">Core Modules</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#core-package">Core Package</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Core Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config_builders.html">Config Builders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data_prepare.html">Data Preparation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enums.html">Enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pydantic_models.html">Pydantic Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="validators.html">Validators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="predict.html">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="monitoring_factory.html">Monitoring Factory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-outboxml.core.email">Email Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OutBoxML</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Core Package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modules/core/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="core-package">
+<h1>Core Package<a class="headerlink" href="#core-package" title="Link to this heading"></a></h1>
+<p>Core utilities and base classes for OutBoxML.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config_builders.html">Config Builders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.ConfigBuilder"><code class="docutils literal notranslate"><span class="pre">ConfigBuilder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.ModelConfigBuilder"><code class="docutils literal notranslate"><span class="pre">ModelConfigBuilder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.FeatureBuilder"><code class="docutils literal notranslate"><span class="pre">FeatureBuilder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.AutoMLConfigBuilder"><code class="docutils literal notranslate"><span class="pre">AutoMLConfigBuilder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.AllModelsConfigBuilder"><code class="docutils literal notranslate"><span class="pre">AllModelsConfigBuilder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.feature_params"><code class="docutils literal notranslate"><span class="pre">feature_params()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_builders.html#outboxml.core.config_builders.feature_type"><code class="docutils literal notranslate"><span class="pre">feature_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_prepare.html">Data Preparation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.Encoder"><code class="docutils literal notranslate"><span class="pre">Encoder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.OptiBinningEncoder"><code class="docutils literal notranslate"><span class="pre">OptiBinningEncoder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.CutNumberEncoder"><code class="docutils literal notranslate"><span class="pre">CutNumberEncoder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.PrepareDatasetResult"><code class="docutils literal notranslate"><span class="pre">PrepareDatasetResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.map_num"><code class="docutils literal notranslate"><span class="pre">map_num()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.feature_encoding_series"><code class="docutils literal notranslate"><span class="pre">feature_encoding_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.feature_encoding"><code class="docutils literal notranslate"><span class="pre">feature_encoding()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.dict_replace"><code class="docutils literal notranslate"><span class="pre">dict_replace()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.dict_replace_pl"><code class="docutils literal notranslate"><span class="pre">dict_replace_pl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.replace_categorical_values_series"><code class="docutils literal notranslate"><span class="pre">replace_categorical_values_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.replace_categorical_values"><code class="docutils literal notranslate"><span class="pre">replace_categorical_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.replace_numerical_values_series"><code class="docutils literal notranslate"><span class="pre">replace_numerical_values_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.replace_numerical_values"><code class="docutils literal notranslate"><span class="pre">replace_numerical_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.replace_with_default"><code class="docutils literal notranslate"><span class="pre">replace_with_default()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_relative_feature_series"><code class="docutils literal notranslate"><span class="pre">prepare_relative_feature_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_relative_feature_series_pl"><code class="docutils literal notranslate"><span class="pre">prepare_relative_feature_series_pl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_relative_feature"><code class="docutils literal notranslate"><span class="pre">prepare_relative_feature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.to_str"><code class="docutils literal notranslate"><span class="pre">to_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_categorical_feature_series"><code class="docutils literal notranslate"><span class="pre">prepare_categorical_feature_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_categorical_feature_pl"><code class="docutils literal notranslate"><span class="pre">prepare_categorical_feature_pl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_categorical_feature"><code class="docutils literal notranslate"><span class="pre">prepare_categorical_feature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_numerical_feature_series"><code class="docutils literal notranslate"><span class="pre">prepare_numerical_feature_series()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_numerical_feature_pl"><code class="docutils literal notranslate"><span class="pre">prepare_numerical_feature_pl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_numerical_feature"><code class="docutils literal notranslate"><span class="pre">prepare_numerical_feature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_prepare.html#outboxml.core.data_prepare.prepare_dataset"><code class="docutils literal notranslate"><span class="pre">prepare_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enums.html">Enums</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.FilesNames"><code class="docutils literal notranslate"><span class="pre">FilesNames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.FeatureEngineering"><code class="docutils literal notranslate"><span class="pre">FeatureEngineering</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.FeaturesTypes"><code class="docutils literal notranslate"><span class="pre">FeaturesTypes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.ModelsParams"><code class="docutils literal notranslate"><span class="pre">ModelsParams</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.ResultNames"><code class="docutils literal notranslate"><span class="pre">ResultNames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.SeparationParams"><code class="docutils literal notranslate"><span class="pre">SeparationParams</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.ColumnsNames"><code class="docutils literal notranslate"><span class="pre">ColumnsNames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.EncodingNames"><code class="docutils literal notranslate"><span class="pre">EncodingNames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection"><code class="docutils literal notranslate"><span class="pre">FeatureTypesForSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#outboxml.core.enums.ModelTypes"><code class="docutils literal notranslate"><span class="pre">ModelTypes</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pydantic_models.html">Pydantic Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig"><code class="docutils literal notranslate"><span class="pre">SeparationModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.DataConfig"><code class="docutils literal notranslate"><span class="pre">DataConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.DataModelConfig"><code class="docutils literal notranslate"><span class="pre">DataModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.RelativeFeatureModelConfig"><code class="docutils literal notranslate"><span class="pre">RelativeFeatureModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.FeatureModelConfig"><code class="docutils literal notranslate"><span class="pre">FeatureModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.IntersectionModelConfig"><code class="docutils literal notranslate"><span class="pre">IntersectionModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.ModelConfig"><code class="docutils literal notranslate"><span class="pre">ModelConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.AllModelsConfig"><code class="docutils literal notranslate"><span class="pre">AllModelsConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.ServiceRequest"><code class="docutils literal notranslate"><span class="pre">ServiceRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.FeatureSelectionConfig"><code class="docutils literal notranslate"><span class="pre">FeatureSelectionConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.OptunaOptimizeConfig"><code class="docutils literal notranslate"><span class="pre">OptunaOptimizeConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.HPTuneConfig"><code class="docutils literal notranslate"><span class="pre">HPTuneConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.ModelInferenceConfig"><code class="docutils literal notranslate"><span class="pre">ModelInferenceConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.AutoMLConfig"><code class="docutils literal notranslate"><span class="pre">AutoMLConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.MonitoringFactoryConfig"><code class="docutils literal notranslate"><span class="pre">MonitoringFactoryConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.MonitoringConfig"><code class="docutils literal notranslate"><span class="pre">MonitoringConfig</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.UpdateRequest"><code class="docutils literal notranslate"><span class="pre">UpdateRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.MonitoringRequest"><code class="docutils literal notranslate"><span class="pre">MonitoringRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.AutoMLResultRequest"><code class="docutils literal notranslate"><span class="pre">AutoMLResultRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydantic_models.html#outboxml.core.pydantic_models.MonitoringResultRequest"><code class="docutils literal notranslate"><span class="pre">MonitoringResultRequest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.update_model_config_default"><code class="docutils literal notranslate"><span class="pre">update_model_config_default()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.update_model_config_replace"><code class="docutils literal notranslate"><span class="pre">update_model_config_replace()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.check_prepared_dataset"><code class="docutils literal notranslate"><span class="pre">check_prepared_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.calculate_correlations"><code class="docutils literal notranslate"><span class="pre">calculate_correlations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.find_drop_values"><code class="docutils literal notranslate"><span class="pre">find_drop_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.find_drop_values_pl"><code class="docutils literal notranslate"><span class="pre">find_drop_values_pl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.td_to_hms"><code class="docutils literal notranslate"><span class="pre">td_to_hms()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.ResultPickle"><code class="docutils literal notranslate"><span class="pre">ResultPickle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#outboxml.core.utils.save_results"><code class="docutils literal notranslate"><span class="pre">save_results()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validators.html">Validators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="validators.html#outboxml.core.validators.BaseValidator"><code class="docutils literal notranslate"><span class="pre">BaseValidator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="validators.html#outboxml.core.validators.GroupValidator"><code class="docutils literal notranslate"><span class="pre">GroupValidator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="predict.html">Prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="predict.html#outboxml.core.predict.ensemble_predict"><code class="docutils literal notranslate"><span class="pre">ensemble_predict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="predict.html#outboxml.core.predict.one_model_predict"><code class="docutils literal notranslate"><span class="pre">one_model_predict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring_factory.html">Monitoring Factory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerComponent"><code class="docutils literal notranslate"><span class="pre">DataReviewerComponent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.ReportComponent"><code class="docutils literal notranslate"><span class="pre">ReportComponent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringItem"><code class="docutils literal notranslate"><span class="pre">MonitoringItem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.DataReviewerRegistry"><code class="docutils literal notranslate"><span class="pre">DataReviewerRegistry</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.ReportRegistry"><code class="docutils literal notranslate"><span class="pre">ReportRegistry</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringService"><code class="docutils literal notranslate"><span class="pre">MonitoringService</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringFactory"><code class="docutils literal notranslate"><span class="pre">MonitoringFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring_factory.html#outboxml.core.monitoring_factory.MonitoringReport"><code class="docutils literal notranslate"><span class="pre">MonitoringReport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="module-outboxml.core.email">
+<span id="email-module"></span><h2>Email Module<a class="headerlink" href="#module-outboxml.core.email" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">EMail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for email notifications in AutoML processes.</p>
+<p>Provides core functionality for creating and sending HTML emails with tables,
+images, and formatted text. All emails are saved as HTML files before sending.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object with email settings and paths.</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>config</strong> – Configuration object with email settings and paths.</p></li>
+<li><p><strong>mail</strong> – Mail instance for low-level email operations.</p></li>
+<li><p><strong>email_receivers</strong> – List of recipient email addresses.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All emails are automatically saved as HTML files in the results_path
+directory before being sent.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMail</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s2">&quot;Test Email&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;This is a test message.&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize EMail instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object containing:
+- email_smtp_server: SMTP server address
+- email_port: SMTP server port
+- email_sender: Sender email address
+- email_login: SMTP login username
+- email_pass: SMTP password
+- email_receivers: List of recipient email addresses
+- results_path: Path to save email HTML files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.save_mail_as_html">
+<span class="sig-name descname"><span class="pre">save_mail_as_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.save_mail_as_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.save_mail_as_html" title="Link to this definition"></a></dt>
+<dd><p>Save the current email message as an HTML file.</p>
+<p>Extracts HTML content from the email message and saves it to disk.
+Falls back to plain text if HTML is not available. The file is saved
+as ‘email.html’ in the results_path directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Creates or overwrites ‘email.html’ in config.results_path.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s2">&quot;Test Email&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;This is a test message.&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">save_mail_as_html</span><span class="p">()</span>
+<span class="c1"># Creates: &lt;results_path&gt;/email.html</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.header">
+<span class="sig-name descname"><span class="pre">header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Test</span> <span class="pre">Email'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.header" title="Link to this definition"></a></dt>
+<dd><p>Add a header section to the email with subject and greeting.</p>
+<p>Sets the email subject to the group name and adds a standard greeting
+text in Russian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group or experiment.</p></li>
+<li><p><strong>group_name</strong> – Defaults to ‘Test Email’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+<span class="c1"># Sets email subject to &quot;Titanic_Model_v1&quot;</span>
+<span class="c1"># Adds greeting text &quot;Добрый день, это ИИ.&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.create_time_table">
+<span class="sig-name descname"><span class="pre">create_time_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.create_time_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.create_time_table" title="Link to this definition"></a></dt>
+<dd><p>Add a time table to the email showing execution times.</p>
+<p>Adds a formatted table displaying execution times for different stages
+of the AutoML process. The table is right-aligned with sans-serif font.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_table</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – DataFrame with time information. The index will be
+reset to include it as a column in the table.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="n">time_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()]</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Loading dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;Fitting&#39;</span><span class="p">])</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">create_time_table</span><span class="p">(</span><span class="n">time_data</span><span class="p">)</span>
+<span class="c1"># Adds &quot;Затраченное время:&quot; text and formatted table</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.base_mail">
+<span class="sig-name descname"><span class="pre">base_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Test</span> <span class="pre">Email'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Добрый</span> <span class="pre">день,</span> <span class="pre">это</span> <span class="pre">ИИ.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.base_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.base_mail" title="Link to this definition"></a></dt>
+<dd><p>Create a basic email with header and custom text.</p>
+<p>Convenience method that combines header() and text addition in one call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Email subject/header. Defaults to ‘Test Email’.</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Main text content. Defaults to “Добрый день, это ИИ.”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">base_mail</span><span class="p">(</span>
+    <span class="n">header_name</span><span class="o">=</span><span class="s2">&quot;AutoML Training Complete&quot;</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;The model training has finished successfully.&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.add_image_to_mail">
+<span class="sig-name descname"><span class="pre">add_image_to_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.add_image_to_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.add_image_to_mail" title="Link to this definition"></a></dt>
+<dd><p>Add an image to the email body.</p>
+<p>Embeds an image in the email with a fixed size of 750x500 pixels.
+The image must be provided as bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>figure</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Image data as bytes. Can be obtained from reading an image
+file in binary mode or from a Plotly figure’s write_image() method.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;plot.png&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">add_image_to_mail</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
+<span class="c1"># Adds image to email with size 750x500 pixels</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.success_mail">
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.success_mail" title="Link to this definition"></a></dt>
+<dd><p>Placeholder method for success email notifications.</p>
+<p>This method should be overridden in subclasses to provide specific
+success email implementations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**params</strong> – <p>Variable keyword arguments (not used in base implementation).</p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a placeholder method. Subclasses should override it with
+specific implementations.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.send" title="Link to this definition"></a></dt>
+<dd><p>Save the email as HTML and send it to configured recipients.</p>
+<p>First saves the email as an HTML file, then sends it via SMTP to all
+recipients specified in config.email_receivers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Saves email as HTML file in results_path</p></li>
+<li><p>Sends email via SMTP to all recipients</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/smtplib.html#smtplib.SMTPException" title="(in Python v3.14)"><strong>smtplib.SMTPException</strong></a> – If email sending fails (HTML file is still saved).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s2">&quot;Test Email&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;This is a test message.&quot;</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+<span class="c1"># Saves email.html and sends email to recipients</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.common_error_mail">
+<span class="sig-name descname"><span class="pre">common_error_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.common_error_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.common_error_mail" title="Link to this definition"></a></dt>
+<dd><p>Send an error notification email with error details.</p>
+<p>Creates and sends an error notification email with the error message
+and a standard error subject line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group or experiment that failed.</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><em>Exception</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Error object or error message string. Will be converted to
+string for display.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">email</span><span class="o">.</span><span class="n">common_error_mail</span><span class="p">(</span>
+        <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+        <span class="n">error</span><span class="o">=</span><span class="n">e</span>
+    <span class="p">)</span>
+<span class="c1"># Sends email with subject: &quot;Titanic_Model_v1. Автообновление моделей. Статус: ошибка.&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMail.success_release_mail">
+<span class="sig-name descname"><span class="pre">success_release_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMail.success_release_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMail.success_release_mail" title="Link to this definition"></a></dt>
+<dd><p>Send a notification email when models are successfully released to GitLab.</p>
+<p>Creates and sends an email notification when models have been successfully
+released to GitLab, optionally including information about new features
+added to each model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group that was released.</p></li>
+<li><p><strong>new_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary mapping model names to lists of new
+features. Format: {model_name: [feature1, feature2, …]}. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">new_features</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;model1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;feature_a&quot;</span><span class="p">,</span> <span class="s2">&quot;feature_b&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;model2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;feature_c&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_release_mail</span><span class="p">(</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+    <span class="n">new_features</span><span class="o">=</span><span class="n">new_features</span>
+<span class="p">)</span>
+<span class="c1"># Sends email with subject: &quot;Titanic_Model_v1. Автообновление моделей. Статус: залиты в gitlab.&quot;</span>
+<span class="c1"># Lists new features for each model</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailDSResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">EMailDSResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_manager_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailDSResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailDSResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.core.email.EMail" title="outboxml.core.email.EMail"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMail</span></code></a></p>
+<p>Email class for sending results from DataSetsManager.</p>
+<p>Extends EMail to include model metrics tables and cohort plots in the email.
+Used for reporting results after model training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p></li>
+<li><p><strong>ds_manager_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to DSManagerResult
+objects containing model results, metrics, and predictions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_ds_manager_result</strong> – Dictionary mapping model names to DSManagerResult
+objects containing model results, metrics, and predictions.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailDSResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSetsManager</span>
+<span class="c1"># Assume ds_manager has been trained</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>  <span class="c1"># Returns dict[str, DSManagerResult]</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMailDSResult</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">ds_manager_result</span><span class="o">=</span><span class="n">results</span>
+<span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailDSResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_manager_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailDSResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailDSResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize EMailDSResult instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p></li>
+<li><p><strong>ds_manager_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to DSManagerResult
+objects. Each DSManagerResult should contain:
+- config: Model configuration
+- metrics: Dictionary with ‘train’ and ‘test’ keys containing metrics
+- Other model result data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailDSResult.success_mail">
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Test</span> <span class="pre">Email'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailDSResult.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailDSResult.success_mail" title="Link to this definition"></a></dt>
+<dd><p>Send a success email with model metrics and cohort plots.</p>
+<p>Creates and sends a comprehensive success email containing:
+- Header with group name
+- Metrics table for all models (train and test)
+- Cohort plots for each model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group. Defaults to ‘Test Email’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMailDSResult</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_manager_result</span><span class="o">=</span><span class="n">results</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">)</span>
+<span class="c1"># Sends email containing:</span>
+<span class="c1"># - Header with group name</span>
+<span class="c1"># - Metrics table for all models</span>
+<span class="c1"># - Cohort plots for each model</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailDSCompareResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">EMailDSCompareResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_manager_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_result_to_compare</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailDSCompareResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailDSCompareResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.core.email.EMailDSResult" title="outboxml.core.email.EMailDSResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMailDSResult</span></code></a></p>
+<p>Email class for comparing two sets of model results.</p>
+<p>Extends EMailDSResult to include comparison metrics and plots between
+current and previous model versions. Used for retroactive analysis and
+model version comparison.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p></li>
+<li><p><strong>ds_manager_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to current
+DSManagerResult objects.</p></li>
+<li><p><strong>ds_result_to_compare</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to previous
+DSManagerResult objects for comparison.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_ds_result_to_compare</strong> – Dictionary mapping model names to previous
+DSManagerResult objects for comparison.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailDSCompareResult</span>
+<span class="n">current_results</span> <span class="o">=</span> <span class="n">ds_manager</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+<span class="n">previous_results</span> <span class="o">=</span> <span class="n">load_previous_results</span><span class="p">()</span>  <span class="c1"># Your function</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMailDSCompareResult</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">ds_manager_result</span><span class="o">=</span><span class="n">current_results</span><span class="p">,</span>
+    <span class="n">ds_result_to_compare</span><span class="o">=</span><span class="n">previous_results</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailDSCompareResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_manager_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_result_to_compare</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailDSCompareResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailDSCompareResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize EMailDSCompareResult instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p></li>
+<li><p><strong>ds_manager_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to current
+DSManagerResult objects.</p></li>
+<li><p><strong>ds_result_to_compare</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping model names to previous
+DSManagerResult objects for comparison.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.AutoMLReviewEMail">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">AutoMLReviewEMail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#AutoMLReviewEMail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.AutoMLReviewEMail" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.core.email.EMail" title="outboxml.core.email.EMail"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMail</span></code></a></p>
+<p>Email class for AutoML review reports.</p>
+<p>Extends EMail to provide comprehensive AutoML execution reports including
+feature selection results, deployment decisions, metrics comparisons, and
+execution times. Used by AutoMLManager to send review emails after
+automated training runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.automl_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLReviewEMail</span>
+<span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">AutoMLReviewEMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.AutoMLReviewEMail.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#AutoMLReviewEMail.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.AutoMLReviewEMail.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize AutoMLReviewEMail instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.AutoMLReviewEMail.success_mail">
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_ml_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#AutoMLReviewEMail.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.AutoMLReviewEMail.success_mail" title="Link to this definition"></a></dt>
+<dd><p>Send a comprehensive success report email for AutoML execution.</p>
+<p>Creates and sends a detailed report email containing:
+- AutoML execution summary
+- Features checked during feature selection
+- Deployment decision (deployed or not)
+- Metrics comparison table
+- Model plots/visualizations
+- Execution time table for each stage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>auto_ml_result</strong> (<a class="reference internal" href="../automl_manager.html#outboxml.automl_manager.AutoMLResult" title="outboxml.automl_manager.AutoMLResult"><em>AutoMLResult</em></a>) – AutoMLResult object from AutoMLManager.update_models()
+containing:
+- group_name: Model group name
+- new_features: Dictionary of new features per model
+- deployment: Boolean deployment decision
+- compare_metrics_df: DataFrame with metrics comparison
+- figures: Dictionary of Plotly figures
+- run_time: Dictionary of execution times</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.automl_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLReviewEMail</span>
+<span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">AutoMLReviewEMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># Sends email with complete AutoML execution report</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.AutoMLReviewEMail.error_mail">
+<span class="sig-name descname"><span class="pre">error_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#AutoMLReviewEMail.error_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.AutoMLReviewEMail.error_mail" title="Link to this definition"></a></dt>
+<dd><p>Send an error report email with error details and task status.</p>
+<p>Creates and sends an error notification email including the error message
+and a table showing which tasks completed successfully and which failed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group that failed.</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><em>Exception</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Error object or error message string.</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping task names to completion status (boolean
+values). Example: {‘Loading dataset’: True, ‘Feature selection’: False}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">status</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Loading dataset&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;Feature selection&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;Fitting&#39;</span><span class="p">:</span> <span class="kc">False</span>
+<span class="p">}</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">AutoMLReviewEMail</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">error_mail</span><span class="p">(</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid configuration&quot;</span><span class="p">),</span>
+    <span class="n">status</span><span class="o">=</span><span class="n">status</span>
+<span class="p">)</span>
+<span class="c1"># Sends email with error message and task status table</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMonitoring">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">EMailMonitoring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMonitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMonitoring" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.core.email.EMail" title="outboxml.core.email.EMail"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMail</span></code></a></p>
+<p>Email class for monitoring reports.</p>
+<p>Extends EMail to provide data drift and monitoring alerts. Used to notify
+about data drift detection results and monitoring service status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailMonitoring</span>
+<span class="c1"># Assume monitoring_result is created by monitoring process</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMailMonitoring</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">monitoring_result</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMonitoring.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMonitoring.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMonitoring.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize EMailMonitoring instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMonitoring.success_mail">
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitoring_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMonitoring.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMonitoring.success_mail" title="Link to this definition"></a></dt>
+<dd><p>Send a monitoring success report email with data drift information.</p>
+<p>Creates and sends a monitoring report email containing:
+- Monitoring summary
+- Data drift table (features with PSI &gt; 0.3)
+- Link to Grafana dashboard</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>monitoring_result</strong> (<em>MonitoringResult</em>) – MonitoringResult object containing:
+- group_name: Model group name
+- report: DataFrame with drift metrics (PSI, KL, JS)
+- grafana_dashboard: URL to Grafana dashboard</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only features with PSI &gt; 0.3 are included in the drift table.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.monitoring_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitoringResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailMonitoring</span>
+<span class="c1"># Assume monitoring_result is created by monitoring process</span>
+<span class="n">email</span> <span class="o">=</span> <span class="n">EMailMonitoring</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span><span class="n">monitoring_result</span><span class="p">)</span>
+<span class="c1"># Sends email with monitoring summary and drift table</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMonitoring.error_mail">
+<span class="sig-name descname"><span class="pre">error_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMonitoring.error_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMonitoring.error_mail" title="Link to this definition"></a></dt>
+<dd><p>Send an error notification email for monitoring failures.</p>
+<p>Creates and sends an error notification email when monitoring fails.
+This is a convenience method that calls the parent’s common_error_mail().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group that failed monitoring.</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><em>Exception</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Error object or error message string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method calls common_error_mail() from the parent class.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">email</span> <span class="o">=</span> <span class="n">EMailMonitoring</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">email</span><span class="o">.</span><span class="n">error_mail</span><span class="p">(</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Connection timeout to monitoring service&quot;</span>
+<span class="p">)</span>
+<span class="c1"># Sends common error email</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.HTMLReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">HTMLReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#HTMLReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.HTMLReport" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for generating HTML reports instead of sending emails.</p>
+<p>Useful for local review or when email is not configured. Generates standalone
+HTML reports that can be opened in any browser. Reports include sections,
+tables, and embedded Plotly visualizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object with results_path attribute.</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>html_content</strong> – List of HTML content strings being assembled.</p></li>
+<li><p><strong>report_path</strong> – Full path to the output HTML report file.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTMLReport</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">HTMLReport</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">report</span><span class="o">.</span><span class="n">success_report</span><span class="p">(</span><span class="n">auto_ml_result</span><span class="p">)</span>
+<span class="c1"># Report saved to: &lt;results_path&gt;/automl_report.html</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.HTMLReport.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#HTMLReport.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.HTMLReport.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize HTMLReport instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object containing results_path attribute.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.HTMLReport.save_report">
+<span class="sig-name descname"><span class="pre">save_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#HTMLReport.save_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.HTMLReport.save_report" title="Link to this definition"></a></dt>
+<dd><p>Save the compiled HTML report to disk.</p>
+<p>Compiles all HTML content into a complete HTML document with styling
+and saves it to the report_path. The report includes a timestamp in
+the title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Creates or overwrites automl_report.html in config.results_path</p></li>
+<li><p>Prints confirmation message to console</p></li>
+</ul>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">HTMLReport</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">report</span><span class="o">.</span><span class="n">_add_section</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Test Report&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;This is a test.&quot;</span><span class="p">)</span>
+<span class="n">report</span><span class="o">.</span><span class="n">save_report</span><span class="p">()</span>
+<span class="c1"># Creates: &lt;results_path&gt;/automl_report.html</span>
+<span class="c1"># Prints: &quot;Report saved to: &lt;results_path&gt;/automl_report.html&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.HTMLReport.success_report">
+<span class="sig-name descname"><span class="pre">success_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_ml_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#HTMLReport.success_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.HTMLReport.success_report" title="Link to this definition"></a></dt>
+<dd><p>Generate a complete success report for AutoML execution.</p>
+<p>Creates a comprehensive HTML report containing:
+- AutoML execution summary
+- Features checked during feature selection
+- Deployment decision (deployed or not)
+- Metrics comparison table
+- Model plots/visualizations
+- Execution time table for each stage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>auto_ml_result</strong> (<a class="reference internal" href="../automl_manager.html#outboxml.automl_manager.AutoMLResult" title="outboxml.automl_manager.AutoMLResult"><em>AutoMLResult</em></a>) – AutoMLResult object from AutoMLManager.update_models()
+containing:
+- group_name: Model group name
+- new_features: Dictionary of new features per model
+- deployment: Boolean deployment decision
+- compare_metrics_df: DataFrame with metrics comparison
+- figures: Dictionary of Plotly figures
+- run_time: Dictionary of execution times</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.automl_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoMLManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTMLReport</span>
+<span class="n">automl</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">automl</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">HTMLReport</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">report</span><span class="o">.</span><span class="n">success_report</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># Generates HTML report with complete AutoML execution details</span>
+<span class="c1"># Saves to: &lt;results_path&gt;/automl_report.html</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.HTMLReport.error_report">
+<span class="sig-name descname"><span class="pre">error_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#HTMLReport.error_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.HTMLReport.error_report" title="Link to this definition"></a></dt>
+<dd><p>Generate an error report for failed AutoML execution.</p>
+<p>Creates an HTML report documenting the error and task completion status.
+Useful for debugging and tracking which stages completed successfully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model group that failed.</p></li>
+<li><p><strong>error</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><em>Exception</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Error object or error message string.</p></li>
+<li><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping task names to completion status (boolean
+values). Example: {‘Loading dataset’: True, ‘Feature selection’: False}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">status</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Loading dataset&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;Feature selection&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;Fitting&#39;</span><span class="p">:</span> <span class="kc">False</span>
+<span class="p">}</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">HTMLReport</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">report</span><span class="o">.</span><span class="n">error_report</span><span class="p">(</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Titanic_Model_v1&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Configuration validation failed&quot;</span><span class="p">,</span>
+    <span class="n">status</span><span class="o">=</span><span class="n">status</span>
+<span class="p">)</span>
+<span class="c1"># Generates HTML report with error details and task status</span>
+<span class="c1"># Saves to: &lt;results_path&gt;/automl_report.html</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../export_results.html" class="btn btn-neutral float-left" title="Export Results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="config_builders.html" class="btn btn-neutral float-right" title="Config Builders" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, OutBoxML Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
