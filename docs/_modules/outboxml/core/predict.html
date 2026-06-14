@@ -78,12 +78,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">env_config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.data_subsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPreprocessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DSManagerResult</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnsembleResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnsembleResult</span><span class="p">,</span> <span class="n">resolve_model_reference</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.pydantic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelConfig</span><span class="p">,</span> <span class="n">DataModelConfig</span><span class="p">,</span> <span class="n">SeparationModelConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.data_prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_dataset</span>
 
@@ -97,6 +98,7 @@
         <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">modify_dtypes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">raise_on_encoding_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict ensemble models.</span>
 
@@ -112,6 +114,10 @@
 <span class="sd">    :type modify_dtypes: bool</span>
 <span class="sd">    :param Flag for raising exception on encoding error.</span>
 <span class="sd">    :type raise_on_encoding_error: bool</span>
+<span class="sd">    :param config: Configuration object used to resolve pickle paths when the</span>
+<span class="sd">        ensemble stores model references instead of model objects. Defaults to</span>
+<span class="sd">        the global env_config.</span>
+<span class="sd">    :type config: object, optional</span>
 <span class="sd">    :return: Predictions, data, model info.</span>
 <span class="sd">    :rtype: dict</span>
 <span class="sd">    :raises TypeError: Invalid features_values type.</span>
@@ -135,6 +141,9 @@
 <span class="sd">    )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">env_config</span>
+
     <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features_values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">as_dict</span> <span class="o">=</span> <span class="kc">True</span>
@@ -157,6 +166,7 @@
         <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
             <span class="c1"># data = pd.DataFrame([features_values])</span>
             <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">resolve_model_reference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
                 <span class="c1"># FIXME</span>
                 <span class="n">condition</span> <span class="o">=</span> <span class="n">condition</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
                 <span class="c1"># if not data.query(condition).empty:</span>
@@ -176,6 +186,7 @@
         <span class="n">df_filtered</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">resolve_model_reference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">data_filtered</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">one_model_predict</span><span class="p">(</span>
                     <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>

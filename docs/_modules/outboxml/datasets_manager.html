@@ -102,6 +102,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">BaseMetrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span><span class="p">,</span> <span class="n">TrainTestIndexes</span><span class="p">,</span> <span class="n">PrepareDatasetPl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelMetrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_model_reference</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultModels</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
@@ -806,6 +807,101 @@
                               <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Prediction for external data finished&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="DataSetsManager.ensemble_predict">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DataSetsManager.ensemble_predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ensemble_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ensemble_result</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DSManagerResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict one model of a stored-reference ensemble on the manager dataset.</span>
+
+<span class="sd">        Resolves the model reference of each ensemble part (loading the referenced</span>
+<span class="sd">        group pickle when ``store_references=True`` was used), filters the dataset</span>
+<span class="sd">        by the part&#39;s ``condition``, predicts each row partition with</span>
+<span class="sd">        :meth:`model_predict`, then stitches the partitions back together</span>
+<span class="sd">        (row-wise, sorted by original index) into a single ``DSManagerResult``.</span>
+<span class="sd">        Metrics are recomputed on the combined data so the result can be used for</span>
+<span class="sd">        comparison exactly like a regular model result.</span>
+
+<span class="sd">        This is the building block for comparing a candidate ensemble (with one</span>
+<span class="sd">        model replaced) against the previous ensemble: each ``EnsembleResult``</span>
+<span class="sd">        produces one stitched ``DSManagerResult`` keyed by ``model_name``.</span>
+
+<span class="sd">        :param ensemble_result: One ensemble part for a single model, holding</span>
+<span class="sd">            ``model_name`` and a list of ``(condition, group_name, model)`` where</span>
+<span class="sd">            ``model`` is either a model result dict or a group name reference.</span>
+<span class="sd">        :type ensemble_result: EnsembleResult</span>
+<span class="sd">        :param config: Configuration providing ``prod_models_path`` for resolving</span>
+<span class="sd">            references. Defaults to the manager&#39;s external config / global config.</span>
+<span class="sd">        :type config: object, optional</span>
+<span class="sd">        :return: Stitched result with combined ``data_subset``, ``predictions``</span>
+<span class="sd">            and recomputed ``metrics``.</span>
+<span class="sd">        :rtype: DSManagerResult</span>
+<span class="sd">        :raises ValueError: If no rows match any condition, or conditions overlap</span>
+<span class="sd">            (duplicate indices in the stitched result).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">ensemble_result</span><span class="o">.</span><span class="n">model_name</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Ensemble prediction||&#39;</span> <span class="o">+</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_config</span>
+
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">ensemble_result</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="n">model_result</span> <span class="o">=</span> <span class="n">resolve_model_reference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data_filtered</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Ensemble part matched no rows||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">,</span>
+                                             <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                             <span class="n">model_result</span><span class="o">=</span><span class="n">model_result</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ensemble model `</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">`: no rows matched any condition&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_concat</span><span class="p">(</span><span class="n">getter</span><span class="p">):</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span> <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">getter</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">series</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">series</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="n">data_subset</span> <span class="o">=</span> <span class="n">ModelDataSubset</span><span class="p">(</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="n">X_train</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_train</span><span class="p">),</span>
+            <span class="n">y_train</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_train</span><span class="p">),</span>
+            <span class="n">X_test</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">X_test</span><span class="p">),</span>
+            <span class="n">y_test</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">y_test</span><span class="p">),</span>
+            <span class="n">features_numerical</span><span class="o">=</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span><span class="p">,</span>
+            <span class="n">features_categorical</span><span class="o">=</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span><span class="p">,</span>
+            <span class="n">exposure_train</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_train</span><span class="p">),</span>
+            <span class="n">exposure_test</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">exposure_test</span><span class="p">),</span>
+            <span class="n">sample_weight_train</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">sample_weight_train</span><span class="p">),</span>
+            <span class="n">sample_weight_test</span><span class="o">=</span><span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">sample_weight_test</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">_concat</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]),</span>
+        <span class="p">}</span>
+
+        <span class="n">full_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">if</span> <span class="n">full_index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ensemble model `</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">`: overlapping conditions produce duplicate rows&quot;</span><span class="p">)</span>
+
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">ModelMetrics</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                               <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                               <span class="n">data_config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">result_dict</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">DSManagerResult</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                              <span class="n">config</span><span class="o">=</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                              <span class="n">model</span><span class="o">=</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                              <span class="n">data_subset</span><span class="o">=</span><span class="n">data_subset</span><span class="p">,</span>
+                              <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                              <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
+                              <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span>
+                              <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Ensemble prediction finished||&#39;</span> <span class="o">+</span> <span class="n">model_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
 
