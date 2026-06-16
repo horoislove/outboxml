@@ -1053,6 +1053,86 @@ values). Example: {‘Loading dataset’: True, ‘Feature selection’: False}<
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMultiAutoMLResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">outboxml.core.email.</span></span><span class="sig-name descname"><span class="pre">EMailMultiAutoMLResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">managers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMultiAutoMLResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMultiAutoMLResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outboxml.core.email.EMail" title="outboxml.core.email.EMail"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMail</span></code></a></p>
+<p>Email summary across several trained AutoMLManager runs.</p>
+<p>Aggregates the results of multiple AutoMLManager instances (e.g. three
+models trained in a notebook) into a single email/HTML report. For every
+manager it renders a section with: the deployment decision, the metrics
+comparison table, the prediction-comparison cohort plots, and — if it was
+computed — the business metric.</p>
+<p>The class does <strong>not</strong> recompute anything: it reads the already populated
+<code class="docutils literal notranslate"><span class="pre">manager.automl_results</span></code> (filled by <code class="docutils literal notranslate"><span class="pre">AutoMLManager.update_models()</span></code> -&gt;
+<code class="docutils literal notranslate"><span class="pre">compare_with_previous()</span></code>). Raw <code class="docutils literal notranslate"><span class="pre">AutoMLResult</span></code> objects may also be
+passed directly.</p>
+<p>A self-contained <code class="docutils literal notranslate"><span class="pre">email.html</span></code> is always saved to <code class="docutils literal notranslate"><span class="pre">config.results_path</span></code>
+(with images embedded as base64 so it is viewable without sending). The
+SMTP delivery is controlled by the <code class="docutils literal notranslate"><span class="pre">send_mail</span></code> flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object with email settings and <code class="docutils literal notranslate"><span class="pre">results_path</span></code>.</p></li>
+<li><p><strong>managers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of trained AutoMLManager objects or AutoMLResult objects.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.email</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMailMultiAutoMLResult</span>
+
+<span class="n">m1</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">);</span> <span class="n">m1</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">);</span> <span class="n">m2</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+<span class="n">m3</span> <span class="o">=</span> <span class="n">AutoMLManager</span><span class="p">(</span><span class="o">...</span><span class="p">);</span> <span class="n">m3</span><span class="o">.</span><span class="n">update_models</span><span class="p">()</span>
+
+<span class="n">EMailMultiAutoMLResult</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">managers</span><span class="o">=</span><span class="p">[</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span><span class="p">])</span><span class="o">.</span><span class="n">success_mail</span><span class="p">(</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;Сравнение трёх моделей&quot;</span><span class="p">,</span>
+    <span class="n">send_mail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># сначала посмотреть email.html, потом включить отправку</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMultiAutoMLResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">managers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMultiAutoMLResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMultiAutoMLResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize EMailMultiAutoMLResult instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="enums.html#outboxml.core.enums.FeatureTypesForSelection.object" title="outboxml.core.enums.FeatureTypesForSelection.object"><em>object</em></a>) – Configuration object (same as EMail).</p></li>
+<li><p><strong>managers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of trained AutoMLManager objects (or AutoMLResult
+objects). For each item the <code class="docutils literal notranslate"><span class="pre">automl_results</span></code> attribute is used when
+present, otherwise the item is treated as an AutoMLResult itself.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.core.email.EMailMultiAutoMLResult.success_mail">
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AutoML</span> <span class="pre">Report'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMultiAutoMLResult.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMultiAutoMLResult.success_mail" title="Link to this definition"></a></dt>
+<dd><p>Build the summary email and save it as HTML; optionally send it.</p>
+<p>Creates a single email containing one section per AutoML run. The email
+is always saved as a self-contained <code class="docutils literal notranslate"><span class="pre">email.html</span></code> in <code class="docutils literal notranslate"><span class="pre">results_path</span></code>;
+it is sent over SMTP only when <code class="docutils literal notranslate"><span class="pre">send_mail</span></code> is True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Email subject / report title. Defaults to ‘AutoML Report’.</p></li>
+<li><p><strong>send_mail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to actually send the email over SMTP. When False
+only the HTML file is produced. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
