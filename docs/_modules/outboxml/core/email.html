@@ -1737,8 +1737,11 @@
             <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_summary_table</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_table</span><span class="p">()</span>
+
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_section</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plots_section</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_time_table</span><span class="p">()</span>
 
@@ -1747,59 +1750,97 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">send_mail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">email_receivers</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_model_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render a single AutoML run as a section of the email.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_summary_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a consolidated overview / business-metric table across all runs.</span>
+
+<span class="sd">        One row per run with the headline facts: group name, deployment decision</span>
+<span class="sd">        and — when the business metric was computed — its new/previous values,</span>
+<span class="sd">        difference and threshold. This single table replaces the per-run</span>
+<span class="sd">        deployment lines and the per-run business metric tables.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">business_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Бизнес-метрика: новая&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Бизнес-метрика: предыдущая&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Разница&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Порог&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="n">business_metric</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;compare_business_metric&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="n">previous_value</span> <span class="o">=</span> <span class="n">difference</span> <span class="o">=</span> <span class="n">threshold</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">business_metric</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">business_metric</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">new_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;first_model&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">)</span>
+                <span class="n">previous_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;second_model&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">)</span>
+                <span class="n">difference</span> <span class="o">=</span> <span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;difference&#39;</span><span class="p">)</span>
+                <span class="n">threshold</span> <span class="o">=</span> <span class="p">(</span><span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;first_model&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;threshold&#39;</span><span class="p">)</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;Группа&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">),</span>
+                <span class="s2">&quot;Решение&quot;</span><span class="p">:</span> <span class="s2">&quot;В фон&quot;</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;deployment&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Отклонена&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Бизнес-метрика: новая&quot;</span><span class="p">:</span> <span class="n">new_value</span><span class="p">,</span>
+                <span class="s2">&quot;Бизнес-метрика: предыдущая&quot;</span><span class="p">:</span> <span class="n">previous_value</span><span class="p">,</span>
+                <span class="s2">&quot;Разница&quot;</span><span class="p">:</span> <span class="n">difference</span><span class="p">,</span>
+                <span class="s2">&quot;Порог&quot;</span><span class="p">:</span> <span class="n">threshold</span><span class="p">,</span>
+            <span class="p">})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">summary_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="c1"># Drop business metric columns entirely if no run computed them.</span>
+        <span class="k">if</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">business_cols</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">business_cols</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Сводная таблица по моделям:&quot;</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
+            <span class="n">summary_df</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;160px&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add one consolidated metrics table across all AutoML runs.</span>
+
+<span class="sd">        Concatenates the per-run ``compare_metrics_df`` (each already carries an</span>
+<span class="sd">        ``Имя модели`` column) into a single table instead of one table per run.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="n">compare_metrics_df</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;compare_metrics_df&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">compare_metrics_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">compare_metrics_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compare_metrics_df</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">combined_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Характеристики моделей:&quot;</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
+            <span class="n">combined_df</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;150px&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plots_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render the prediction-comparison plots for a single run.</span>
+
+<span class="sd">        Only the plots remain per-run (metrics and business metric are now shown</span>
+<span class="sd">        in the consolidated tables). The section header is added only when there</span>
+<span class="sd">        are figures to show.</span>
 
 <span class="sd">        :param result: AutoMLResult object for one manager.</span>
 <span class="sd">        :type result: AutoMLResult</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        :rtype: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;━━━ </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;group_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> ━━━&quot;</span><span class="p">,</span>
-            <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span>
-            <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_decision_info</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;deployment&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_description</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;compare_metrics_df&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_plots</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;figures&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                    <span class="n">group_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;compare_business_metric&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_decision_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the deployment decision line for a run.</span>
-
-<span class="sd">        :param decision: Boolean deployment decision.</span>
-<span class="sd">        :type decision: bool</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        :rtype: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">decision</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Модель выведена в фон.&quot;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
-                <span class="s2">&quot;Модель не обеспечила заданный критерий качества.&quot;</span><span class="p">,</span>
-                <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_metrics_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compare_metrics_df</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the metrics comparison table for a run.</span>
-
-<span class="sd">        :param compare_metrics_df: DataFrame with the metrics comparison. Skipped</span>
-<span class="sd">            when None or empty.</span>
-<span class="sd">        :type compare_metrics_df: pandas.DataFrame or None</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        :rtype: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">compare_metrics_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">compare_metrics_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Нет метрик для отображения.&quot;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">figures</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;figures&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">figures</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Характеристики моделей:&quot;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
-            <span class="n">compare_metrics_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
-            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;180px&quot;</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="n">group_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;━━━ </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2"> ━━━&quot;</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plots</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figures</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;model&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add prediction-comparison plots for a run.</span>
@@ -1830,39 +1871,6 @@
             <span class="n">cid</span> <span class="o">=</span> <span class="s1">&#39;image</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">n_photos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_embedded_images</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cid</span><span class="p">,</span> <span class="n">png_bytes</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">png_bytes</span><span class="p">,</span> <span class="n">size_pixel</span><span class="o">=</span><span class="p">(</span><span class="mi">750</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_business_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">business_metric</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the business metric block for a run, if it was computed.</span>
-
-<span class="sd">        :param business_metric: Dictionary as returned by</span>
-<span class="sd">            ``BaseCompareBusinessMetric.calculate_metric`` with ``first_model``,</span>
-<span class="sd">            ``second_model`` and ``difference`` keys. Skipped when missing or</span>
-<span class="sd">            when it is the empty DataFrame placeholder.</span>
-<span class="sd">        :type business_metric: dict or None</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        :rtype: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">business_metric</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">business_metric</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">return</span>
-        <span class="n">first_model</span> <span class="o">=</span> <span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;first_model&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">second_model</span> <span class="o">=</span> <span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;second_model&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;Новая модель&quot;</span><span class="p">:</span> <span class="n">first_model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">),</span>
-            <span class="s2">&quot;Предыдущая модель&quot;</span><span class="p">:</span> <span class="n">second_model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">),</span>
-            <span class="s2">&quot;Разница&quot;</span><span class="p">:</span> <span class="n">business_metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;difference&#39;</span><span class="p">),</span>
-            <span class="s2">&quot;Порог (новая модель)&quot;</span><span class="p">:</span> <span class="n">first_model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;threshold&#39;</span><span class="p">),</span>
-        <span class="p">}</span>
-        <span class="c1"># Drop rows that have no value (e.g. no previous model to compare with).</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;Бизнес-метрика:&quot;</span><span class="p">,</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">business_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Значение&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="n">business_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Показатель&quot;</span><span class="p">,</span> <span class="s2">&quot;Значение&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
-            <span class="n">business_df</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;220px&quot;</span><span class="p">),</span>
-        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_time_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a summary table with the finish time of each run.&quot;&quot;&quot;</span>
