@@ -176,7 +176,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time_run</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deployment</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">all_models_config</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">business_metric</span> <span class="o">=</span> <span class="p">{}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">business_metric</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Previous model results, business metric calculator and threshold kept so</span>
+        <span class="c1"># that the business metric can be re-grouped by a data feature downstream</span>
+        <span class="c1"># (e.g. in EMailMultiAutoMLResult) without recomputing the whole pipeline.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds_manager_result_to_compare</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compare_business_metric_calculator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">business_metric_threshold</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">]</span></div>
 </div>
 
 
@@ -933,6 +939,10 @@
                 <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_ml_config</span><span class="o">.</span><span class="n">inference_criteria</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">compare_business_metric</span><span class="p">)</span>
+            <span class="c1"># Keep what is needed to re-group the business metric by a data feature.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">ds_manager_result_to_compare</span> <span class="o">=</span> <span class="n">result_to_compare</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">compare_business_metric_calculator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_business_metric</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">business_metric_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_ml_config</span><span class="o">.</span><span class="n">inference_criteria</span><span class="o">.</span><span class="n">threshold</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Comparing models is completed&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;Compare with previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">automl_results</span><span class="o">.</span><span class="n">run_time</span><span class="p">[</span><span class="s1">&#39;comparing models&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span></div>

@@ -213,7 +213,7 @@ Calculates metrics with optional exposure weighting.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="outboxml.metrics.business_metrics.BaseBusinessMetricConverter.convert_to_df">
-<span class="sig-name descname"><span class="pre">convert_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/metrics/business_metrics.html#BaseBusinessMetricConverter.convert_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.metrics.business_metrics.BaseBusinessMetricConverter.convert_to_df" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/metrics/business_metrics.html#BaseBusinessMetricConverter.convert_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.metrics.business_metrics.BaseBusinessMetricConverter.convert_to_df" title="Link to this definition"></a></dt>
 <dd><p>Convert model results to DataFrame for comparison.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -221,6 +221,9 @@ Calculates metrics with optional exposure weighting.</p>
 <li><p><strong>result1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary with model results (DSManagerResult objects).</p></li>
 <li><p><strong>result2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional second dictionary with model results for comparison.</p></li>
 <li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the model to extract. If None, uses first key from result1.</p></li>
+<li><p><strong>group_feature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Optional name of a data feature to retain in the result
+so the metric can later be grouped by it. The column is kept only when it
+is present in the model data; otherwise it is silently ignored.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -301,6 +304,43 @@ Calculates metrics with optional exposure weighting.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">calculate_metric</span><span class="p">(</span><span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span>
 <span class="go">0.05</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric_by_group">
+<span class="sig-name descname"><span class="pre">calculate_metric_by_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.8,</span> <span class="pre">1.2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BUSINESS_TYPE'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/outboxml/metrics/business_metrics.html#BaseCompareBusinessMetric.calculate_metric_by_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric_by_group" title="Link to this definition"></a></dt>
+<dd><p>Calculate the business metric separately for each value of a data feature.</p>
+<p>Splits the data by the values of <code class="docutils literal notranslate"><span class="pre">group_feature</span></code> (taken from the model
+data, e.g. <code class="docutils literal notranslate"><span class="pre">BUSINESS_TYPE</span></code>) and computes the same business metric as
+<a class="reference internal" href="#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric" title="outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_metric()</span></code></a> within every group. This makes it possible to see
+how the new (and, when <code class="docutils literal notranslate"><span class="pre">result2</span></code> is given, the previous) model performs
+across business segments rather than only on the whole portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary with first (new) model results (DSManagerResult objects).</p></li>
+<li><p><strong>result2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Optional dictionary with the previous model results for comparison.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, or </em><em>None</em>) – Threshold values for filtering predictions. Same semantics
+as in <a class="reference internal" href="#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric" title="outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_metric()</span></code></a>.</p></li>
+<li><p><strong>group_feature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the data feature to group by. Defaults to ‘BUSINESS_TYPE’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with one row per group value and the columns
+<code class="docutils literal notranslate"><span class="pre">[group_feature,</span> <span class="pre">'new',</span> <span class="pre">'previous',</span> <span class="pre">'difference',</span> <span class="pre">'count']</span></code>. Returns an
+empty DataFrame when <code class="docutils literal notranslate"><span class="pre">group_feature</span></code> is absent from the data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">BaseCompareBusinessMetric</span><span class="p">(</span><span class="n">metric_function</span><span class="o">=</span><span class="n">mean_absolute_error</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">calculate_metric_by_group</span><span class="p">(</span><span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">,</span> <span class="n">group_feature</span><span class="o">=</span><span class="s1">&#39;BUSINESS_TYPE&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[&#39;BUSINESS_TYPE&#39;, &#39;new&#39;, &#39;previous&#39;, &#39;difference&#39;, &#39;count&#39;]</span>
 </pre></div>
 </div>
 </dd></dl>

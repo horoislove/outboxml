@@ -1716,7 +1716,8 @@
 
 <div class="viewcode-block" id="EMailMultiAutoMLResult.success_mail">
 <a class="viewcode-back" href="../../../modules/core/index.html#outboxml.core.email.EMailMultiAutoMLResult.success_mail">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;AutoML Report&quot;</span><span class="p">,</span> <span class="n">send_mail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">success_mail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;AutoML Report&quot;</span><span class="p">,</span> <span class="n">send_mail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">business_type_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BUSINESS_TYPE&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the summary email and save it as HTML; optionally send it.</span>
 
 <span class="sd">        Creates a single email containing one section per AutoML run. The email</span>
@@ -1728,6 +1729,10 @@
 <span class="sd">        :param send_mail: Whether to actually send the email over SMTP. When False</span>
 <span class="sd">            only the HTML file is produced. Defaults to True.</span>
 <span class="sd">        :type send_mail: bool</span>
+<span class="sd">        :param business_type_feature: Name of the data feature used to break the</span>
+<span class="sd">            business metric down into groups. Defaults to &#39;BUSINESS_TYPE&#39;. When the</span>
+<span class="sd">            feature is not present in the data the grouped section is skipped.</span>
+<span class="sd">        :type business_type_feature: str</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        :rtype: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1739,6 +1744,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_summary_table</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metrics_table</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_business_metric_by_group_section</span><span class="p">(</span><span class="n">business_type_feature</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plots_section</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -1821,6 +1827,65 @@
             <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;150px&quot;</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_business_metric_by_group_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">business_type_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BUSINESS_TYPE&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add per-run business metric tables grouped by a data feature.</span>
+
+<span class="sd">        For every run that carries the data needed to recompute the business</span>
+<span class="sd">        metric (the new model results, the previous model results and the</span>
+<span class="sd">        configured comparator) the metric is split by the values of</span>
+<span class="sd">        ``business_type_feature`` (e.g. ``BUSINESS_TYPE``) and rendered as a table.</span>
+<span class="sd">        Runs where the feature is absent or no business metric was configured are</span>
+<span class="sd">        silently skipped.</span>
+
+<span class="sd">        :param business_type_feature: Name of the data feature to group by.</span>
+<span class="sd">        :type business_type_feature: str</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">column_rename</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="s2">&quot;Бизнес-метрика: новая&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;previous&#39;</span><span class="p">:</span> <span class="s2">&quot;Бизнес-метрика: предыдущая&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;difference&#39;</span><span class="p">:</span> <span class="s2">&quot;Разница&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="s2">&quot;Кол-во&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">header_added</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="n">ds_manager_result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;ds_manager_result&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">calculator</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;compare_business_metric_calculator&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ds_manager_result</span> <span class="ow">or</span> <span class="n">calculator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">ds_manager_result_to_compare</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;ds_manager_result_to_compare&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;business_metric_threshold&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_metric_by_group</span><span class="p">(</span>
+                    <span class="n">result1</span><span class="o">=</span><span class="n">ds_manager_result</span><span class="p">,</span>
+                    <span class="n">result2</span><span class="o">=</span><span class="n">ds_manager_result_to_compare</span><span class="p">,</span>
+                    <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+                    <span class="n">group_feature</span><span class="o">=</span><span class="n">business_type_feature</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Business metric by group||&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">grouped_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Drop the previous-model column when there was nothing to compare with.</span>
+            <span class="k">if</span> <span class="n">grouped_df</span><span class="p">[</span><span class="s1">&#39;previous&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">grouped_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;difference&#39;</span><span class="p">])</span>
+            <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">grouped_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_rename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">header_added</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span>
+                    <span class="s2">&quot;Бизнес-метрика по группам (</span><span class="si">{}</span><span class="s2">):&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">business_type_feature</span><span class="p">),</span>
+                    <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bold&#39;</span><span class="p">],</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">header_added</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">group_name</span><span class="p">),</span> <span class="n">n_line_breaks</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_pandas_table</span><span class="p">(</span>
+                <span class="n">grouped_df</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text_align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;150px&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">add_line_breaks</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plots_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Render the prediction-comparison plots for a single run.</span>

@@ -132,20 +132,25 @@
 
 <div class="viewcode-block" id="BaseBusinessMetricConverter.convert_to_df">
 <a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseBusinessMetricConverter.convert_to_df">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">result2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">result2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">group_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert model results to DataFrame for comparison.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param result1: Dictionary with model results (DSManagerResult objects).</span>
 <span class="sd">        :type result1: dict</span>
 <span class="sd">        :param result2: Optional second dictionary with model results for comparison.</span>
 <span class="sd">        :type result2: dict, optional</span>
 <span class="sd">        :param model_name: Name of the model to extract. If None, uses first key from result1.</span>
 <span class="sd">        :type model_name: str, optional</span>
+<span class="sd">        :param group_feature: Optional name of a data feature to retain in the result</span>
+<span class="sd">            so the metric can later be grouped by it. The column is kept only when it</span>
+<span class="sd">            is present in the model data; otherwise it is silently ignored.</span>
+<span class="sd">        :type group_feature: str, optional</span>
 <span class="sd">        :return: DataFrame with predictions and true values for comparison.</span>
 <span class="sd">        :rtype: pd.DataFrame</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. rubric:: Examples</span>
-<span class="sd">        </span>
+
 <span class="sd">        &gt;&gt;&gt; converter = BaseBusinessMetricConverter(use_exposure=True)</span>
 <span class="sd">        &gt;&gt;&gt; df = converter.convert_to_df(result1, result2, model_name=&#39;model1&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; df.columns</span>
@@ -156,11 +161,14 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">result1</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="n">y1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">:</span> <span class="s1">&#39;first_model_prediction&#39;</span><span class="p">})</span>
+        <span class="n">first_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;first_model_prediction&#39;</span><span class="p">,</span> <span class="s1">&#39;y_true&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">group_feature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">group_feature</span> <span class="ow">in</span> <span class="n">y1</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">first_cols</span> <span class="o">=</span> <span class="n">first_cols</span> <span class="o">+</span> <span class="p">[</span><span class="n">group_feature</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span><span class="p">(</span><span class="n">result2</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;y_prediction&#39;</span><span class="p">:</span> <span class="s1">&#39;second_model_prediction&#39;</span><span class="p">})</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">y1</span><span class="p">[[</span><span class="s1">&#39;first_model_prediction&#39;</span><span class="p">,</span> <span class="s1">&#39;y_true&#39;</span><span class="p">]],</span> <span class="n">y2</span><span class="p">[</span><span class="s1">&#39;second_model_prediction&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">y1</span><span class="p">[</span><span class="n">first_cols</span><span class="p">],</span> <span class="n">y2</span><span class="p">[</span><span class="s1">&#39;second_model_prediction&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">y1</span><span class="p">[[</span><span class="s1">&#39;first_model_prediction&#39;</span><span class="p">,</span> <span class="s1">&#39;y_true&#39;</span><span class="p">]]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">y1</span><span class="p">[</span><span class="n">first_cols</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 
@@ -234,25 +242,50 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Compare business metric||Calculating&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Compare business metric||&#39;</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-        <span class="n">second_model_metric_results</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Select correct threshold&quot;</span><span class="p">)</span>
         <span class="n">df_for_model_comparison</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_converter</span><span class="o">.</span><span class="n">convert_to_df</span><span class="p">(</span><span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_for_comparison_df</span><span class="p">(</span><span class="n">df_for_model_comparison</span><span class="p">,</span>
+                                                     <span class="n">result2_present</span><span class="o">=</span><span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                                                     <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metric_for_comparison_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df_for_model_comparison</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+                                  <span class="n">result2_present</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the business metric for an already prepared comparison DataFrame.</span>
+
+<span class="sd">        Contains the threshold selection and metric computation shared by</span>
+<span class="sd">        :meth:`calculate_metric` and :meth:`calculate_metric_by_group`. The input</span>
+<span class="sd">        DataFrame must hold a ``first_model_prediction`` / ``y_true`` pair (and a</span>
+<span class="sd">        ``second_model_prediction`` column when ``result2_present`` is True); any</span>
+<span class="sd">        extra columns (e.g. a grouping feature) are ignored.</span>
+
+<span class="sd">        :param df_for_model_comparison: Prepared predictions/true-values DataFrame.</span>
+<span class="sd">        :type df_for_model_comparison: pd.DataFrame</span>
+<span class="sd">        :param result2_present: Whether a second model is present in the DataFrame.</span>
+<span class="sd">        :type result2_present: bool</span>
+<span class="sd">        :param threshold: Threshold values for filtering predictions.</span>
+<span class="sd">        :type threshold: list, tuple, or None</span>
+<span class="sd">        :return: Dictionary with metric results for both models and their difference.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">second_model_metric_results</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">first_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">first_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]]</span>
-        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
             <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="n">second_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">second_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]]</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_threshold</span><span class="p">):</span>
             <span class="n">first_model_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_threshold</span><span class="p">(</span><span class="n">first_model_data</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">,</span>
                                                         <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">)</span>
             <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">first_model_threshold</span>
-            <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
                 <span class="n">second_model_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_threshold</span><span class="p">(</span><span class="n">second_model_data</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">,</span>
                                                              <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">)</span>
                 <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">second_model_threshold</span>
@@ -261,35 +294,94 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                     <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
                         <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">first_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                                                                                   <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
                         <span class="n">second_model_index</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="p">[</span><span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                                                                                         <span class="n">threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">first_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;first_model_prediction&quot;</span><span class="p">]]</span>
-        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
             <span class="n">second_model_data</span> <span class="o">=</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">second_model_index</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">,</span> <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">]]</span>
         <span class="n">first_model_metric_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">(</span><span class="n">first_model_data</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span>
                                                                            <span class="n">first_model_data</span><span class="p">[</span><span class="s2">&quot;first_model_prediction&quot;</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
             <span class="n">second_model_metric_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_function</span><span class="p">(</span><span class="n">second_model_data</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span>
                                                                                 <span class="n">second_model_data</span><span class="p">[</span>
                                                                                     <span class="s2">&quot;second_model_prediction&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span><span class="p">{</span><span class="s1">&#39;first_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">first_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">first_model_threshold</span><span class="p">},</span>
-                      <span class="s1">&#39;second_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">second_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">second_model_threshold</span><span class="p">}}</span>
-        <span class="k">if</span> <span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;first_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">first_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">first_model_threshold</span><span class="p">},</span>
+                  <span class="s1">&#39;second_model&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="n">second_model_metric_results</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">second_model_threshold</span><span class="p">}}</span>
+        <span class="k">if</span> <span class="n">result2_present</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;maximize&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>  <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="BaseCompareBusinessMetric.calculate_metric_by_group">
+<a class="viewcode-back" href="../../../modules/metrics.html#outboxml.metrics.business_metrics.BaseCompareBusinessMetric.calculate_metric_by_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_metric_by_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">result2</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                  <span class="n">threshold</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+                                  <span class="n">group_feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BUSINESS_TYPE&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the business metric separately for each value of a data feature.</span>
+
+<span class="sd">        Splits the data by the values of ``group_feature`` (taken from the model</span>
+<span class="sd">        data, e.g. ``BUSINESS_TYPE``) and computes the same business metric as</span>
+<span class="sd">        :meth:`calculate_metric` within every group. This makes it possible to see</span>
+<span class="sd">        how the new (and, when ``result2`` is given, the previous) model performs</span>
+<span class="sd">        across business segments rather than only on the whole portfolio.</span>
+
+<span class="sd">        :param result1: Dictionary with first (new) model results (DSManagerResult objects).</span>
+<span class="sd">        :type result1: dict</span>
+<span class="sd">        :param result2: Optional dictionary with the previous model results for comparison.</span>
+<span class="sd">        :type result2: dict, optional</span>
+<span class="sd">        :param threshold: Threshold values for filtering predictions. Same semantics</span>
+<span class="sd">            as in :meth:`calculate_metric`.</span>
+<span class="sd">        :type threshold: list, tuple, or None</span>
+<span class="sd">        :param group_feature: Name of the data feature to group by. Defaults to &#39;BUSINESS_TYPE&#39;.</span>
+<span class="sd">        :type group_feature: str</span>
+<span class="sd">        :return: DataFrame with one row per group value and the columns</span>
+<span class="sd">            ``[group_feature, &#39;new&#39;, &#39;previous&#39;, &#39;difference&#39;, &#39;count&#39;]``. Returns an</span>
+<span class="sd">            empty DataFrame when ``group_feature`` is absent from the data.</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+
+<span class="sd">        .. rubric:: Examples</span>
+
+<span class="sd">        &gt;&gt;&gt; metric = BaseCompareBusinessMetric(metric_function=mean_absolute_error)</span>
+<span class="sd">        &gt;&gt;&gt; df = metric.calculate_metric_by_group(result1, result2, group_feature=&#39;BUSINESS_TYPE&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.columns.tolist()</span>
+<span class="sd">        [&#39;BUSINESS_TYPE&#39;, &#39;new&#39;, &#39;previous&#39;, &#39;difference&#39;, &#39;count&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Select correct threshold&quot;</span><span class="p">)</span>
+        <span class="n">df_for_model_comparison</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_converter</span><span class="o">.</span><span class="n">convert_to_df</span><span class="p">(</span>
+            <span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">,</span> <span class="n">group_feature</span><span class="o">=</span><span class="n">group_feature</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">group_feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;Compare business metric||Group feature &quot;</span><span class="si">{}</span><span class="s1">&quot; not found in data&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group_feature</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">group_value</span><span class="p">,</span> <span class="n">group_df</span> <span class="ow">in</span> <span class="n">df_for_model_comparison</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_feature</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">group_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_for_comparison_df</span><span class="p">(</span>
+                    <span class="n">group_df</span><span class="p">,</span> <span class="n">result2_present</span><span class="o">=</span><span class="n">result2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Compare business metric||Group &quot;</span><span class="si">{}</span><span class="s1">&quot;||</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group_value</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="n">group_feature</span><span class="p">:</span> <span class="n">group_value</span><span class="p">,</span>
+                <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="n">group_result</span><span class="p">[</span><span class="s1">&#39;first_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;previous&#39;</span><span class="p">:</span> <span class="n">group_result</span><span class="p">[</span><span class="s1">&#39;second_model&#39;</span><span class="p">][</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;difference&#39;</span><span class="p">:</span> <span class="n">group_result</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_df</span><span class="p">),</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseCompareBusinessMetric.find_threshold">
