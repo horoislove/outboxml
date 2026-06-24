@@ -1109,7 +1109,7 @@ present, otherwise the item is treated as an AutoMLResult itself.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="outboxml.core.email.EMailMultiAutoMLResult.success_mail">
-<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AutoML</span> <span class="pre">Report'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">business_type_feature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BUSINESS_TYPE'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMultiAutoMLResult.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMultiAutoMLResult.success_mail" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">success_mail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AutoML</span> <span class="pre">Report'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/outboxml/core/email.html#EMailMultiAutoMLResult.success_mail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#outboxml.core.email.EMailMultiAutoMLResult.success_mail" title="Link to this definition"></a></dt>
 <dd><p>Build the summary email and save it as HTML; optionally send it.</p>
 <p>Creates a single email containing one section per AutoML run. The email
 is always saved as a self-contained <code class="docutils literal notranslate"><span class="pre">email.html</span></code> in <code class="docutils literal notranslate"><span class="pre">results_path</span></code>;
@@ -1120,9 +1120,6 @@ it is sent over SMTP only when <code class="docutils literal notranslate"><span 
 <li><p><strong>group_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Email subject / report title. Defaults to ‘AutoML Report’.</p></li>
 <li><p><strong>send_mail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to actually send the email over SMTP. When False
 only the HTML file is produced. Defaults to True.</p></li>
-<li><p><strong>business_type_feature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the data feature used to break the
-business metric down into groups. Defaults to ‘BUSINESS_TYPE’. When the
-feature is not present in the data the grouped section is skipped.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

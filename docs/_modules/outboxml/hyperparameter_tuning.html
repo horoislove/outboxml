@@ -75,6 +75,7 @@
              
   <h1>Source code for outboxml.hyperparameter_tuning</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Module for hyperparameter tuning using optuna algorithm.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">catboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">CatBoostRegressor</span><span class="p">,</span> <span class="n">CatBoostClassifier</span>
@@ -87,7 +88,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelsParams</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.data_subsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPreprocessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.datasets_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSetsManager</span><span class="p">,</span> <span class="n">ModelDataSubset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatsModelsEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatsModelsEstimator</span><span class="p">,</span> <span class="n">CatboostOverGLMModel</span>
 
 <div class="viewcode-block" id="OptunaModel">
 <a class="viewcode-back" href="../../modules/hyperparameter_tuning.html#outboxml.hyperparameter_tuning.OptunaModel">[docs]</a>
@@ -422,6 +423,8 @@
 
         <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;CatBoostRegressor&#39;</span> <span class="ow">or</span> <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;CatBoostClassifier&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_catboost</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hp_tuning_data</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;CatboostOverGLMModel&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_catboost_over_glm</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hp_tuning_data</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
 
         <span class="k">elif</span>  <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;from_formula&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_glm</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hp_tuning_data</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
@@ -494,6 +497,14 @@
 
         <span class="k">elif</span> <span class="n">wrapper</span> <span class="o">==</span> <span class="n">ModelsParams</span><span class="o">.</span><span class="n">glm</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">glm</span>
+        <span class="k">elif</span> <span class="n">wrapper</span> <span class="o">==</span> <span class="n">ModelsParams</span><span class="o">.</span><span class="n">catboost_over_glm</span><span class="p">:</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Fitting glm&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_glm_model</span> <span class="o">=</span> <span class="n">StatsModelsEstimator</span><span class="p">(</span><span class="n">sm_model</span><span class="o">=</span><span class="n">sf</span><span class="o">.</span><span class="n">glm</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span>
+                                                   <span class="n">datasubset</span><span class="o">=</span><span class="n">hp_tuning_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_glm_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">hp_tuning_data</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">hp_tuning_data</span><span class="o">.</span><span class="n">y_train</span><span class="p">,)</span>
+
+            <span class="n">model</span> <span class="o">=</span> <span class="n">CatboostOverGLMModel</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No model in library for HP Tuning||Use external model&#39;</span><span class="p">)</span>
@@ -505,8 +516,14 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">StatsModelsEstimator</span><span class="p">(</span><span class="n">sm_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span>
                                      <span class="n">datasubset</span><span class="o">=</span><span class="n">hp_tuning_data</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">parameters</span></div>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">parameters</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_catboost_over_glm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">hp_tuning_data</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CatboostOverGLMModel</span><span class="p">(</span><span class="n">data_subset</span><span class="o">=</span><span class="n">hp_tuning_data</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span>
+                                     <span class="n">sm_model</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_glm_model</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">parameters</span></div>
 
 
 </pre></div>
