@@ -102,7 +102,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.base_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">BaseMetrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.core.prepared_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareDataset</span><span class="p">,</span> <span class="n">TrainTestIndexes</span><span class="p">,</span> <span class="n">PrepareDatasetPl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.metrics.processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelMetrics</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultModels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outboxml.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultModels</span><span class="p">,</span> <span class="n">GLMCatboostCombineModel</span><span class="p">,</span> <span class="n">CatboostOverGLMModel</span><span class="p">,</span> <span class="n">XgboostModel</span><span class="p">,</span> <span class="n">CatboostModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">outboxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
 
@@ -161,7 +161,7 @@
 <span class="sd">        :param model_name: Name of the model.</span>
 <span class="sd">        :type model_name: str</span>
 <span class="sd">        :param model: Trained model object.</span>
-<span class="sd">        :type model: Any</span>
+<span class="sd">        :type model: Anygit push origin &lt;имя_ветки&gt; --force</span>
 <span class="sd">        :param data_subset: Object containing train/test data subsets.</span>
 <span class="sd">        :type data_subset: ModelDataSubset</span>
 <span class="sd">        :param model_config: Configuration object for the model.</span>
@@ -245,6 +245,51 @@
         <span class="k">return</span> <span class="n">model_results</span></div>
 
 
+<div class="viewcode-block" id="DSManagerResult.dict_for_export">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.dict_for_export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dict_for_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Конверте DSManagerResult в пикл&quot;&quot;&quot;</span>
+        <span class="c1"># xgboost</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="n">wrapper</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export result to python dict&#39;</span><span class="p">)</span>
+        <span class="n">xgb_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">GLMCatboostCombineModel</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">min_max_scaler</span>
+            <span class="n">glm_model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">catboost_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">CatboostOverGLMModel</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">glm_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sm_model</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">catboost_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model_ctb</span>
+            <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">min_max_scaler</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">XgboostModel</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">glm_model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">catboost_model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">xgb_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model_xgb</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">min_max_scaler</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">glm_model</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">catboost_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">model_results</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;model_config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
+            <span class="s2">&quot;wrapper&quot;</span><span class="p">:</span> <span class="n">wrapper</span><span class="p">,</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">&quot;glm_model&quot;</span><span class="p">:</span> <span class="n">glm_model</span><span class="p">,</span>
+            <span class="s2">&quot;catbosot_model&quot;</span><span class="p">:</span> <span class="n">catboost_model</span><span class="p">,</span>
+            <span class="s2">&quot;xgm_model&quot;</span><span class="p">:</span> <span class="n">xgb_model</span><span class="p">,</span>
+            <span class="s2">&quot;min_max_scaler&quot;</span><span class="p">:</span> <span class="n">min_max_scaler</span><span class="p">,</span>
+            <span class="s2">&quot;features_numerical&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_numerical</span><span class="p">,</span>
+            <span class="s2">&quot;features_categorical&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_subset</span><span class="o">.</span><span class="n">features_categorical</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">model_results</span></div>
+
+
 <div class="viewcode-block" id="DSManagerResult.from_pickle_model_result">
 <a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.from_pickle_model_result">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -275,6 +320,48 @@
         <span class="n">features_categorical</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;features_categorical&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
                    <span class="n">config</span><span class="o">=</span><span class="n">all_model_config</span><span class="p">,</span>
+                   <span class="n">data_subset</span><span class="o">=</span><span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                               <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                               <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                               <span class="p">),</span>
+                   <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                   <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DSManagerResult.from_dict">
+<a class="viewcode-back" href="../../modules/datasets_manager.html#outboxml.datasets_manager.DSManagerResult.from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Конвертер пикла в DSManagerResult. Используется библиотечный вид модели (wrapper)&quot;&quot;&quot;</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">]</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;wrapper&#39;</span><span class="p">]</span>
+        <span class="n">features_numerical</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;features_numerical&#39;</span><span class="p">]</span>
+        <span class="n">features_categorical</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;features_categorical&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">wrapper</span> <span class="o">==</span> <span class="n">ModelsParams</span><span class="o">.</span><span class="n">catboost_over_glm</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">CatboostOverGLMModel</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+                                         <span class="n">sm_model</span><span class="o">=</span><span class="n">GLMCatboostCombineModel</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                                                          <span class="n">wrapper</span><span class="o">=</span><span class="s1">&#39;glm&#39;</span><span class="p">,</span>
+                                                                          <span class="n">min_max_scaler</span><span class="o">=</span><span class="n">model_result</span><span class="p">[</span>
+                                                                              <span class="s1">&#39;min_max_scaler&#39;</span><span class="p">],</span>
+                                                                          <span class="n">model</span><span class="o">=</span><span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;glm_model&#39;</span><span class="p">],</span>
+                                                                          <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                                                          <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                                                          <span class="p">),</span>
+                                         <span class="n">data_subset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">model_ctb</span> <span class="o">=</span> <span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;catboost_model&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">GLMCatboostCombineModel</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                                            <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">,</span>
+                                            <span class="n">min_max_scaler</span><span class="o">=</span><span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;min_max_scaler&#39;</span><span class="p">],</span>
+                                            <span class="n">model</span><span class="o">=</span><span class="n">model_result</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">],</span>
+                                            <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
+                                            <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
+                                            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                   <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">data_subset</span><span class="o">=</span><span class="n">ModelDataSubset</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
                                                <span class="n">features_numerical</span><span class="o">=</span><span class="n">features_numerical</span><span class="p">,</span>
                                                <span class="n">features_categorical</span><span class="o">=</span><span class="n">features_categorical</span><span class="p">,</span>
