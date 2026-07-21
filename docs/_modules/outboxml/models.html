@@ -693,8 +693,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">__sklearn_clone__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># sklearn.clone rebuilds nested estimators from __init__ params and drops</span>
         <span class="c1"># their fitted state, which would wipe the pre-trained GLM (self._model_sm).</span>
-        <span class="c1"># Deep-copy instead so the baseline GLM survives cloning inside cross_val_score.</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># A full deepcopy survives cloning but duplicates the datasets and GLM on</span>
+        <span class="c1"># every CV fold, blowing up memory during hyperparameter tuning. The GLM and</span>
+        <span class="c1"># datasets are read-only during CV, so a shallow copy is enough: share those</span>
+        <span class="c1"># references and just reset the fitted CatBoost so each fold trains its own.</span>
+        <span class="n">cloned</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">cloned</span><span class="o">.</span><span class="n">_model_ctb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">cloned</span>
 
 <div class="viewcode-block" id="CatboostOverGLMModel.fit">
 <a class="viewcode-back" href="../../modules/models.html#outboxml.models.CatboostOverGLMModel.fit">[docs]</a>

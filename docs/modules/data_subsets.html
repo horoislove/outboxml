@@ -123,16 +123,16 @@ pandas or polars data, combine two subsets, and drop columns.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the model the subset belongs to.</p></li>
-<li><p><strong>X_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Training feature matrix.</p></li>
-<li><p><strong>y_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a>) – Training target series.</p></li>
-<li><p><strong>X_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Test feature matrix, if available.</p></li>
-<li><p><strong>y_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test target series, if available.</p></li>
+<li><p><strong>X_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a>) – Training feature matrix.</p></li>
+<li><p><strong>y_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><em>pandas.Series</em></a>) – Training target series.</p></li>
+<li><p><strong>X_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Test feature matrix, if available.</p></li>
+<li><p><strong>y_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test target series, if available.</p></li>
 <li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – List of numerical feature names.</p></li>
 <li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – List of categorical feature names.</p></li>
-<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Full feature matrix (unsplit), if stored.</p></li>
-<li><p><strong>exposure_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Training exposure (weights), if any.</p></li>
-<li><p><strong>exposure_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.3)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test exposure (weights), if any.</p></li>
-<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame of extra columns to carry along.</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Full feature matrix (unsplit), if stored.</p></li>
+<li><p><strong>exposure_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Training exposure (weights), if any.</p></li>
+<li><p><strong>exposure_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><em>pandas.Series</em></a><em>, </em><em>optional</em>) – Test exposure (weights), if any.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame of extra columns to carry along.</p></li>
 <li><p><strong>sample_weight_train</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>sample_weight_test</strong> (<em>Series</em><em> | </em><em>None</em>)</p></li>
 </ul>
@@ -194,15 +194,15 @@ extracting target and exposure columns.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Model name for the subset.</p></li>
-<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Full feature matrix.</p></li>
-<li><p><strong>Y</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – DataFrame containing target and optionally exposure columns.</p></li>
-<li><p><strong>index_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)"><em>pandas.Index</em></a>) – Index labels of training rows.</p></li>
-<li><p><strong>index_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)"><em>pandas.Index</em></a>) – Index labels of test rows.</p></li>
+<li><p><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a>) – Full feature matrix.</p></li>
+<li><p><strong>Y</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a>) – DataFrame containing target and optionally exposure columns.</p></li>
+<li><p><strong>index_train</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.4)"><em>pandas.Index</em></a>) – Index labels of training rows.</p></li>
+<li><p><strong>index_test</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.4)"><em>pandas.Index</em></a>) – Index labels of test rows.</p></li>
 <li><p><strong>features_numerical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Numerical feature names.</p></li>
 <li><p><strong>features_categorical</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Categorical feature names.</p></li>
 <li><p><strong>column_exposure</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Exposure column name in Y, if any.</p></li>
 <li><p><strong>column_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Target column name in Y, if any.</p></li>
-<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame with extra columns to store.</p></li>
+<li><p><strong>extra_columns</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em>, </em><em>optional</em>) – Optional DataFrame with extra columns to store.</p></li>
 <li><p><strong>column_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
@@ -372,7 +372,7 @@ Extracts target/exposure columns if provided and returns a pandas-based subset.<
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prepare_dataset_interface_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>PrepareDataset</em><em> | </em><em>PrepareDatasetPl</em><em>]</em>) – Mapping of model_name to preparation
 interface (pandas or polars).</p></li>
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>) – Raw dataset or an Extractor implementation.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em> or </em><a class="reference internal" href="extractors.html#outboxml.extractors.Extractor" title="outboxml.extractors.Extractor"><em>Extractor</em></a>) – Raw dataset or an Extractor implementation.</p></li>
 <li><p><strong>data_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.DataModelConfig" title="outboxml.core.pydantic_models.DataModelConfig"><em>DataModelConfig</em></a>) – Data configuration with separation settings and extras.</p></li>
 <li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Version string used in filenames. Defaults to ‘1’.</p></li>
 <li><p><strong>prepare_engine</strong> (<em>Literal</em><em>[</em><em>'pandas'</em><em>, </em><em>'polars'</em><em>]</em><em>, </em><em>optional</em>) – Engine to use (‘pandas’ or ‘polars’). Defaults to ‘pandas’.</p></li>
@@ -455,7 +455,7 @@ with the Parquet-backed version to reduce memory.</p></li>
 <dd class="field-odd"><p>Dataset from Parquet in the selected engine format.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)">pandas.DataFrame</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -698,7 +698,7 @@ of model_name to ModelDataSubset loaded from pickle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – Data to save (pandas or polars DataFrame).</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – Data to save (pandas or polars DataFrame).</p></li>
 <li><p><strong>rewrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing file if True. Defaults to True.</p></li>
 </ul>
 </dd>
@@ -728,7 +728,7 @@ of model_name to ModelDataSubset loaded from pickle.</p>
 <dd class="field-even"><p>Loaded dataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)">pandas.DataFrame</a> or polars.DataFrame</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)">pandas.DataFrame</a> or polars.DataFrame</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -902,7 +902,7 @@ of model_name to ModelDataSubset loaded from pickle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><em>pandas.DataFrame</em></a>) – Input dataset (pandas DataFrame).</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><em>pandas.DataFrame</em></a>) – Input dataset (pandas DataFrame).</p></li>
 <li><p><strong>prepare_interface</strong> (<em>PrepareDataset</em>) – Model-specific prepare interface.</p></li>
 <li><p><strong>separation_config</strong> (<a class="reference internal" href="core/pydantic_models.html#outboxml.core.pydantic_models.SeparationModelConfig" title="outboxml.core.pydantic_models.SeparationModelConfig"><em>SeparationModelConfig</em></a>) – Train/test split configuration.</p></li>
 <li><p><strong>extra_columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – Extra column names to keep alongside the subset.</p></li>
@@ -945,7 +945,7 @@ of model_name to ModelDataSubset loaded from pickle.</p>
 <dd class="field-odd"><p>Tuple of (index_train, index_test).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)">pandas.Index</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.3)">pandas.Index</a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.4)">pandas.Index</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.4)">pandas.Index</a>]</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
